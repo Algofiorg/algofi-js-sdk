@@ -1,0 +1,41 @@
+{
+  "name": "@algofi/v0",
+  "version": "0.0.1",
+  "description": "The official JavaScript SDK for Algofi",
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
+  "module": "dist/algofi.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/com/owen-colegrove/algofi-js-sdk.git"
+  },
+  "keywords": [
+    "algofi",
+    "algorand"
+  ],
+  "scripts": {
+    "build": "tsdx build",
+    "start": "tsdx watch",
+    "test": "tsdx test",
+    "prepublishOnly": "tsdx build"
+  },
+  "dependencies": {
+    "algosdk": "github:algorand/js-algorand-sdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.25",
+    "tsdx": "^0.14.1"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": false
+  },
+  "author": "Blockchain Technologies, Inc.",
+  "license": "MIT"
+}
