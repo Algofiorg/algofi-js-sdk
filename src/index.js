@@ -2,13 +2,14 @@ import algosdk from "algosdk"
 import { getParams, waitForConfirmation, getCore } from "./submissionUtils.js"
 export { getParams, waitForConfirmation }
 import {
+  getStorageAddress,
   getPriceInfo,
   getBalanceInfo,
-  getStorageAddress,
   getGlobalMarketInfo,
-  extrapolateMarketData,
   getUserMarketData,
+  extrapolateMarketData,
   extrapolateUserData,
+  calculateUserData,
 } from "./stateUtils.js"
 import {
   orderedAssets,
@@ -48,6 +49,7 @@ export async function optInMarkets(algodClient, address) {
   algosdk.assignGroupID(txns)
   return txns
 }
+
 export async function optInAssets(algodClient, address) {
   const params = await getParams(algodClient)
   let txns = []
@@ -111,15 +113,26 @@ export async function mint(algodClient, address, storageAddress, amount, assetNa
     assetDictionary[assetName]["bankAssetId"],
     "mint"
   )
-  txns.push(
-    algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: address,
-      to: assetDictionary[assetName]["marketAddress"],
-      amount: amount,
-      assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-      suggestedParams: params,
-    })
-  )
+  if (assetName == "ALGO") {
+    txns.push(
+      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        suggestedParams: params,
+      })
+    )
+  } else {
+    txns.push(
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
+        suggestedParams: params,
+      })
+    )
+  }
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -134,15 +147,26 @@ export async function mintToCollateral(algodClient, address, storageAddress, amo
     assetDictionary[assetName]["bankAssetId"],
     "mint_to_collateral"
   )
-  txns.push(
-    algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: address,
-      to: assetDictionary[assetName]["marketAddress"],
-      amount: amount,
-      assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-      suggestedParams: params,
-    })
-  )
+  if (assetName == "ALGO") {
+    txns.push(
+      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        suggestedParams: params,
+      })
+    )
+  } else {
+    txns.push(
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
+        suggestedParams: params,
+      })
+    )
+  }
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -157,15 +181,26 @@ export async function burn(algodClient, address, storageAddress, amount, assetNa
     assetDictionary[assetName]["underlyingAssetId"],
     "burn"
   )
-  txns.push(
-    algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: address,
-      to: assetDictionary[assetName]["marketAddress"],
-      amount: amount,
-      assetIndex: assetDictionary[assetName]["bankAssetId"],
-      suggestedParams: params,
-    })
-  )
+  if (assetName == "ALGO") {
+    txns.push(
+      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        suggestedParams: params,
+      })
+    )
+  } else {
+    txns.push(
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
+        suggestedParams: params,
+      })
+    )
+  }
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -180,15 +215,27 @@ export async function addCollateral(algodClient, address, storageAddress, amount
     assetDictionary[assetName]["underlyingAssetId"],
     "add_collateral"
   )
-  txns.push(
-    algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: address,
-      to: assetDictionary[assetName]["marketAddress"],
-      amount: amount,
-      assetIndex: assetDictionary[assetName]["bankAssetId"],
-      suggestedParams: params,
-    })
-  )
+  if (assetName == "ALGO") {
+    txns.push(
+      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        suggestedParams: params,
+      })
+    )
+  } else {
+    txns.push(
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
+        suggestedParams: params,
+      })
+    )
+  }
+
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -245,15 +292,27 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
     assetDictionary[assetName]["underlyingAssetId"],
     "repay_borrow"
   )
-  txns.push(
-    algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: address,
-      to: assetDictionary[assetName]["marketAddress"],
-      amount: amount,
-      assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-      suggestedParams: params,
-    })
-  )
+  if (assetName == "ALGO") {
+    txns.push(
+      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        suggestedParams: params,
+      })
+    )
+  } else {
+    txns.push(
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
+        suggestedParams: params,
+      })
+    )
+  }
+
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -269,15 +328,26 @@ export async function liquidate(algodClient, address, storageAddress, liquidateS
     assetDictionary[assetName]["underlyingAssetId"],
     "liquidate"
   )
-  txns.push(
-    algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: address,
-      to: assetDictionary[assetName]["marketAddress"],
-      amount: amount,
-      assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-      suggestedParams: params,
-    })
-  )
+  if (assetName == "ALGO") {
+    txns.push(
+      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        suggestedParams: params,
+      })
+    )
+  } else {
+    txns.push(
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: address,
+        to: assetDictionary[assetName]["marketAddress"],
+        amount: amount,
+        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
+        suggestedParams: params,
+      })
+    )
+  }
   txns.push(
     algosdk.makeApplicationNoOpTxnFromObject({
       from: address,
@@ -294,7 +364,7 @@ export async function liquidate(algodClient, address, storageAddress, liquidateS
 }
 
 export async function getUserAndProtocolData(algodClient, address) {
-  let userResults = {}
+  let userResults = { suppliedUSD: 0, maxBorrowUSD: 0, borrowUSD: 0, collateralUSD: 0 }
   let globalResults = {}
 
   let currentUnixTime = Date.now()
@@ -309,6 +379,8 @@ export async function getUserAndProtocolData(algodClient, address) {
     storageAccountInfo = await algodClient.accountInformation(storageAccount).do()
   }
   let balances = await getBalanceInfo(algodClient, address)
+  console.log("balances=", balances)
+
   let prices = await getPriceInfo(algodClient)
   for (const assetName of orderedAssets) {
     userResults[assetName] = {
@@ -317,35 +389,53 @@ export async function getUserAndProtocolData(algodClient, address) {
       initial_index: 0,
       supplied_underlying: 0,
       borrowed_current_extrapolated: 0,
-      balance: 0,
+      balance: balances[assetName],
     }
-    userResults["b" + assetName] = { balance: 0, minted: 0 }
-
+    userResults["b" + assetName] = { balance: balances["b" + assetName], minted: 0 }
+    console.log("userResults before calcs0=, ", userResults[assetName])
     let userData = null
     if (storageAccount) {
       userData = await getUserMarketData(storageAccountInfo, assetName)
     }
-
+    console.log("userData=", userData)
     let globalData = await getGlobalMarketInfo(algodClient, assetDictionary[assetName]["marketAppId"])
 
     if (globalData && Object.keys(globalData).length > 0) {
       globalResults[assetName] = globalData
-      let globalExtrpolatedData = await extrapolateMarketData(globalData)
-      globalResults[assetName] = Object.assign({}, globalResults[assetName], globalExtrpolatedData)
       globalData["price"] = prices[assetName]
-      globalData["underlying_supplied"] = globalData["underlying_cash"] + globalData["underlying_borrowed"]
+      let globalExtrapolatedData = await extrapolateMarketData(globalData)
+      //console.log("globalExtrapolatedData (market)=", globalExtrapolatedData)
+      //console.log("globalResults[assetName] (market)=", globalResults[assetName])
+      delete globalResults[assetName]["borrow_index"]
+      delete globalResults[assetName]["underlying_borrowed"]
+      delete globalResults[assetName]["underlying_cash"]
+      delete globalResults[assetName]["underlying_reserves"]
+      delete globalResults[assetName]["bank_to_underlying_exchange"]
+      globalResults[assetName] = Object.assign({}, globalResults[assetName], globalExtrapolatedData)
+      //console.log("data set... globalResults[assetName] =", globalResults[assetName])
     }
 
     if (userData && Object.keys(userData).length > 0) {
-      userResults[assetName] = userData
-      userResults[assetName]["balance"] = balances[assetName]
-      userResults["b" + assetName]["balance"] = balances["b" + assetName]
+      for (const [key, value] of Object.entries(userData)) {
+        userResults[assetName][key] = value
+      }
+      console.log("userResults=", userResults)
       userResults["b" + assetName]["minted"] = userResults[assetName]["minted"]
       delete userResults[assetName]["minted"]
     }
     if (globalData && userData && Object.keys(userData).length > 0 && Object.keys(globalData).length > 0) {
-      let userExtrapolatedData = await extrapolateUserData(userData, globalData)
+      console.log("calling extrapolateUserData w userData=", userData)
+      console.log("calling extrapolateUserData w userResults[assetName]=", userData)
+      console.log("calling extrapolateUserData w globalResults=", globalResults)
+      let userExtrapolatedData = await extrapolateUserData(userResults[assetName], globalResults[assetName])
+      delete globalResults[assetName]["borrowed"]
+
+      console.log("userExtrapolatedData=", userExtrapolatedData)
+      //console.log("userResults[userData]=", userResults[assetName])
       userResults[assetName] = Object.assign({}, userResults[assetName], userExtrapolatedData)
+      //console.log("before calculateUserData,userResults[assetName]=", userResults[assetName])
+      userResults = await calculateUserData(userResults, globalResults, assetName)
+      //console.log("after calculateUserData,userResults[assetName]=", userResults[assetName])
     }
   }
   return [userResults, globalResults]
