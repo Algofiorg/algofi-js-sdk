@@ -1,52 +1,52 @@
 export const orderedAssets = ["ALGO", "USDC", "YLDY", "BANK", "WETH", "WBTC"]
-export const managerAppId = 37057174
+export const managerAppId = 37073714
 export const assetDictionary = {
   ALGO: {
     underlyingAssetId: 1,
-    oracleAppId: 37057120,
-    marketAppId: 37057197,
-    marketAddress: "ZDQ2DD2P3TXTIX6WQ3D24KQHAGS7O4CBQEIGRNGW5TBL7LEPTMPURLYKKQ",
-    bankAssetId: 37057364
+    oracleAppId: 37073659,
+    marketAppId: 37073753,
+    marketAddress: "Q77ZVOZN7OSYWNQ3QN6KHKRW2MSMZVXMTPZLUPSRP6BRP4YMGBCPKBLNLM",
+    bankAssetId: 37074015
   },
   USDC: {
-    underlyingAssetId: 37057080,
+    underlyingAssetId: 37073601,
     decimals: 6,
-    oracleAppId: 37057121,
-    marketAppId: 37057199,
-    marketAddress: "GCDLWDSCU3N55RZVPVT3LHO6MEORGFTNBPYJX5V4DDP4LKH7HDBFQL7BCI",
-    bankAssetId: 37057365
+    oracleAppId: 37073660,
+    marketAppId: 37073756,
+    marketAddress: "H53ZK4PYSXOIUMZXWA2MEYQTBDUNJ7DFAK77QH72R3ATFBIP32ZHH5JJQU",
+    bankAssetId: 37074016
   },
   YLDY: {
-    underlyingAssetId: 37057081,
+    underlyingAssetId: 37073602,
     decimals: 6,
-    oracleAppId: 37057122,
-    marketAppId: 37057201,
-    marketAddress: "ONASVVJJMOF4GHYET2SJH2VJUASAGQMI7UVFRPSIRHBUYFBEX6LKTHJLC4",
-    bankAssetId: 37057366
+    oracleAppId: 37073661,
+    marketAppId: 37073759,
+    marketAddress: "GRD2UOF35B3MC2GZ7LTMA2RVQVGCWOOJNF7HHWYIGARXNAKTVDSB7EUW5I",
+    bankAssetId: 37074017
   },
   BANK: {
-    underlyingAssetId: 37057082,
+    underlyingAssetId: 37073603,
     decimals: 6,
-    oracleAppId: 37057123,
-    marketAppId: 37057203,
-    marketAddress: "TRHVCQ4CTCKXAVGLV3CWAS6CVQKOHRZLFGJ7DSJ2TH67KJR555IBZPBPFM",
-    bankAssetId: 37057367
+    oracleAppId: 37073662,
+    marketAppId: 37073769,
+    marketAddress: "AYU5ESYEO2IE2POMS64J5YX7XSJZDPQQRUUXFMADWQPELVNPXG3LEL3OIY",
+    bankAssetId: 37074018
   },
   WETH: {
-    underlyingAssetId: 37057083,
+    underlyingAssetId: 37073604,
     decimals: 6,
-    oracleAppId: 37057124,
-    marketAppId: 37057205,
-    marketAddress: "DZIV2FMZXZI72PLP7CKC7GT2HDPWWVTSRCWVWRZUSMKPLRVMPP3CB675H4",
-    bankAssetId: 37057368
+    oracleAppId: 37073663,
+    marketAppId: 37073771,
+    marketAddress: "52GHS3LH6HADAWMPDQM673CTFQYU5DOMKCTJG7X57VXEWILQRANNRS42CQ",
+    bankAssetId: 37074019
   },
   WBTC: {
-    underlyingAssetId: 37057084,
+    underlyingAssetId: 37073605,
     decimals: 6,
-    oracleAppId: 37057125,
-    marketAppId: 37057207,
-    marketAddress: "FVLAIXGB7FESWW2HOGLK526AMRYGDHXR4SHKL2PHQUXBDBYFLELYUAX3VA",
-    bankAssetId: 37057369
+    oracleAppId: 37073665,
+    marketAppId: 37073773,
+    marketAddress: "H4WFAPE2MM6DLM7PEMXXYKNOC2XWJLMCTRLEQSM55Z2JW24Q7CB6YGE6MU",
+    bankAssetId: 37074020
   }
 }
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
