@@ -33,7 +33,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedOracleAppIds,
     appArgs: [enc.encode("update_prices")],
     suggestedParams: params,
-    note: enc.encode("Update Prices"),
+    note: enc.encode("Update Prices")
   })
   params.fee = 1000
   const applTx1 = algosdk.makeApplicationNoOpTxnFromObject({
@@ -43,7 +43,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     appArgs: [enc.encode("update_protocol_data")],
     accounts: [dataAccount],
     suggestedParams: params,
-    note: enc.encode("Update Protocol"),
+    note: enc.encode("Update Protocol")
   })
   const applTx2 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
@@ -51,7 +51,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedMarketAppIds,
     appArgs: [enc.encode("dummy_one")],
     suggestedParams: params,
-    note: enc.encode("First Dummy Txn"),
+    note: enc.encode("First Dummy Txn")
   })
   const applTx3 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
@@ -59,7 +59,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedMarketAppIds,
     appArgs: [enc.encode("dummy_two")],
     suggestedParams: params,
-    note: enc.encode("Second Dummy Txn"),
+    note: enc.encode("Second Dummy Txn")
   })
   const applTx4 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
@@ -67,9 +67,25 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedMarketAppIds,
     appArgs: [enc.encode("dummy_three")],
     suggestedParams: params,
-    note: enc.encode("Third Dummy Txn"),
+    note: enc.encode("Third Dummy Txn")
   })
-  return [applTx0, applTx1, applTx2, applTx3, applTx4]
+  const applTx5 = algosdk.makeApplicationNoOpTxnFromObject({
+    from: senderAccount,
+    appIndex: managerAppId,
+    foreignApps: orderedMarketAppIds,
+    appArgs: [enc.encode("dummy_four")],
+    suggestedParams: params,
+    note: enc.encode("Fourth Dummy Txn")
+  })
+  const applTx6 = algosdk.makeApplicationNoOpTxnFromObject({
+    from: senderAccount,
+    appIndex: managerAppId,
+    foreignApps: orderedMarketAppIds,
+    appArgs: [enc.encode("dummy_five")],
+    suggestedParams: params,
+    note: enc.encode("Fifth Dummy Txn")
+  })
+  return [applTx0, applTx1, applTx2, applTx3, applTx4, applTx5, applTx6]
 }
 
 async function getStackGroup(
@@ -93,7 +109,7 @@ async function getStackGroup(
     appIndex: managerAppId,
     appArgs: managerAppArgs,
     suggestedParams: params,
-    note: enc.encode("Manager: " + functionString),
+    note: enc.encode("Manager: " + functionString)
   })
   const applTx1 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
@@ -103,7 +119,7 @@ async function getStackGroup(
     foreignAssets: [foreignAssetId],
     accounts: [dataAccount],
     suggestedParams: params,
-    note: enc.encode("Market: " + functionString),
+    note: enc.encode("Market: " + functionString)
   })
   return [applTx0, applTx1]
 }
@@ -119,7 +135,7 @@ export async function getCore(
 ) {
   let txns = []
   let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount)
-  leadingTxs.forEach((txn) => {
+  leadingTxs.forEach(txn => {
     txns.push(txn)
   })
   let followingTxs = await getStackGroup(
@@ -131,7 +147,7 @@ export async function getCore(
     functionString,
     extraCallArgs
   )
-  followingTxs.forEach((txn) => {
+  followingTxs.forEach(txn => {
     txns.push(txn)
   })
   return txns
