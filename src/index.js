@@ -9,7 +9,7 @@ import {
   getUserMarketData,
   extrapolateMarketData,
   extrapolateUserData,
-  calculateUserData,
+  calculateUserData
 } from "./stateUtils.js"
 import {
   orderedAssets,
@@ -20,7 +20,7 @@ import {
   SECONDS_PER_YEAR,
   RESERVE_RATIO,
   SCALE_FACTOR,
-  CREATOR_ADDRESS,
+  CREATOR_ADDRESS
 } from "./config.js"
 export {
   orderedAssets,
@@ -31,7 +31,7 @@ export {
   SECONDS_PER_YEAR,
   RESERVE_RATIO,
   SCALE_FACTOR,
-  CREATOR_ADDRESS,
+  CREATOR_ADDRESS
 }
 
 export async function optInMarkets(algodClient, address) {
@@ -42,7 +42,7 @@ export async function optInMarkets(algodClient, address) {
       algosdk.makeApplicationOptInTxnFromObject({
         from: address,
         appIndex: assetDictionary[assetName]["marketAppId"],
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   }
@@ -62,7 +62,7 @@ export async function optInAssets(algodClient, address) {
           to: address,
           amount: 0,
           assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-          from: address,
+          from: address
         })
       )
     }
@@ -73,7 +73,7 @@ export async function optInAssets(algodClient, address) {
         to: address,
         amount: 0,
         assetIndex: assetDictionary[assetName]["bankAssetId"],
-        from: address,
+        from: address
       })
     )
   }
@@ -88,7 +88,7 @@ export async function optInManager(algodClient, address, storageAddress) {
     algosdk.makeApplicationOptInTxnFromObject({
       from: address,
       appIndex: managerAppId,
-      suggestedParams: params,
+      suggestedParams: params
     })
   )
   txns.push(
@@ -96,7 +96,7 @@ export async function optInManager(algodClient, address, storageAddress) {
       from: storageAddress,
       appIndex: managerAppId,
       suggestedParams: params,
-      rekeyTo: algosdk.getApplicationAddress(managerAppId),
+      rekeyTo: algosdk.getApplicationAddress(managerAppId)
     })
   )
   algosdk.assignGroupID(txns)
@@ -119,7 +119,7 @@ export async function mint(algodClient, address, storageAddress, amount, assetNa
         from: address,
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   } else {
@@ -129,7 +129,7 @@ export async function mint(algodClient, address, storageAddress, amount, assetNa
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
         assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   }
@@ -153,7 +153,7 @@ export async function mintToCollateral(algodClient, address, storageAddress, amo
         from: address,
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   } else {
@@ -163,7 +163,7 @@ export async function mintToCollateral(algodClient, address, storageAddress, amo
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
         assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   }
@@ -181,26 +181,15 @@ export async function burn(algodClient, address, storageAddress, amount, assetNa
     assetDictionary[assetName]["underlyingAssetId"],
     "burn"
   )
-  if (assetName == "ALGO") {
-    txns.push(
-      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        suggestedParams: params,
-      })
-    )
-  } else {
-    txns.push(
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params,
-      })
-    )
-  }
+  txns.push(
+    algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+      from: address,
+      to: assetDictionary[assetName]["marketAddress"],
+      amount: amount,
+      assetIndex: assetDictionary[assetName]["bankAssetId"],
+      suggestedParams: params
+    })
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -221,7 +210,7 @@ export async function addCollateral(algodClient, address, storageAddress, amount
         from: address,
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   } else {
@@ -231,7 +220,7 @@ export async function addCollateral(algodClient, address, storageAddress, amount
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
         assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   }
@@ -298,7 +287,7 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
         from: address,
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   } else {
@@ -308,7 +297,7 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
         assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   }
@@ -334,7 +323,7 @@ export async function liquidate(algodClient, address, storageAddress, liquidateS
         from: address,
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   } else {
@@ -344,7 +333,7 @@ export async function liquidate(algodClient, address, storageAddress, liquidateS
         to: assetDictionary[assetName]["marketAddress"],
         amount: amount,
         assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params,
+        suggestedParams: params
       })
     )
   }
@@ -356,7 +345,7 @@ export async function liquidate(algodClient, address, storageAddress, liquidateS
       appArgs: [enc.encode("liquidate")],
       accounts: [liquidateStorageAddress, storageAddress],
       suggestedParams: params,
-      note: enc.encode("Market: " + functionString),
+      note: enc.encode("Market: " + functionString)
     })
   )
   algosdk.assignGroupID(txns)
@@ -389,7 +378,7 @@ export async function getUserAndProtocolData(algodClient, address) {
       initial_index: 0,
       supplied_underlying: 0,
       borrowed_current_extrapolated: 0,
-      balance: balances[assetName],
+      balance: balances[assetName]
     }
     userResults["b" + assetName] = { balance: balances["b" + assetName], minted: 0 }
     console.log("userResults before calcs0=, ", userResults[assetName])
