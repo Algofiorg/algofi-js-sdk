@@ -3,6 +3,7 @@ export const managerAppId = 37073714
 export const assetDictionary = {
   ALGO: {
     underlyingAssetId: 1,
+    decimals: 6,
     oracleAppId: 37073659,
     marketAppId: 37073753,
     marketAddress: "Q77ZVOZN7OSYWNQ3QN6KHKRW2MSMZVXMTPZLUPSRP6BRP4YMGBCPKBLNLM",
@@ -52,7 +53,7 @@ export const assetDictionary = {
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
 export const RESERVE_RATIO = 0.05
 export const SCALE_FACTOR = 1e9
-export const CREATOR_ADDRESS = "GT63XMSGCZLIBY6MKEYSBIQPA5YLJUWVOJYC4R7TV5KM4P4VRWPFPV7LGU"
+export const CREATOR_ADDRESS = "XK3NSDANA6S3Q7GFPITUMTC5GUWT5NX5VQL34MR3X2NYDBSOTEFOVOE3YE"
 
 let orderedOracleAppIds = []
 let orderedMarketAppIds = []
