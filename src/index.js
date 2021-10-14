@@ -46,6 +46,7 @@ export async function optInMarkets(algodClient, address) {
       })
     )
   }
+  console.log("txns=", txns)
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -381,12 +382,10 @@ export async function getUserAndProtocolData(algodClient, address) {
       balance: balances[assetName]
     }
     userResults["b" + assetName] = { balance: balances["b" + assetName], minted: 0 }
-    console.log("userResults before calcs0=, ", userResults[assetName])
     let userData = null
     if (storageAccount) {
       userData = await getUserMarketData(storageAccountInfo, assetName)
     }
-    console.log("userData=", userData)
     let globalData = await getGlobalMarketInfo(algodClient, assetDictionary[assetName]["marketAppId"])
 
     if (globalData && Object.keys(globalData).length > 0) {
