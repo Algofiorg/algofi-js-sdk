@@ -1,54 +1,59 @@
 export const orderedAssets = ["ALGO", "USDC", "YLDY", "BANK", "WETH", "WBTC"]
 export const managerAppId = 37073714
 export const assetDictionary = {
-  ALGO: {
-    underlyingAssetId: 1,
-    decimals: 6,
-    oracleAppId: 37073659,
-    marketAppId: 37073753,
-    marketAddress: "Q77ZVOZN7OSYWNQ3QN6KHKRW2MSMZVXMTPZLUPSRP6BRP4YMGBCPKBLNLM",
-    bankAssetId: 37074015
+  SYMBOL_INFO: {
+    ALGO: {
+      underlyingAssetId: 1,
+      decimals: 6,
+      oracleAppId: 37723291,
+      marketAppId: 37723403,
+      marketAddress: "TFAOXPGAR4Y6BMT2JR6PYD6QJMLUIQCOHK4JATEEPPDRVKIO523P26POVQ",
+      bankAssetId: 37723825
+    },
+    USDC: {
+      underlyingAssetId: 37723192,
+      decimals: 6,
+      oracleAppId: 37723292,
+      marketAppId: 37723406,
+      marketAddress: "6CA6CGMBUDPTXANWEWUP5A2GC75NDDAB7XVEOF4KAY6SYKDB7ZWEACEO24",
+      bankAssetId: 37723826
+    },
+    YLDY: {
+      underlyingAssetId: 37723193,
+      decimals: 6,
+      oracleAppId: 37723293,
+      marketAppId: 37723412,
+      marketAddress: "N2LJ4O4FC5WRMIWEBJP6TEPOZHXDSTTCAHO5Y2FGP6QN7LOXMMO3L7CWXQ",
+      bankAssetId: 37723827
+    },
+    BANK: {
+      underlyingAssetId: 37723194,
+      decimals: 6,
+      oracleAppId: 37723294,
+      marketAppId: 37723422,
+      marketAddress: "DZEDBTCFNOESFXQTTPY4WGU3ZTKVT5QORRN6MDMBFPX7VMIJUGIXB5QI4A",
+      bankAssetId: 37723828
+    },
+    WETH: {
+      underlyingAssetId: 37723195,
+      decimals: 6,
+      oracleAppId: 37723295,
+      marketAppId: 37723432,
+      marketAddress: "L4R3L2P5S65SWI4FLDG47O7CFEMSWXODJNXU3W36HAUXLCR6GPHPVOM5CE",
+      bankAssetId: 37723829
+    },
+    WBTC: {
+      underlyingAssetId: 37723196,
+      decimals: 6,
+      oracleAppId: 37723296,
+      marketAppId: 37723442,
+      marketAddress: "RZLVPK4H2U4P5UUKAWSDOVRNKOVEDHQHW3SR5BSDDVLNCI47OH3DYRLBRU",
+      bankAssetId: 37723830
+    }
   },
-  USDC: {
-    underlyingAssetId: 37073601,
-    decimals: 6,
-    oracleAppId: 37073660,
-    marketAppId: 37073756,
-    marketAddress: "H53ZK4PYSXOIUMZXWA2MEYQTBDUNJ7DFAK77QH72R3ATFBIP32ZHH5JJQU",
-    bankAssetId: 37074016
-  },
-  YLDY: {
-    underlyingAssetId: 37073602,
-    decimals: 6,
-    oracleAppId: 37073661,
-    marketAppId: 37073759,
-    marketAddress: "GRD2UOF35B3MC2GZ7LTMA2RVQVGCWOOJNF7HHWYIGARXNAKTVDSB7EUW5I",
-    bankAssetId: 37074017
-  },
-  BANK: {
-    underlyingAssetId: 37073603,
-    decimals: 6,
-    oracleAppId: 37073662,
-    marketAppId: 37073769,
-    marketAddress: "AYU5ESYEO2IE2POMS64J5YX7XSJZDPQQRUUXFMADWQPELVNPXG3LEL3OIY",
-    bankAssetId: 37074018
-  },
-  WETH: {
-    underlyingAssetId: 37073604,
-    decimals: 6,
-    oracleAppId: 37073663,
-    marketAppId: 37073771,
-    marketAddress: "52GHS3LH6HADAWMPDQM673CTFQYU5DOMKCTJG7X57VXEWILQRANNRS42CQ",
-    bankAssetId: 37074019
-  },
-  WBTC: {
-    underlyingAssetId: 37073605,
-    decimals: 6,
-    oracleAppId: 37073665,
-    marketAppId: 37073773,
-    marketAddress: "H4WFAPE2MM6DLM7PEMXXYKNOC2XWJLMCTRLEQSM55Z2JW24Q7CB6YGE6MU",
-    bankAssetId: 37074020
-  }
+  NETWORK: "testnet",
+  URL: "https://algofi.org",
+  app_id_manager: 37723374
 }
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
 export const RESERVE_RATIO = 0.05

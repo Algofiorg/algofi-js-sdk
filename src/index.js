@@ -46,7 +46,6 @@ export async function optInMarkets(algodClient, address) {
       })
     )
   }
-  console.log("txns=", txns)
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -369,7 +368,6 @@ export async function getUserAndProtocolData(algodClient, address) {
     storageAccountInfo = await algodClient.accountInformation(storageAccount).do()
   }
   let balances = await getBalanceInfo(algodClient, address)
-  console.log("balances=", balances)
 
   let prices = await getPriceInfo(algodClient)
   for (const assetName of orderedAssets) {
@@ -392,38 +390,26 @@ export async function getUserAndProtocolData(algodClient, address) {
       globalResults[assetName] = globalData
       globalData["price"] = prices[assetName]
       let globalExtrapolatedData = await extrapolateMarketData(globalData)
-      //console.log("globalExtrapolatedData (market)=", globalExtrapolatedData)
-      //console.log("globalResults[assetName] (market)=", globalResults[assetName])
       delete globalResults[assetName]["borrow_index"]
       delete globalResults[assetName]["underlying_borrowed"]
       delete globalResults[assetName]["underlying_cash"]
       delete globalResults[assetName]["underlying_reserves"]
       delete globalResults[assetName]["bank_to_underlying_exchange"]
       globalResults[assetName] = Object.assign({}, globalResults[assetName], globalExtrapolatedData)
-      //console.log("data set... globalResults[assetName] =", globalResults[assetName])
     }
 
     if (userData && Object.keys(userData).length > 0) {
       for (const [key, value] of Object.entries(userData)) {
         userResults[assetName][key] = value
       }
-      console.log("userResults=", userResults)
       userResults["b" + assetName]["minted"] = userResults[assetName]["minted"]
       delete userResults[assetName]["minted"]
     }
     if (globalData && userData && Object.keys(userData).length > 0 && Object.keys(globalData).length > 0) {
-      console.log("calling extrapolateUserData w userData=", userData)
-      console.log("calling extrapolateUserData w userResults[assetName]=", userData)
-      console.log("calling extrapolateUserData w globalResults=", globalResults)
       let userExtrapolatedData = await extrapolateUserData(userResults[assetName], globalResults[assetName])
       delete globalResults[assetName]["borrowed"]
-
-      console.log("userExtrapolatedData=", userExtrapolatedData)
-      //console.log("userResults[userData]=", userResults[assetName])
       userResults[assetName] = Object.assign({}, userResults[assetName], userExtrapolatedData)
-      //console.log("before calculateUserData,userResults[assetName]=", userResults[assetName])
       userResults = await calculateUserData(userResults, globalResults, assetName)
-      //console.log("after calculateUserData,userResults[assetName]=", userResults[assetName])
     }
   }
   return [userResults, globalResults]
