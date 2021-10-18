@@ -1,59 +1,59 @@
 export const orderedAssets = ["ALGO", "USDC", "YLDY", "BANK", "WETH", "WBTC"]
-export const managerAppId = 37723374
+export const managerAppId = 38718695
 export const assetDictionary = {
   ALGO: {
     underlyingAssetId: 1,
     decimals: 6,
-    oracleAppId: 37723291,
-    marketAppId: 37723403,
-    marketAddress: "TFAOXPGAR4Y6BMT2JR6PYD6QJMLUIQCOHK4JATEEPPDRVKIO523P26POVQ",
-    bankAssetId: 37723825
+    oracleAppId: 38718644,
+    marketAppId: 38718718,
+    marketAddress: "SKEKBGTEMVBKEFENYT4OX3URRW5HVNGNMM6HMVGMDIVOUK2HQU53EQQTCQ",
+    bankAssetId: 38718858
   },
   USDC: {
-    underlyingAssetId: 37723192,
+    underlyingAssetId: 38718614,
     decimals: 6,
-    oracleAppId: 37723292,
-    marketAppId: 37723406,
-    marketAddress: "6CA6CGMBUDPTXANWEWUP5A2GC75NDDAB7XVEOF4KAY6SYKDB7ZWEACEO24",
-    bankAssetId: 37723826
+    oracleAppId: 38718645,
+    marketAppId: 38718720,
+    marketAddress: "7VRGT4WDRVULSHB6HIGISYL4REDQKHOAQB6463K5NN53GOFDX3NRFXCIG4",
+    bankAssetId: 38718859
   },
   YLDY: {
-    underlyingAssetId: 37723193,
+    underlyingAssetId: 38718615,
     decimals: 6,
-    oracleAppId: 37723293,
-    marketAppId: 37723412,
-    marketAddress: "N2LJ4O4FC5WRMIWEBJP6TEPOZHXDSTTCAHO5Y2FGP6QN7LOXMMO3L7CWXQ",
-    bankAssetId: 37723827
+    oracleAppId: 38718646,
+    marketAppId: 38718723,
+    marketAddress: "OYM6CZGA3QKAJYYB7ELN7JAV4FULOAJ4TJ32W7MX5DSE67KYX52SOON63Q",
+    bankAssetId: 38718860
   },
   BANK: {
-    underlyingAssetId: 37723194,
+    underlyingAssetId: 38718616,
     decimals: 6,
-    oracleAppId: 37723294,
-    marketAppId: 37723422,
-    marketAddress: "DZEDBTCFNOESFXQTTPY4WGU3ZTKVT5QORRN6MDMBFPX7VMIJUGIXB5QI4A",
-    bankAssetId: 37723828
+    oracleAppId: 38718647,
+    marketAppId: 38718725,
+    marketAddress: "XZ7LTG3WYWI26O6GGOK3VNBFGP3N3GO4I2KDAZUCBUBWITMCDLFF45JC64",
+    bankAssetId: 38718861
   },
   WETH: {
-    underlyingAssetId: 37723195,
+    underlyingAssetId: 38718617,
     decimals: 6,
-    oracleAppId: 37723295,
-    marketAppId: 37723432,
-    marketAddress: "L4R3L2P5S65SWI4FLDG47O7CFEMSWXODJNXU3W36HAUXLCR6GPHPVOM5CE",
-    bankAssetId: 37723829
+    oracleAppId: 38718648,
+    marketAppId: 38718727,
+    marketAddress: "6SUPX4KNBQHUZXAAPPRC55WTBZC5EZJUZHFTRYLCVF6H3337EEDJNT7T5Y",
+    bankAssetId: 38718862
   },
   WBTC: {
-    underlyingAssetId: 37723196,
+    underlyingAssetId: 38718618,
     decimals: 6,
-    oracleAppId: 37723296,
-    marketAppId: 37723442,
-    marketAddress: "RZLVPK4H2U4P5UUKAWSDOVRNKOVEDHQHW3SR5BSDDVLNCI47OH3DYRLBRU",
-    bankAssetId: 37723830
+    oracleAppId: 38718649,
+    marketAppId: 38718729,
+    marketAddress: "E5IW6CBYCP3AUN6XHY3KDVNYYUEYOU6QFZYHPSOIYRVPC4WCU5E347MJPI",
+    bankAssetId: 38718863
   }
 }
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
 export const RESERVE_RATIO = 0.05
 export const SCALE_FACTOR = 1e9
-export const CREATOR_ADDRESS = "XK3NSDANA6S3Q7GFPITUMTC5GUWT5NX5VQL34MR3X2NYDBSOTEFOVOE3YE"
+export const CREATOR_ADDRESS = "36R4DNOR4DRD3QHK5SD7I2HV6TLTXTHYDZ54NRSEI6AF67APGQBBUGF3FY"
 
 let orderedOracleAppIds = []
 let orderedMarketAppIds = []
