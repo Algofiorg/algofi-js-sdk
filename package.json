@@ -1,6 +1,6 @@
 {
   "name": "@algofi/v0",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "The official JavaScript SDK for Algofi",
   "main": "dist/index.js",
   "files": [
