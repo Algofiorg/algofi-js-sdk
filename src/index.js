@@ -390,11 +390,11 @@ export async function getUserAndProtocolData(algodClient, address) {
       globalResults[assetName] = globalData
       globalData["price"] = prices[assetName]
       let globalExtrapolatedData = await extrapolateMarketData(globalData)
-      delete globalResults[assetName]["borrow_index"]
-      delete globalResults[assetName]["underlying_borrowed"]
-      delete globalResults[assetName]["underlying_cash"]
-      delete globalResults[assetName]["underlying_reserves"]
-      delete globalResults[assetName]["bank_to_underlying_exchange"]
+      //delete globalResults[assetName]["borrow_index"]
+      //delete globalResults[assetName]["underlying_borrowed"]
+      //delete globalResults[assetName]["underlying_cash"]
+      //delete globalResults[assetName]["underlying_reserves"]
+      //delete globalResults[assetName]["bank_to_underlying_exchange"]
       globalResults[assetName] = Object.assign({}, globalResults[assetName], globalExtrapolatedData)
     }
 
@@ -407,7 +407,7 @@ export async function getUserAndProtocolData(algodClient, address) {
     }
     if (globalData && userData && Object.keys(userData).length > 0 && Object.keys(globalData).length > 0) {
       let userExtrapolatedData = await extrapolateUserData(userResults[assetName], globalResults[assetName])
-      delete globalResults[assetName]["borrowed"]
+      //delete globalResults[assetName]["borrowed"]
       userResults[assetName] = Object.assign({}, userResults[assetName], userExtrapolatedData)
       userResults = await calculateUserData(userResults, globalResults, assetName)
     }

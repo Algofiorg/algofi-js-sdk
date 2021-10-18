@@ -106,46 +106,42 @@ export async function extrapolateMarketData(globalData) {
       ? (globalData["total_borrow_interest_rate"] * globalData["underlying_borrowed"]) /
         (globalData["underlying_borrowed"] + globalData["underlying_cash"])
       : 0
-  extrapolatedData["total_borrow_interest_rate_paid"] =
-    globalData["underlying_borrowed"] + globalData["underlying_cash"] > 0
-      ? (globalData["total_borrow_interest_rate"] * globalData["underlying_borrowed"]) /
-        (globalData["underlying_borrowed"] + globalData["underlying_cash"])
-      : 0
-  extrapolatedData["borrow_index"] = Math.floor(
+  extrapolatedData["borrow_index_extrapolated"] = Math.floor(
     globalData["borrow_index"] *
       (1 +
         ((globalData["total_borrow_interest_rate"] / 1e9) * (currentUnixTime - globalData["latest_time"])) /
           SECONDS_PER_YEAR)
   )
-  extrapolatedData["underlying_borrowed"] =
-    extrapolatedData["borrow_index"] > 0
-      ? (globalData["underlying_borrowed"] * extrapolatedData["borrow_index"]) / globalData["borrow_index"]
+  extrapolatedData["underlying_borrowed_extrapolated"] =
+    extrapolatedData["borrow_index_extrapolated"] > 0
+      ? (globalData["underlying_borrowed"] * extrapolatedData["borrow_index_extrapolated"]) / globalData["borrow_index"]
       : globalData["underlying_borrowed"]
-  extrapolatedData["underlying_cash"] =
-    extrapolatedData["underlying_borrowed"] > 0
+  extrapolatedData["underlying_cash_extrapolated"] =
+    extrapolatedData["underlying_borrowed_extrapolated"] > 0
       ? (globalData["underlying_cash"] * globalData["bank_to_underlying_exchange"]) / SCALE_FACTOR
       : globalData["underlying_cash"]
-  extrapolatedData["underlying_reserves"] =
-    extrapolatedData["underlying_borrowed"] > 0
-      ? (extrapolatedData["underlying_borrowed"] - globalData["underlying_borrowed"]) * RESERVE_RATIO +
+  extrapolatedData["underlying_reserves_extrapolated"] =
+    extrapolatedData["underlying_borrowed_extrapolated"] > 0
+      ? (extrapolatedData["underlying_borrowed_extrapolated"] - globalData["underlying_borrowed"]) * RESERVE_RATIO +
         globalData["underlying_reserves"]
       : globalData["underlying_reserves"]
-  extrapolatedData["bank_to_underlying_exchange"] =
+  extrapolatedData["bank_to_underlying_exchange_extrapolated"] =
     extrapolatedData["underlying_borrowed"] > 0
-      ? ((extrapolatedData["underlying_borrowed"] -
-          extrapolatedData["underlying_reserves"] +
-          extrapolatedData["underlying_cash"]) /
+      ? ((extrapolatedData["underlying_borrowed_extrapolated"] -
+          extrapolatedData["underlying_reserves_extrapolated"] +
+          extrapolatedData["underlying_cash_extrapolated"]) /
           globalData["bank_circulation"]) *
         SCALE_FACTOR
       : globalData["bank_to_underlying_exchange"]
-  extrapolatedData["underlying_supplied"] =
-    extrapolatedData["underlying_cash"] + extrapolatedData["underlying_borrowed"]
+  extrapolatedData["underlying_supplied_extrapolated"] =
+    extrapolatedData["underlying_cash_extrapolated"] + extrapolatedData["underlying_borrowed_extrapolated"]
+  extrapolatedData["underlying_supplied"] = globalData["underlying_cash"] + globalData["underlying_borrowed"]
   return extrapolatedData
 }
 
 export async function extrapolateUserData(userData, globalData) {
   let extrapolatedData = {}
-  extrapolatedData["borrowed"] =
+  extrapolatedData["borrowed_extrapolated"] =
     userData["borrowed"] && globalData["borrow_index"]
       ? (userData["borrowed"] * globalData["borrow_index"]) / userData["initial_index"]
       : 0
