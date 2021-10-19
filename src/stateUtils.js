@@ -72,7 +72,7 @@ export async function getUserMarketData(accountInfo, assetName) {
       let decodedKey = Base64Encoder.decode(y.key)
       if (decodedKey === "user_borrowed_amount") {
         results["borrowed"] = y.value.uint
-      } else if (decodedKey === "user_active_collateral_amount") {
+      } else if (decodedKey === "user_active_collateral") {
         results["collateral"] = y.value.uint
       } else if (decodedKey === "user_bank_minted") {
         results["minted"] = Number(y.value.uint)
