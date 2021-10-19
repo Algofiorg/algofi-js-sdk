@@ -171,7 +171,7 @@ export async function calculateUserData(userData, globalData, assetName) {
     (1 / 10 ** assetDictionary[assetName]["decimals"])
   userData["maxBorrowUSD"] +=
     userData[assetName]["collateral_underlying"] *
-    (globalData[assetName]["coll_factor"] / 1000) *
+    (globalData[assetName]["collateral_factor"] / 1000) *
     (globalData[assetName]["price"] / SCALE_FACTOR) *
     (1 / 10 ** assetDictionary[assetName]["decimals"])
   return userData
