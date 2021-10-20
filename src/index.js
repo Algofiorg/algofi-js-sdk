@@ -279,7 +279,8 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
     storageAddress,
     assetDictionary[assetName]["marketAppId"],
     assetDictionary[assetName]["underlyingAssetId"],
-    "repay_borrow"
+    "repay_borrow",
+    extraFees = 1000
   )
   if (assetName == "ALGO") {
     txns.push(

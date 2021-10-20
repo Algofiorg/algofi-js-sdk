@@ -23,9 +23,9 @@ export async function waitForConfirmation(algodClient, txId) {
   }
 }
 
-async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
+async function getLeadingTxs(algodClient, senderAccount, dataAccount, extraFees = 0) {
   let params = await getParams(algodClient)
-  params.fee = 2000
+  params.fee = 2000 + extraFees
   const enc = new TextEncoder()
   const applTx0 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
@@ -131,10 +131,11 @@ export async function getCore(
   marketAppId,
   foreignAssetId,
   functionString,
-  extraCallArgs = null
+  extraCallArgs = null,
+  extraFees = 0
 ) {
   let txns = []
-  let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount)
+  let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount, extraFees)
   leadingTxs.forEach(txn => {
     txns.push(txn)
   })
