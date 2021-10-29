@@ -1,5 +1,5 @@
 import algosdk from "algosdk"
-import { getParams, waitForConfirmation, getCore } from "./submissionUtils.js"
+import { getParams, waitForConfirmation, buildUserTransaction } from "./submissionUtils.js"
 export { getParams, waitForConfirmation }
 import {
   getStorageAddress,
@@ -12,6 +12,7 @@ import {
   calculateUserData
 } from "./stateUtils.js"
 import {
+  getAccountOptInData,
   orderedAssets,
   managerAppId,
   assetDictionary,
@@ -34,14 +35,24 @@ export {
   CREATOR_ADDRESS
 }
 
+const NO_EXTRA_ARGS = null
+
+/**
+ * Function to create transactions to opt address into our market contracts
+ *
+ * @param   {Algodv2}         algoClient
+ * @param   {string}          address
+ * 
+ * @return  {Transaction[]}   transaction group to opt into algofi markets contracts
+ */
 export async function optInMarkets(algodClient, address) {
   const params = await getParams(algodClient)
   let txns = []
-  for (const assetName of orderedAssets) {
+  for (const marketAppId in orderedMarketAppIds) {
     txns.push(
       algosdk.makeApplicationOptInTxnFromObject({
         from: address,
-        appIndex: assetDictionary[assetName]["marketAppId"],
+        appIndex: marketAppId,
         suggestedParams: params
       })
     )
@@ -50,10 +61,27 @@ export async function optInMarkets(algodClient, address) {
   return txns
 }
 
+/**
+ * Function to get opt in transactions for algofi supported assets
+ *
+ * @param   {Algodv2}         algoClient
+ * @param   {string}          address
+ * 
+ * @return  {Transaction[]}   get opt in transactions for non opted in algofi assets
+ */
 export async function optInAssets(algodClient, address) {
+  // get currently opted in assets
+  let accountInfo = await algodClient.accountInformation(address).do()
+  let accountOptInData = getAccountOptInData(accountInfo)
+  console.log(accountOptInData); // TODO remove
+
   const params = await getParams(algodClient)
   let txns = []
   for (const assetName of orderedAssets) {
+    // get underlying and bank asset ids
+    let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+    let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+    // opt into underlying asset (skip algo)
     if (assetName != "ALGO") {
       txns.push(
         algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -61,18 +89,19 @@ export async function optInAssets(algodClient, address) {
           suggestedParams: params,
           to: address,
           amount: 0,
-          assetIndex: assetDictionary[assetName]["underlyingAssetId"],
+          assetIndex: underlyingAssetId,
           from: address
         })
       )
     }
+    // opt into bank asset
     txns.push(
       algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
         // Escrow txn
         suggestedParams: params,
         to: address,
         amount: 0,
-        assetIndex: assetDictionary[assetName]["bankAssetId"],
+        assetIndex: bankAssetId,
         from: address
       })
     )
@@ -81,6 +110,15 @@ export async function optInAssets(algodClient, address) {
   return txns
 }
 
+/**
+ * Function to get opt in transactions for algofi supported assets
+ *
+ * @param   {Algodv2}         algoClient
+ * @param   {string}          address
+ * @param   {string}          storageAddress
+ * 
+ * @return  {Transaction[]}   create transactions to opt in to manager and rekey storage address to manager contract
+ */
 export async function optInManager(algodClient, address, storageAddress) {
   const params = await getParams(algodClient)
   let txns = []
@@ -103,255 +141,190 @@ export async function optInManager(algodClient, address, storageAddress) {
   return txns
 }
 
+/**
+ * Function to create transaction array for algofi mint operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ * 
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform mint operation
+ */
 export async function mint(algodClient, address, storageAddress, amount, assetName) {
-  const params = await getParams(algodClient)
-  let txns = await getCore(
-    algodClient,
-    address,
-    storageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["bankAssetId"],
-    "mint"
-  )
-  if (assetName == "ALGO") {
-    txns.push(
-      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        suggestedParams: params
-      })
-    )
-  } else {
-    txns.push(
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params
-      })
-    )
-  }
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  
+  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "mint", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
   algosdk.assignGroupID(txns)
   return txns
 }
 
+/**
+ * Function to create transaction array for algofi mint_to_collateral operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ * 
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform mint_to_collateral operation
+ */
 export async function mintToCollateral(algodClient, address, storageAddress, amount, assetName) {
-  const params = await getParams(algodClient)
-  let txns = await getCore(
-    algodClient,
-    address,
-    storageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["bankAssetId"],
-    "mint_to_collateral"
-  )
-  if (assetName == "ALGO") {
-    txns.push(
-      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        suggestedParams: params
-      })
-    )
-  } else {
-    txns.push(
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params
-      })
-    )
-  }
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  
+  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "mint_to_collateral", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
   algosdk.assignGroupID(txns)
   return txns
 }
 
+/**
+ * Function to create transaction array for algofi burn operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ * 
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform burn operation
+ */
 export async function burn(algodClient, address, storageAddress, amount, assetName) {
-  const params = await getParams(algodClient)
-  let txns = await getCore(
-    algodClient,
-    address,
-    storageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["underlyingAssetId"],
-    "burn"
-  )
-  txns.push(
-    algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: address,
-      to: assetDictionary[assetName]["marketAddress"],
-      amount: amount,
-      assetIndex: assetDictionary[assetName]["bankAssetId"],
-      suggestedParams: params
-    })
-  )
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  
+  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "burn", NO_EXTRA_ARGS, marketAddress, bankAssetId, amount)
   algosdk.assignGroupID(txns)
   return txns
 }
 
+/**
+ * Function to create transaction array for algofi add_collateral operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ * 
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform add_collateral operation
+ */
 export async function addCollateral(algodClient, address, storageAddress, amount, assetName) {
-  const params = await getParams(algodClient)
-  let txns = await getCore(
-    algodClient,
-    address,
-    storageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["underlyingAssetId"],
-    "add_collateral"
-  )
-  if (assetName == "ALGO") {
-    txns.push(
-      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        suggestedParams: params
-      })
-    )
-  } else {
-    txns.push(
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params
-      })
-    )
-  }
-
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  
+  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "add_collateral", NO_EXTRA_ARGS, marketAddress, bankAssetId, amount)
   algosdk.assignGroupID(txns)
   return txns
 }
 
+/**
+ * Function to create transaction array for algofi remove_collateral operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ * 
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform remove_collateral operation
+ */
 export async function removeCollateral(algodClient, address, storageAddress, amount, assetName) {
-  let txns = await getCore(
-    algodClient,
-    address,
-    storageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["bankAssetId"],
-    "remove_collateral",
-    algosdk.encodeUint64(amount)
-  )
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  
+  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "remove_collateral", algosdk.encodeUint64(amount))
   algosdk.assignGroupID(txns)
   return txns
 }
 
+/**
+ * Function to create transaction array for algofi remove_collateral_underlying operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ * 
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform remove_collateral_underlying operation
+ */
 export async function removeCollateralUnderlying(algodClient, address, storageAddress, amount, assetName) {
-  let txns = await getCore(
-    algodClient,
-    address,
-    storageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["underlyingAssetId"],
-    "remove_collateral_underlying",
-    algosdk.encodeUint64(amount)
-  )
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  
+  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "remove_collateral_underlying", algosdk.encodeUint64(amount))
   algosdk.assignGroupID(txns)
   return txns
 }
 
+/**
+ * Function to create transaction array for algofi borrow operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ * 
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform borrow operation
+ */
 export async function borrow(algodClient, address, storageAddress, amount, assetName) {
-  let txns = await getCore(
-    algodClient,
-    address,
-    storageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["underlyingAssetId"],
-    "borrow",
-    algosdk.encodeUint64(amount)
-  )
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  
+  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "borrow", algosdk.encodeUint64(amount))
   algosdk.assignGroupID(txns)
   return txns
 }
 
+/**
+ * Function to create transaction array for algofi repay_borrow operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ * 
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform repay_borrow operation
+ */
 export async function repayBorrow(algodClient, address, storageAddress, amount, assetName) {
-  const params = await getParams(algodClient)
-  let txns = await getCore(
-    algodClient,
-    address,
-    storageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["underlyingAssetId"],
-    "repay_borrow"
-  )
-  if (assetName == "ALGO") {
-    txns.push(
-      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        suggestedParams: params
-      })
-    )
-  } else {
-    txns.push(
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params
-      })
-    )
-  }
-
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  
+  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "repay_borrow", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
   algosdk.assignGroupID(txns)
   return txns
 }
 
-//// HAS NOT BEEN TESTED...
-export async function liquidate(algodClient, address, storageAddress, liquidateStorageAddress, amount, assetName) {
-  const params = await getParams(algodClient)
-  let txns = await getCore(
-    algodClient,
-    address,
-    liquidateStorageAddress,
-    assetDictionary[assetName]["marketAppId"],
-    assetDictionary[assetName]["underlyingAssetId"],
-    "liquidate"
-  )
-  if (assetName == "ALGO") {
-    txns.push(
-      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        suggestedParams: params
-      })
-    )
-  } else {
-    txns.push(
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        from: address,
-        to: assetDictionary[assetName]["marketAddress"],
-        amount: amount,
-        assetIndex: assetDictionary[assetName]["underlyingAssetId"],
-        suggestedParams: params
-      })
-    )
-  }
-  txns.push(
-    algosdk.makeApplicationNoOpTxnFromObject({
-      from: address,
-      appIndex: marketAppId,
-      foreignApps: [managerAppId],
-      appArgs: [enc.encode("liquidate")],
-      accounts: [liquidateStorageAddress, storageAddress],
-      suggestedParams: params,
-      note: enc.encode("Market: " + functionString)
-    })
-  )
-  algosdk.assignGroupID(txns)
-  return txns
-}
-
+/**
+ * Funtion to get user data from the protocol as well as totals
+ *
+ * @param   {Algodv2}   algodClient
+ * @param   {string}    address
+ * 
+ * @return  {[dict<string,n>, dict<string,n>]} dictionaries containing the aggregated user protocol data
+ */
 export async function getUserAndProtocolData(algodClient, address) {
   let userResults = { suppliedUSD: 0, maxBorrowUSD: 0, borrowUSD: 0, collateralUSD: 0 }
   let globalResults = {}
