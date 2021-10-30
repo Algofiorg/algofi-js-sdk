@@ -4,7 +4,7 @@ import {
   managerAppId,
   assetDictionary,
   SECONDS_PER_YEAR,
-  RESERVE_RATIO,
+  PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR
 } from "./config.js"
 import { Base64Encoder } from "./encoder.js"
@@ -101,13 +101,34 @@ export async function getBalanceInfo(algodClient, address) {
  *
  * @return  {dict<string,int>}  results       - dictionary of global state for this market
  */
-export async function getGlobalManagerInfo(algodClient, marketId) {
+export async function getGlobalManagerInfo(algodClient) {
   let response = await algodClient.getApplicationByID(managerAppId).do()
   let results = {}
   response.params["global-state"].forEach(x => {
     let decodedKey = Base64Encoder.decode(x.key)
     results[decodedKey] = x.value.uint
   })
+  return results
+}
+
+/**
+ * Function to get manager global state
+ *
+ * @param   {Algodv2}           algodClient
+ *
+ * @return  {dict<string,int>}  results       - dictionary of global state for this market
+ */
+export async function getUserManagerData(accountInfo) {
+  let results = {}
+  let managerData = accountInfo["apps-local-state"].filter(x => {
+    return x.id === managerAppId && x["key-value"]
+  })[0]
+  if (managerData) {
+    managerData["key-value"].forEach(x => {
+      let decodedKey = Base64Encoder.decode(x.key)
+      results[decodedKey] = x.value.uint
+    })
+  }
   return results
 }
 
@@ -130,9 +151,7 @@ export async function getUserMarketData(accountInfo, assetName) {
       if (decodedKey === "user_borrowed_amount") {
         results["borrowed"] = y.value.uint
       } else if (decodedKey === "user_active_collateral") {
-        results["collateral"] = y.value.uint
-      } else if (decodedKey === "user_bank_minted") {
-        results["minted"] = Number(y.value.uint)
+        results["active_collateral"] = Number(y.value.uint)
       } else if (decodedKey === "user_borrow_index_initial") {
         results["initial_index"] = Number(y.value.uint)
       }
@@ -159,7 +178,6 @@ export async function getGlobalMarketInfo(algodClient, marketId) {
   return results
 }
 
-// TODO underlying reserves needs to be implimated here
 /**
  * Function to get extrapolate additional data from market global state
  *
@@ -167,8 +185,10 @@ export async function getGlobalMarketInfo(algodClient, marketId) {
  * 
  * @return  {dict<string,int}   extrapolatedData  - dictionary of market extrapolated values
  */
-export async function extrapolateMarketData(globalData) {
+export async function extrapolateMarketData(globalData, prices, assetName) {
   let extrapolatedData = {}
+  
+  // get current time
   let currentUnixTime = Date.now()
   currentUnixTime = Math.floor(currentUnixTime / 1000)
 
@@ -176,15 +196,12 @@ export async function extrapolateMarketData(globalData) {
   if (!globalData["total_borrow_interest_rate"]) {
     globalData["total_borrow_interest_rate"] = 0
   }
-  
-  // total_lend_interest_rate_earned
-  globalData["total_lend_interest_rate_earned"] =
-    globalData["underlying_borrowed"] > 0
-      ? (globalData["total_borrow_interest_rate"] * globalData["underlying_borrowed"]) /
-        (globalData["underlying_borrowed"] + globalData["underlying_cash"])
-      : 0
 
-  // borrow_index_extrapolated
+  // get reserve mults
+  let reserveMultiplier = globalData["reserve_factor"] / PARAMETER_SCALE_FACTOR
+  let reserveFreeMultiplier = (PARAMETER_SCALE_FACTOR - globalData["reserve_factor"]) / PARAMETER_SCALE_FACTOR
+  
+  // borrow_index_extrapolated = last borrow index + current calculated next borrow index
   extrapolatedData["borrow_index_extrapolated"] = Math.floor(
     globalData["borrow_index"] *
       (1 +
@@ -198,126 +215,114 @@ export async function extrapolateMarketData(globalData) {
       ? (globalData["underlying_borrowed"] * extrapolatedData["borrow_index_extrapolated"]) / globalData["borrow_index"]
       : globalData["underlying_borrowed"]
 
-  // underlying_cash_extrapolated
-  extrapolatedData["underlying_cash_extrapolated"] =
-    extrapolatedData["underlying_borrowed_extrapolated"] > 0
-      ? (globalData["underlying_cash"] * globalData["bank_to_underlying_exchange"]) / SCALE_FACTOR
-      : globalData["underlying_cash"]
-  
   // underlying_reserves_extrapolated
   extrapolatedData["underlying_reserves_extrapolated"] =
     extrapolatedData["underlying_borrowed_extrapolated"] > 0
-      ? (extrapolatedData["underlying_borrowed_extrapolated"] - globalData["underlying_borrowed"]) * RESERVE_RATIO +
+      ? (extrapolatedData["underlying_borrowed_extrapolated"] - globalData["underlying_borrowed"]) * reserveMultiplier +
         globalData["underlying_reserves"]
       : globalData["underlying_reserves"]
 
+  // underlying_supplied
+  extrapolatedData["underlying_supplied"] = globalData["underlying_cash"] + globalData["underlying_borrowed"] - globalData["underlying_reserves"]
+  extrapolatedData["underlying_supplied_extrapolated"] = globalData["underlying_cash"] + extrapolatedData["underlying_borrowed_extrapolated"] - extrapolatedData["underlying_reserves_extrapolated"]
+
+  // total_lend_interest_rate_earned = (total interest less reserve factor) / (total supply)
+  globalData["total_lend_interest_rate_earned"] =
+    globalData["underlying_borrowed"] > 0
+      ? (globalData["total_borrow_interest_rate"] * globalData["underlying_borrowed"] * reserveFreeMultiplier) /
+        (extrapolatedData["underlying_supplied_extrapolated"])
+      : 0
+
   // bank_to_underlying_exchange_extrapolated
   extrapolatedData["bank_to_underlying_exchange_extrapolated"] =
-    extrapolatedData["underlying_borrowed"] > 0
-      ? ((extrapolatedData["underlying_borrowed_extrapolated"] -
-          extrapolatedData["underlying_reserves_extrapolated"] +
-          extrapolatedData["underlying_cash_extrapolated"]) /
-          globalData["bank_circulation"]) *
-        SCALE_FACTOR
+    globalData["bank_circulation"] > 0
+      ? extrapolatedData["underlying_supplied_extrapolated"]* SCALE_FACTOR / globalData["bank_circulation"]
       : globalData["bank_to_underlying_exchange"]
 
-  // underlying_supplied_extrapolated
-  extrapolatedData["underlying_supplied_extrapolated"] =
-    extrapolatedData["underlying_cash_extrapolated"] + extrapolatedData["underlying_borrowed_extrapolated"]
+  // calculate USD values
+  extrapolatedData["underlying_borrowed_extrapolatedUSD"] =
+    extrapolatedData["underlying_borrowed_extrapolated"] *
+    (prices[assetName] / SCALE_FACTOR) *
+    (1 / 10 ** assetDictionary[assetName]["decimals"])
+    
+  extrapolatedData["underlying_supplied_extrapolatedUSD"] =
+    extrapolatedData["underlying_supplied_extrapolated"] *
+    (prices[assetName] / SCALE_FACTOR) *
+    (1 / 10 ** assetDictionary[assetName]["decimals"])
 
-  // underlying_supplied
-  extrapolatedData["underlying_supplied"] = globalData["underlying_cash"] + globalData["underlying_borrowed"]
-
-  // LIST OF EXTRAPOLATED VAUES
-  // borrow_index_extrapolated
-  // underlying_borrowed_extrapolated
-  // underlying_cash_extrapolated
-  // underlying_reserves_extrapolated
-  // bank_to_underlying_exchange_extrapolated
-  // underlying_supplied_extrapolated
-  // underlying_supplied
   return extrapolatedData
 }
 
 /**
  * Function to extrapolate data from user data
  *
- * @param   {dict<string,int>}  userData
- * @param   {dict<string,int>}  globalData
+ * @param   {dict<string,int>}  userResults
+ * @param   {dict<string,int>}  userResults
+ * @param   {string}            assetName
  * 
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function extrapolateUserData(userData, globalData) {
+export async function extrapolateUserData(userResults, globalResults, assetName) {
   let extrapolatedData = {}
   
   // borrwed_extrapolated
   extrapolatedData["borrowed_extrapolated"] =
-    userData["borrowed"] && globalData["borrow_index"]
-      ? (userData["borrowed"] * globalData["borrow_index"]) / userData["initial_index"]
-      : 0
-
-  // supplied_underlying
-  extrapolatedData["supplied_underlying"] =
-    userData["minted"] && globalData["bank_to_underlying_exchange"]
-      ? (userData["minted"] * globalData["bank_to_underlying_exchange"]) / SCALE_FACTOR
+    userResults[assetName]["borrowed"] && globalResults[assetName]["borrow_index_extrapolated"]
+      ? (userResults[assetName]["borrowed"] * globalResults[assetName]["borrow_index_extrapolated"]) / userResults[assetName]["initial_index"]
       : 0
 
   // collateral_underlying
-  extrapolatedData["collateral_underlying"] =
-    userData["collateral"] && globalData["bank_to_underlying_exchange"]
-      ? (userData["collateral"] * globalData["bank_to_underlying_exchange"]) / SCALE_FACTOR
+  extrapolatedData["collateral_underlying_extrapolated"] =
+    userResults[assetName]["active_collateral"] && globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]
+      ? (userResults[assetName]["active_collateral"] * globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]) / SCALE_FACTOR
       : 0
 
-  // EXTRAPOLATED DATA
-  // borrowed_extrapolated
-  // supplied_underlying
-  // collateral_underlying
+  // borrowUSD
+  extrapolatedData["borrowUSD"] =
+    extrapolatedData["borrowed_extrapolated"] *
+    (globalResults[assetName]["price"] / SCALE_FACTOR) *
+    (1 / 10 ** assetDictionary[assetName]["decimals"])
+  
+  // collateralUSD
+  extrapolatedData["collateralUSD"] =
+    extrapolatedData["collateral_underlying_extrapolated"] *
+    (globalResults[assetName]["price"] / SCALE_FACTOR) *
+    (1 / 10 ** assetDictionary[assetName]["decimals"])
+
+  // maxBorrowUSD
+  extrapolatedData["maxBorrowUSD"] =
+    extrapolatedData["collateralUSD"] *
+    (globalResults[assetName]["collateral_factor"] / 1000)
+
   return extrapolatedData
 }
 
 /**
- * Function to calculate user USD data for a given asset
+ * Function to extrapolate data from user data
  *
- * @param   {dic<string,int>}   userData
- * @param   {dict<string,int>}  globalData
+ * @param   {dict<string,int>}  userResults
  * @param   {string}            assetName
  * 
- * @return  {dict<string,int>}  userData    - userData with added USD values
+ * @return  {dict<string,int>}  extroplatedData
  */
-export async function calculateUserData(userData, globalData, assetName) {
-  // borrowUSD
-  userData["borrowUSD"] +=
-    userData[assetName]["borrowed"] *
-    (globalData[assetName]["price"] / SCALE_FACTOR) *
-    (1 / 10 ** assetDictionary[assetName]["decimals"])
-
-  // suppliedUSD
-  userData["suppliedUSD"] +=
-    userData[assetName]["supplied_underlying"] *
-    (globalData[assetName]["price"] / SCALE_FACTOR) *
-    (1 / 10 ** assetDictionary[assetName]["decimals"])
-
-  // collateralUSD
-  userData["collateralUSD"] +=
-    userData[assetName]["collateral_underlying"] *
-    (globalData[assetName]["price"] / SCALE_FACTOR) *
-    (1 / 10 ** assetDictionary[assetName]["decimals"])
-
-  // maxBorrowUSD
-  userData["maxBorrowUSD"] +=
-    userData[assetName]["collateral_underlying"] *
-    (globalData[assetName]["collateral_factor"] / 1000) *
-    (globalData[assetName]["price"] / SCALE_FACTOR) *
-    (1 / 10 ** assetDictionary[assetName]["decimals"])
-    
-  // USER USD DATA
-  // borrowUSD
-  // suppliedUSD
-  // collateralUSD
-  // maxBorrowUSD
-  return userData
+export async function updateGlobalUserTotals(userResults, assetName) {
+  userResults["borrowUSD"] += userResults[assetName]["borrowUSD"]
+  userResults["collateralUSD"] += userResults[assetName]["collateralUSD"]
+  userResults["maxBorrowUSD"] += userResults[assetName]["maxBorrowUSD"]
 }
 
+/**
+ * Function to extrapolate data from user data
+ *
+ * @param   {dict<string,int>}  userResults
+ * @param   {string}            assetName
+ * 
+ * @return  {dict<string,int>}  extroplatedData
+ */
+export async function updateGlobalTotals(globalResults, assetName) {
+  globalResults["underlying_supplied_extrapolatedUSD"] += globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
+  globalResults["underlying_borrowed_extrapolatedUSD"] += globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
+}
 
 /**
  * Function to calculate account opt in info
@@ -335,10 +340,10 @@ export async function getAccountOptInData(accountInfo) {
   let totalUints = BigInt(0);
   if (totalSchema) {
     if (totalSchema['num-byte-slice']) {
-      totalByteSlices = totalSchema['num-byte-slice'];
+      totalByteSlices = BigInt(totalSchema['num-byte-slice']);
     }
     if (totalSchema['num-uint']) {
-      totalUints = totalSchema['num-uint'];
+      totalUints = BigInt(totalSchema['num-uint']);
     }
   }
   

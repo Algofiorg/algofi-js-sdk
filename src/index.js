@@ -5,34 +5,54 @@ import {
   getStorageAddress,
   getPriceInfo,
   getBalanceInfo,
+  getGlobalManagerInfo,
   getGlobalMarketInfo,
+  getUserManagerData,
   getUserMarketData,
+  getAccountOptInData,
   extrapolateMarketData,
   extrapolateUserData,
-  calculateUserData
+  updateGlobalUserTotals,
+  updateGlobalTotals,
 } from "./stateUtils.js"
 import {
+  orderedAssets,
+  orderedAssetsAndPlaceholders,
+  managerAppId,
+  assetDictionary,
+  orderedOracleAppIds,
+  orderedMarketAppIds,
+  orderedSupportedMarketAppIds,
+  SECONDS_PER_YEAR,
+  PARAMETER_SCALE_FACTOR,
+  SCALE_FACTOR
+} from "./config.js"
+import { Base64Encoder } from "./encoder.js"
+export {
+  // FOR TESTING
+  getPriceInfo,
+  getBalanceInfo,
+  getUserMarketData,
+  getGlobalMarketInfo,
+  extrapolateMarketData,
+  extrapolateUserData,
+  updateGlobalUserTotals,
+  updateGlobalTotals,
+  getStorageAddress,
+  getGlobalManagerInfo,
+  Base64Encoder,
+  //
   getAccountOptInData,
   orderedAssets,
+  orderedAssetsAndPlaceholders,
   managerAppId,
   assetDictionary,
   orderedOracleAppIds,
   orderedMarketAppIds,
+  orderedSupportedMarketAppIds,
   SECONDS_PER_YEAR,
-  RESERVE_RATIO,
-  SCALE_FACTOR,
-  CREATOR_ADDRESS
-} from "./config.js"
-export {
-  orderedAssets,
-  managerAppId,
-  assetDictionary,
-  orderedOracleAppIds,
-  orderedMarketAppIds,
-  SECONDS_PER_YEAR,
-  RESERVE_RATIO,
-  SCALE_FACTOR,
-  CREATOR_ADDRESS
+  PARAMETER_SCALE_FACTOR,
+  SCALE_FACTOR
 }
 
 const NO_EXTRA_ARGS = null
@@ -47,15 +67,27 @@ const NO_EXTRA_ARGS = null
  */
 export async function optInMarkets(algodClient, address) {
   const params = await getParams(algodClient)
+  
+  // get app opt in data
+  let accountInfo = await algodClient.accountInformation(address).do()
+  let accountOptInData = await getAccountOptInData(accountInfo)
+
+  let accountOptedInApps = []
+  for (const app of accountOptInData["apps"]) {
+    accountOptedInApps.push(app["id"])
+  }
+
   let txns = []
-  for (const marketAppId in orderedMarketAppIds) {
-    txns.push(
-      algosdk.makeApplicationOptInTxnFromObject({
-        from: address,
-        appIndex: marketAppId,
-        suggestedParams: params
-      })
-    )
+  for (const marketAppId of orderedMarketAppIds) {
+    if (!(marketAppId in accountOptedInApps)) {
+      txns.push(
+        algosdk.makeApplicationOptInTxnFromObject({
+          from: address,
+          appIndex: marketAppId,
+          suggestedParams: params
+        })
+      )
+    }
   }
   algosdk.assignGroupID(txns)
   return txns
@@ -72,18 +104,24 @@ export async function optInMarkets(algodClient, address) {
 export async function optInAssets(algodClient, address) {
   // get currently opted in assets
   let accountInfo = await algodClient.accountInformation(address).do()
-  let accountOptInData = getAccountOptInData(accountInfo)
-  console.log(accountOptInData); // TODO remove
+  let accountOptInData = await getAccountOptInData(accountInfo)
+
+  let accountOptedInAssets = []
+  for (const asset of accountOptInData["assets"]) {
+    accountOptedInAssets.push(asset["asset-id"])
+  }
+  accountOptedInAssets.push(1)
 
   const params = await getParams(algodClient)
-  let txns = []
+  let underlying_asset_txns = []
+  let bank_asset_txns = []
   for (const assetName of orderedAssets) {
     // get underlying and bank asset ids
-    let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-    let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
-    // opt into underlying asset (skip algo)
-    if (assetName != "ALGO") {
-      txns.push(
+    let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+    let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
+    // opt into underlying asset if not already opted in
+    if (!(underlyingAssetId in accountOptedInAssets)) {
+      underlying_asset_txns.push(
         algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
           // Escrow txn
           suggestedParams: params,
@@ -95,19 +133,22 @@ export async function optInAssets(algodClient, address) {
       )
     }
     // opt into bank asset
-    txns.push(
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        // Escrow txn
-        suggestedParams: params,
-        to: address,
-        amount: 0,
-        assetIndex: bankAssetId,
-        from: address
-      })
-    )
+    if (!(bankAssetId in accountOptedInAssets)) {
+      bank_asset_txns.push(
+        algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+          // Escrow txn
+          suggestedParams: params,
+          to: address,
+          amount: 0,
+          assetIndex: bankAssetId,
+          from: address
+        })
+      )
+    }
   }
-  algosdk.assignGroupID(txns)
-  return txns
+  algosdk.assignGroupID(underlying_asset_txns)
+  algosdk.assignGroupID(bank_asset_txns)
+  return [underlying_asset_txns, bank_asset_txns]
 }
 
 /**
@@ -155,8 +196,8 @@ export async function optInManager(algodClient, address, storageAddress) {
 export async function mint(algodClient, address, storageAddress, amount, assetName) {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "mint", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
   algosdk.assignGroupID(txns)
@@ -177,8 +218,8 @@ export async function mint(algodClient, address, storageAddress, amount, assetNa
 export async function mintToCollateral(algodClient, address, storageAddress, amount, assetName) {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "mint_to_collateral", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
   algosdk.assignGroupID(txns)
@@ -199,8 +240,8 @@ export async function mintToCollateral(algodClient, address, storageAddress, amo
 export async function burn(algodClient, address, storageAddress, amount, assetName) {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "burn", NO_EXTRA_ARGS, marketAddress, bankAssetId, amount)
   algosdk.assignGroupID(txns)
@@ -221,8 +262,8 @@ export async function burn(algodClient, address, storageAddress, amount, assetNa
 export async function addCollateral(algodClient, address, storageAddress, amount, assetName) {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "add_collateral", NO_EXTRA_ARGS, marketAddress, bankAssetId, amount)
   algosdk.assignGroupID(txns)
@@ -243,8 +284,8 @@ export async function addCollateral(algodClient, address, storageAddress, amount
 export async function removeCollateral(algodClient, address, storageAddress, amount, assetName) {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "remove_collateral", algosdk.encodeUint64(amount))
   algosdk.assignGroupID(txns)
@@ -265,8 +306,8 @@ export async function removeCollateral(algodClient, address, storageAddress, amo
 export async function removeCollateralUnderlying(algodClient, address, storageAddress, amount, assetName) {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "remove_collateral_underlying", algosdk.encodeUint64(amount))
   algosdk.assignGroupID(txns)
@@ -287,8 +328,8 @@ export async function removeCollateralUnderlying(algodClient, address, storageAd
 export async function borrow(algodClient, address, storageAddress, amount, assetName) {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "borrow", algosdk.encodeUint64(amount))
   algosdk.assignGroupID(txns)
@@ -309,8 +350,8 @@ export async function borrow(algodClient, address, storageAddress, amount, asset
 export async function repayBorrow(algodClient, address, storageAddress, amount, assetName) {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["bankAssetId"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "repay_borrow", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
   algosdk.assignGroupID(txns)
@@ -326,64 +367,97 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
  * @return  {[dict<string,n>, dict<string,n>]} dictionaries containing the aggregated user protocol data
  */
 export async function getUserAndProtocolData(algodClient, address) {
-  let userResults = { suppliedUSD: 0, maxBorrowUSD: 0, borrowUSD: 0, collateralUSD: 0 }
-  let globalResults = {}
+  // initialize return variables
+  let userResults = { maxBorrowUSD: 0, borrowUSD: 0, collateralUSD: 0 }
+  let globalResults = { underlying_supplied_extrapolatedUSD: 0, underlying_borrowed_extrapolatedUSD: 0 }
 
+  // get current time in seconds
   let currentUnixTime = Date.now()
   currentUnixTime = Math.floor(currentUnixTime / 1000)
+  
+  // initialize accountInfo
   let accountInfo = await algodClient.accountInformation(address).do()
-  //  let globalInfo = await algodClient.accountInformation(CREATOR_ADDRESS).do()
 
+  // get stoarage account info
   let storageAccount = await getStorageAddress(accountInfo)
   userResults["storageAccount"] = storageAccount
   let storageAccountInfo = null
   if (storageAccount) {
     storageAccountInfo = await algodClient.accountInformation(storageAccount).do()
   }
+
+  // get balances
   let balances = await getBalanceInfo(algodClient, address)
 
+  // get prices
   let prices = await getPriceInfo(algodClient)
-  for (const assetName of orderedAssets) {
-    userResults[assetName] = {
-      borrowed: 0,
-      collateral: 0,
-      initial_index: 0,
-      supplied_underlying: 0,
-      borrowed_current_extrapolated: 0,
-      balance: balances[assetName]
-    }
-    userResults["b" + assetName] = { balance: balances["b" + assetName], minted: 0 }
-    let userData = null
-    if (storageAccount) {
-      userData = await getUserMarketData(storageAccountInfo, assetName)
-    }
-    let globalData = await getGlobalMarketInfo(algodClient, assetDictionary[assetName]["marketAppId"])
 
-    if (globalData && Object.keys(globalData).length > 0) {
-      globalResults[assetName] = globalData
-      globalData["price"] = prices[assetName]
-      let globalExtrapolatedData = await extrapolateMarketData(globalData)
-      //delete globalResults[assetName]["borrow_index"]
-      //delete globalResults[assetName]["underlying_borrowed"]
-      //delete globalResults[assetName]["underlying_cash"]
-      //delete globalResults[assetName]["underlying_reserves"]
-      //delete globalResults[assetName]["bank_to_underlying_exchange"]
-      globalResults[assetName] = Object.assign({}, globalResults[assetName], globalExtrapolatedData)
-    }
-
-    if (userData && Object.keys(userData).length > 0) {
-      for (const [key, value] of Object.entries(userData)) {
-        userResults[assetName][key] = value
-      }
-      userResults["b" + assetName]["minted"] = userResults[assetName]["minted"]
-      delete userResults[assetName]["minted"]
-    }
-    if (globalData && userData && Object.keys(userData).length > 0 && Object.keys(globalData).length > 0) {
-      let userExtrapolatedData = await extrapolateUserData(userResults[assetName], globalResults[assetName])
-      //delete globalResults[assetName]["borrowed"]
-      userResults[assetName] = Object.assign({}, userResults[assetName], userExtrapolatedData)
-      userResults = await calculateUserData(userResults, globalResults, assetName)
+  globalResults["manager"] = {}
+  let globalManagerData = await getGlobalManagerInfo(algodClient)
+  if (globalManagerData && Object.keys(globalManagerData).length > 0) {
+    for (const [key, value] of Object.entries((globalManagerData))) {
+      globalResults["manager"][key] = value
     }
   }
+
+  // get and set data for each market
+  for (const assetName of orderedAssets) {
+    let bAssetName = "b" + assetName
+    // initialize user market results
+    userResults[assetName] = {}
+    userResults[bAssetName] = {}
+    // set balances
+    userResults[assetName]["balance"] = balances[assetName]
+    userResults[bAssetName]["balance"] = balances[bAssetName]
+    
+    // get storage account data
+    let userMarketData = null
+    if (storageAccount) {
+      let userMarketData = await getUserMarketData(storageAccountInfo, assetName)
+      if (userMarketData && Object.keys(userMarketData).length > 0) {
+        for (const [key, value] of Object.entries((userMarketData))) {
+          userResults[assetName][key] = value
+        }
+      }
+    }
+
+    // get market global data
+    let globalData = await getGlobalMarketInfo(algodClient, assetDictionary[assetName]["marketAppId"])
+    if (globalData && Object.keys(globalData).length > 0) {
+      globalResults[assetName] = globalData
+      globalResults[assetName]["price"] = prices[assetName]
+      // get extrapolated global data
+      let globalExtrapolatedData = await extrapolateMarketData(globalData, prices, assetName)
+      for (const [key, value] of Object.entries((globalExtrapolatedData))) {
+        globalResults[assetName][key] = value
+      }
+      await updateGlobalTotals(globalResults, assetName)
+    }
+
+    if (storageAccount) {
+      let userMarketData = await getUserMarketData(storageAccountInfo, assetName)
+      if (userMarketData && Object.keys(userMarketData).length > 0) {
+        for (const [key, value] of Object.entries((userMarketData))) {
+          userResults[assetName][key] = value
+        }
+
+        // get extrapolated user data
+        if (userResults && Object.keys(userResults).length > 0) {
+          let userExtrapolatedData = await extrapolateUserData(userResults, globalResults, assetName)
+          for (const [key, value] of Object.entries((userExtrapolatedData))) {
+            userResults[assetName][key] = value
+          }
+          await updateGlobalUserTotals(userResults, assetName)
+        }
+      }
+    }
+  }
+
+  // get opt in data
+  let optInData = await getAccountOptInData(accountInfo)
+  userResults["min_balance"] = optInData["min_balance"]
+  userResults["opted_in_apps"] = optInData["apps"]
+  userResults["opted_in_assets"] = optInData["assets"]
+
   return [userResults, globalResults]
 }

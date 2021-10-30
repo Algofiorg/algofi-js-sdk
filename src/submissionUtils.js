@@ -1,5 +1,5 @@
 import algosdk from "algosdk"
-import { managerAppId, orderedOracleAppIds, orderedMarketAppIds } from "./config.js"
+import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config.js"
 import { getGlobalManagerInfo } from "./stateUtils.js" 
 
 /**
@@ -52,10 +52,7 @@ export async function waitForConfirmation(algodClient, txId) {
 async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   // get default params
   let params = await getParams(algodClient)
-  
-  // get supported market count
-  let supportedMarketsCount = getGlobalManagerInfo(algodClient)["supported_market_count"]
-  
+
   // initialize text encoder
   const enc = new TextEncoder()
   
@@ -63,7 +60,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx00 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("fetch_market_variables")],
     suggestedParams: params,
     note: enc.encode("Fetch Variables")
@@ -75,7 +72,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx01 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedOracleAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedOracleAppIds,
     appArgs: [enc.encode("update_prices")],
     suggestedParams: params,
     note: enc.encode("Update Prices")
@@ -86,7 +83,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx02 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("update_protocol_data")],
     accounts: [dataAccount],
     suggestedParams: params,
@@ -97,7 +94,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx03 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_one")],
     suggestedParams: params,
     note: enc.encode("First Dummy Txn")
@@ -107,7 +104,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx04 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_two")],
     suggestedParams: params,
     note: enc.encode("Second Dummy Txn")
@@ -117,7 +114,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx05 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_three")],
     suggestedParams: params,
     note: enc.encode("Third Dummy Txn")
@@ -127,7 +124,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx06 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_four")],
     suggestedParams: params,
     note: enc.encode("Fourth Dummy Txn")
@@ -137,7 +134,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx07 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_five")],
     suggestedParams: params,
     note: enc.encode("Fifth Dummy Txn")
@@ -147,7 +144,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx08 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_six")],
     suggestedParams: params,
     note: enc.encode("Sixth Dummy Txn")
@@ -157,7 +154,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx09 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_seven")],
     suggestedParams: params,
     note: enc.encode("Seventh Dummy Txn")
@@ -167,8 +164,8 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx10 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
-    appArgs: [enc.encode("dummy_eighth")],
+    foreignApps: orderedSupportedMarketAppIds,
+    appArgs: [enc.encode("dummy_eight")],
     suggestedParams: params,
     note: enc.encode("Eighth Dummy Txn")
   })
@@ -177,7 +174,7 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   const applTx11 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds.slice(0, supportedMarketsCount),
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_nine")],
     suggestedParams: params,
     note: enc.encode("Nineth Dummy Txn")
@@ -267,21 +264,23 @@ async function getPaymentTxn(
   const params = await getParams(algodClient)
   
   if (assetId == 1) { // send algos
-    return algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    const algoPayment = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: senderAccount,
         to: marketAddress,
         amount: amount,
         suggestedParams: params
     })
+    return algoPayment
 
   } else {
-    return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+    const asaPayment = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
         from: senderAccount,
         to: marketAddress,
         amount: amount,
         assetIndex: assetId,
         suggestedParams: params
     })
+    return asaPayment
   }
 }
 
@@ -324,9 +323,9 @@ export async function buildUserTransaction(
   followingTxs.forEach(txn => {
     txns.push(txn)
   })
-
   if (paymentAssetId != 0) {
-    txns.push(getPaymentTxn(algodClient, senderAccount, marketAddress, paymentAssetId, paymentAmout))
+    let paymentTxn = await getPaymentTxn(algodClient, senderAccount, marketAddress, paymentAssetId, paymentAmout)
+    txns.push(paymentTxn)
   }
 
   return txns
