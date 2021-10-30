@@ -49,7 +49,7 @@ export async function waitForConfirmation(algodClient, txId) {
  * 
  * @return  {Txn[]}     preamble transaction array
  */
-async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
+export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
   // get default params
   let params = await getParams(algodClient)
 

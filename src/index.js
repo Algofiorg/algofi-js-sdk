@@ -1,5 +1,5 @@
 import algosdk from "algosdk"
-import { getParams, waitForConfirmation, buildUserTransaction } from "./submissionUtils.js"
+import { getParams, waitForConfirmation, buildUserTransaction, getLeadingTxs } from "./submissionUtils.js"
 export { getParams, waitForConfirmation }
 import {
   getStorageAddress,
@@ -354,6 +354,57 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
   
   let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "repay_borrow", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
+ * Function to create transaction array for algofi repay_borrow operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {string}       assetName
+ * @param   {string}    assetName2
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform repay_borrow operation
+ */
+export async function claimRewards(algodClient, address, storageAddress, assetName="ALGO", assetName2="ALGO") {
+  let primaryRewardsAsset = assetDictionary[assetName]["underlyingAssetId"]
+  let secondaryRewardsAsset = assetDictionary[assetName2]["underlyingAssetId"]
+
+  // initialize encoder
+  const enc = new TextEncoder()
+
+  let txns = []
+
+  // get preamble transactions
+  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress)
+  leadingTxs.forEach(txn => {
+    txns.push(txn)
+  })
+
+  let foreign_assets = []
+  if (primaryRewardsAsset != 1) {
+    foreign_assets.push(primaryRewardsAsset)
+  }
+  if (secondaryRewardsAsset != 1) {
+    foreign_assets.push(secondaryRewardsAsset)
+  }
+
+  // construct manager pseudo-function transaction
+  const params = await getParams(algodClient)
+  const claimRewardsTxn = algosdk.makeApplicationNoOpTxnFromObject({
+    from: address,
+    appIndex: managerAppId,
+    appArgs: [enc.encode("claim_rewards")],
+    suggestedParams: params,
+    foreignAssets: foreign_assets,
+    accounts: [storageAddress],
+    note: enc.encode("Manager: Claim rewards")
+  })
+  txns.push(claimRewardsTxn)
+
   algosdk.assignGroupID(txns)
   return txns
 }
