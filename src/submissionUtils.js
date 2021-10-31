@@ -1,6 +1,14 @@
 import algosdk from "algosdk"
-import { managerAppId, orderedOracleAppIds, orderedMarketAppIds } from "./config.js"
+import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config.js"
+import { getGlobalManagerInfo } from "./stateUtils.js" 
 
+/**
+ * Function that returns standard transaction parameters
+ * 
+ * @param {Algodv2} algodClient
+ * 
+ * @return params
+ */
 export async function getParams(algodClient) {
   let params = await algodClient.getTransactionParams().do()
   params.fee = 1000
@@ -8,6 +16,14 @@ export async function getParams(algodClient) {
   return params
 }
 
+/**
+ * Helper function to wait for a transaction to be completed
+ *
+ * @param   {Algodv2}   algofClient
+ * @param   {int}       txid
+ * 
+ * @return  {none}
+ */
 export async function waitForConfirmation(algodClient, txId) {
   const response = await algodClient.status().do()
   let lastround = response["last-round"]
@@ -23,11 +39,37 @@ export async function waitForConfirmation(algodClient, txId) {
   }
 }
 
-async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
+// TODO rename to getPreambleTxs
+/**
+ * Function to generate preamble transactions
+ *
+ * @param   {Algodv2}}  algodclient
+ * @param   {string}    senderAccount         - user account address
+ * @param   {string}    dataAccount           - user storage account address
+ * 
+ * @return  {Txn[]}     preamble transaction array
+ */
+export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
+  // get default params
   let params = await getParams(algodClient)
-  params.fee = 2000
+
+  // initialize text encoder
   const enc = new TextEncoder()
-  const applTx0 = algosdk.makeApplicationNoOpTxnFromObject({
+  
+  // fetch market variables transaction
+  const applTx00 = algosdk.makeApplicationNoOpTxnFromObject({
+    from: senderAccount,
+    appIndex: managerAppId,
+    foreignApps: orderedSupportedMarketAppIds,
+    appArgs: [enc.encode("fetch_market_variables")],
+    suggestedParams: params,
+    note: enc.encode("Fetch Variables")
+  })
+  
+  // update prices
+  // TODO why do we need these extra fees?
+  params.fee = 2000
+  const applTx01 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
     foreignApps: orderedOracleAppIds,
@@ -35,59 +77,126 @@ async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     suggestedParams: params,
     note: enc.encode("Update Prices")
   })
+  
+  // update protocol
   params.fee = 1000
-  const applTx1 = algosdk.makeApplicationNoOpTxnFromObject({
+  const applTx02 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds,
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("update_protocol_data")],
     accounts: [dataAccount],
     suggestedParams: params,
     note: enc.encode("Update Protocol")
   })
-  const applTx2 = algosdk.makeApplicationNoOpTxnFromObject({
+  
+  // dummy transaction one
+  const applTx03 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds,
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_one")],
     suggestedParams: params,
     note: enc.encode("First Dummy Txn")
   })
-  const applTx3 = algosdk.makeApplicationNoOpTxnFromObject({
+  
+  // dummy transaction two
+  const applTx04 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds,
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_two")],
     suggestedParams: params,
     note: enc.encode("Second Dummy Txn")
   })
-  const applTx4 = algosdk.makeApplicationNoOpTxnFromObject({
+  
+  // dummy transaction three
+  const applTx05 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds,
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_three")],
     suggestedParams: params,
     note: enc.encode("Third Dummy Txn")
   })
-  const applTx5 = algosdk.makeApplicationNoOpTxnFromObject({
+  
+  // dummy transaction four
+  const applTx06 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds,
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_four")],
     suggestedParams: params,
     note: enc.encode("Fourth Dummy Txn")
   })
-  const applTx6 = algosdk.makeApplicationNoOpTxnFromObject({
+  
+  // dummy transaction five
+  const applTx07 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
-    foreignApps: orderedMarketAppIds,
+    foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_five")],
     suggestedParams: params,
     note: enc.encode("Fifth Dummy Txn")
   })
-  return [applTx0, applTx1, applTx2, applTx3, applTx4, applTx5, applTx6]
+  
+  // dummy transaction six
+  const applTx08 = algosdk.makeApplicationNoOpTxnFromObject({
+    from: senderAccount,
+    appIndex: managerAppId,
+    foreignApps: orderedSupportedMarketAppIds,
+    appArgs: [enc.encode("dummy_six")],
+    suggestedParams: params,
+    note: enc.encode("Sixth Dummy Txn")
+  })
+  
+  // dummy transaction seven
+  const applTx09 = algosdk.makeApplicationNoOpTxnFromObject({
+    from: senderAccount,
+    appIndex: managerAppId,
+    foreignApps: orderedSupportedMarketAppIds,
+    appArgs: [enc.encode("dummy_seven")],
+    suggestedParams: params,
+    note: enc.encode("Seventh Dummy Txn")
+  })
+  
+  // dummy transaction eight
+  const applTx10 = algosdk.makeApplicationNoOpTxnFromObject({
+    from: senderAccount,
+    appIndex: managerAppId,
+    foreignApps: orderedSupportedMarketAppIds,
+    appArgs: [enc.encode("dummy_eight")],
+    suggestedParams: params,
+    note: enc.encode("Eighth Dummy Txn")
+  })
+  
+  // dummy transaction nine
+  const applTx11 = algosdk.makeApplicationNoOpTxnFromObject({
+    from: senderAccount,
+    appIndex: managerAppId,
+    foreignApps: orderedSupportedMarketAppIds,
+    appArgs: [enc.encode("dummy_nine")],
+    suggestedParams: params,
+    note: enc.encode("Nineth Dummy Txn")
+  })
+  
+  // send transaction array
+  return [applTx00, applTx01, applTx02, applTx03, applTx04, applTx05, applTx06, applTx07, applTx08, applTx09, applTx10, applTx11]
 }
 
+/**
+ * Function to get generic function transactions to the manager and market less any needed payment transactions
+ *
+ * @param   {Algodv2}   algodClient
+ * @param   {string}    senderAccount
+ * @param   {string}    dataAccount
+ * @param   {int}       marketAppId
+ * @param   {int}       foreignAssetId
+ * @param   {string}    functionString        - contract psuedo-function string
+ * @param   {[]}        extraCallArgs         - additional application arguments for the manager transaction
+ * 
+ * @return  {Transaction[]}                   - array of primary pseudo-function stransactions
+ */
 async function getStackGroup(
   algodClient,
   senderAccount,
@@ -97,13 +206,20 @@ async function getStackGroup(
   functionString,
   extraCallArgs = null
 ) {
+  // initialize generic params
   const params = await getParams(algodClient)
+  
+  // initialize encoder
   const enc = new TextEncoder()
+
+  // construct manager app args
   let managerAppArgs = []
   managerAppArgs.push(enc.encode(functionString))
   if (extraCallArgs) {
     managerAppArgs.push(extraCallArgs)
   }
+  
+  // construct manager pseudo-function transaction
   const applTx0 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: managerAppId,
@@ -111,6 +227,8 @@ async function getStackGroup(
     suggestedParams: params,
     note: enc.encode("Manager: " + functionString)
   })
+
+  // constructmarket pseudo-function transaction
   const applTx1 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: marketAppId,
@@ -124,31 +242,91 @@ async function getStackGroup(
   return [applTx0, applTx1]
 }
 
-export async function getCore(
+/**
+ * Function to get payment transaction to indicated market
+ *
+ * @param   {Algodv2}   algodClient
+ * @param   {string}    senderAccount
+ * @param   {string}    marketAddres
+ * @param   {int}       assetId
+ * @param   {int}       amount
+ * 
+ * @return  {Payment Transaction}
+ */
+async function getPaymentTxn(
+  algodClient,
+  senderAccount,
+  marketAddress,
+  assetId,
+  amount
+) {
+  // initialize generic params
+  const params = await getParams(algodClient)
+  
+  if (assetId == 1) { // send algos
+    const algoPayment = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: senderAccount,
+        to: marketAddress,
+        amount: amount,
+        suggestedParams: params
+    })
+    return algoPayment
+
+  } else {
+    const asaPayment = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: senderAccount,
+        to: marketAddress,
+        amount: amount,
+        assetIndex: assetId,
+        suggestedParams: params
+    })
+    return asaPayment
+  }
+}
+
+/**
+ * Function to generate core transactions for user interactions less payment transactions
+ *
+ * @param   {Algodv2}     algodClient
+ * @param   {string}      senderAccount
+ * @param   {string}      dataAccount
+ * @param   {int}         marketAppId
+ * @param   {int}         foreignAssetId
+ * @param   {string}      functionString
+ * @param   {[]}          extralCallArgs
+ * @param   {string}      marketAddress
+ * @param   {int}         paymentAssetId
+ * @param   {int}         paymentAmount
+ * 
+ * @return {Transaction[]}
+ */
+export async function buildUserTransaction(
   algodClient,
   senderAccount,
   dataAccount,
   marketAppId,
   foreignAssetId,
   functionString,
-  extraCallArgs = null
+  extraCallArgs = null,
+  marketAddress = "",
+  paymentAssetId = 0,
+  paymentAmout = 0
 ) {
   let txns = []
+  // get preamble transactions
   let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount)
   leadingTxs.forEach(txn => {
     txns.push(txn)
   })
-  let followingTxs = await getStackGroup(
-    algodClient,
-    senderAccount,
-    dataAccount,
-    marketAppId,
-    foreignAssetId,
-    functionString,
-    extraCallArgs
-  )
+  // get function transactions
+  let followingTxs = await getStackGroup(algodClient, senderAccount, dataAccount, marketAppId, foreignAssetId, functionString, extraCallArgs)
   followingTxs.forEach(txn => {
     txns.push(txn)
   })
+  if (paymentAssetId != 0) {
+    let paymentTxn = await getPaymentTxn(algodClient, senderAccount, marketAddress, paymentAssetId, paymentAmout)
+    txns.push(paymentTxn)
+  }
+
   return txns
 }
