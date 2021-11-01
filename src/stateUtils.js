@@ -10,19 +10,30 @@ import {
 import { Base64Encoder } from "./encoder.js"
 
 // CONSTANTS
-const MIN_BALANCE_PER_ACCOUNT = BigInt(100000);
-const MIN_BALANCE_PER_ASSET = BigInt(100000);
-const MIN_BALANCE_PER_APP = BigInt(100000);
-const MIN_BALANCE_PER_APP_BYTESLICE = BigInt(25000+25000);
-const MIN_BALANCE_PER_APP_UINT = BigInt(25000+3500);
-const MIN_BALANCE_PER_APP_EXTRA_PAGE = BigInt(100000);
+const MIN_BALANCE_PER_ACCOUNT = BigInt(100000)
+const MIN_BALANCE_PER_ASSET = BigInt(100000)
+const MIN_BALANCE_PER_APP = BigInt(100000)
+const MIN_BALANCE_PER_APP_BYTESLICE = BigInt(25000 + 25000)
+const MIN_BALANCE_PER_APP_UINT = BigInt(25000 + 3500)
+const MIN_BALANCE_PER_APP_EXTRA_PAGE = BigInt(100000)
+const NUMBER_OF_MARKETS = BigInt(16)
+// assume we are launching with 8 assets
+const NUMBER_OF_ASSETS = BigInt(8)
+// local vars = user_storage_address
+const BYTES_FOR_PRIMARY_MANAGER = BigInt(1)
+// local vars = user_global_max_borrow_in_dollars, user_rewards_asset_id, user_pending_rewards, user_rewards_latest_time + NUMBER_OF_MARKETS (for rewards)
+const UINTS_FOR_PRIMARY_MANAGER = BigInt(15) // 15 for now since we are over max, Paul will fix w/ Byteslice.
+// local vars =
+const BYTES_FOR_STORAGE_MANAGER = BigInt(0)
+// local uints = user_active_collateral, user_borrowed_amount, user_borrow_index_initial
+const UINTS_FOR_STORAGE_MARKET = BigInt(3)
 
 /**
  * Function to get the storage address for an algofi user. This address is stored in the users local state.
  * If the user clears their local state, their storage contract is irrecoverable.
- * 
+ *
  * @param   {accountInformation}  accountInfo   - Address of user
- * 
+ *
  * @return  {string}              storageAccont - Storage address of user
  */
 export async function getStorageAddress(accountInfo) {
@@ -43,9 +54,9 @@ export async function getStorageAddress(accountInfo) {
 // TODO - we should drive this off of the market oracle and price field
 /**
  * Function to get oracle price info
- * 
+ *
  * @param   {Algodv2} algodClient
- * 
+ *
  * @return  {int[]}   prices        - array of price values
  */
 export async function getPriceInfo(algodClient) {
@@ -64,10 +75,10 @@ export async function getPriceInfo(algodClient) {
 
 /**
  * Get balance info for a given address
- * 
+ *
  * @param   {Algodv2}           algodClient
  * @param   {string}            address
- * 
+ *
  * @return  {dict<string,int>}  balanceInfo   - dictionary of asset names to balances
  */
 export async function getBalanceInfo(algodClient, address) {
@@ -137,7 +148,7 @@ export async function getUserManagerData(accountInfo) {
  *
  * @param   {accountInfo}       accountInfo
  * @param   {string}            assetName
- * 
+ *
  * @return  {dict<string,int>}  results       - dictionary of user market local state
  */
 export async function getUserMarketData(accountInfo, assetName) {
@@ -182,12 +193,12 @@ export async function getGlobalMarketInfo(algodClient, marketId) {
  * Function to get extrapolate additional data from market global state
  *
  * @param   {dict<string,int>}  globalData        - dictionary of market global state
- * 
+ *
  * @return  {dict<string,int}   extrapolatedData  - dictionary of market extrapolated values
  */
 export async function extrapolateMarketData(globalData, prices, assetName) {
   let extrapolatedData = {}
-  
+
   // get current time
   let currentUnixTime = Date.now()
   currentUnixTime = Math.floor(currentUnixTime / 1000)
@@ -200,7 +211,7 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
   // get reserve mults
   let reserveMultiplier = globalData["reserve_factor"] / PARAMETER_SCALE_FACTOR
   let reserveFreeMultiplier = (PARAMETER_SCALE_FACTOR - globalData["reserve_factor"]) / PARAMETER_SCALE_FACTOR
-  
+
   // borrow_index_extrapolated = last borrow index + current calculated next borrow index
   extrapolatedData["borrow_index_extrapolated"] = Math.floor(
     globalData["borrow_index"] *
@@ -208,7 +219,7 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
         ((globalData["total_borrow_interest_rate"] / 1e9) * (currentUnixTime - globalData["latest_time"])) /
           SECONDS_PER_YEAR)
   )
-  
+
   // underlying_borrowed_extrapolated
   extrapolatedData["underlying_borrowed_extrapolated"] =
     extrapolatedData["borrow_index_extrapolated"] > 0
@@ -223,20 +234,24 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
       : globalData["underlying_reserves"]
 
   // underlying_supplied
-  extrapolatedData["underlying_supplied"] = globalData["underlying_cash"] + globalData["underlying_borrowed"] - globalData["underlying_reserves"]
-  extrapolatedData["underlying_supplied_extrapolated"] = globalData["underlying_cash"] + extrapolatedData["underlying_borrowed_extrapolated"] - extrapolatedData["underlying_reserves_extrapolated"]
+  extrapolatedData["underlying_supplied"] =
+    globalData["underlying_cash"] + globalData["underlying_borrowed"] - globalData["underlying_reserves"]
+  extrapolatedData["underlying_supplied_extrapolated"] =
+    globalData["underlying_cash"] +
+    extrapolatedData["underlying_borrowed_extrapolated"] -
+    extrapolatedData["underlying_reserves_extrapolated"]
 
   // total_lend_interest_rate_earned = (total interest less reserve factor) / (total supply)
   globalData["total_lend_interest_rate_earned"] =
     globalData["underlying_borrowed"] > 0
       ? (globalData["total_borrow_interest_rate"] * globalData["underlying_borrowed"] * reserveFreeMultiplier) /
-        (extrapolatedData["underlying_supplied_extrapolated"])
+        extrapolatedData["underlying_supplied_extrapolated"]
       : 0
 
   // bank_to_underlying_exchange_extrapolated
   extrapolatedData["bank_to_underlying_exchange_extrapolated"] =
     globalData["bank_circulation"] > 0
-      ? extrapolatedData["underlying_supplied_extrapolated"]* SCALE_FACTOR / globalData["bank_circulation"]
+      ? (extrapolatedData["underlying_supplied_extrapolated"] * SCALE_FACTOR) / globalData["bank_circulation"]
       : globalData["bank_to_underlying_exchange"]
 
   // calculate USD values
@@ -244,7 +259,7 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
     extrapolatedData["underlying_borrowed_extrapolated"] *
     (prices[assetName] / SCALE_FACTOR) *
     (1 / 10 ** assetDictionary[assetName]["decimals"])
-    
+
   extrapolatedData["underlying_supplied_extrapolatedUSD"] =
     extrapolatedData["underlying_supplied_extrapolated"] *
     (prices[assetName] / SCALE_FACTOR) *
@@ -259,22 +274,25 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
  * @param   {dict<string,int>}  userResults
  * @param   {dict<string,int>}  userResults
  * @param   {string}            assetName
- * 
+ *
  * @return  {dict<string,int>}  extroplatedData
  */
 export async function extrapolateUserData(userResults, globalResults, assetName) {
   let extrapolatedData = {}
-  
+
   // borrwed_extrapolated
   extrapolatedData["borrowed_extrapolated"] =
     userResults[assetName]["borrowed"] && globalResults[assetName]["borrow_index_extrapolated"]
-      ? (userResults[assetName]["borrowed"] * globalResults[assetName]["borrow_index_extrapolated"]) / userResults[assetName]["initial_index"]
+      ? (userResults[assetName]["borrowed"] * globalResults[assetName]["borrow_index_extrapolated"]) /
+        userResults[assetName]["initial_index"]
       : 0
 
   // collateral_underlying
   extrapolatedData["collateral_underlying_extrapolated"] =
     userResults[assetName]["active_collateral"] && globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]
-      ? (userResults[assetName]["active_collateral"] * globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]) / SCALE_FACTOR
+      ? (userResults[assetName]["active_collateral"] *
+          globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]) /
+        SCALE_FACTOR
       : 0
 
   // borrowUSD
@@ -282,7 +300,7 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
     extrapolatedData["borrowed_extrapolated"] *
     (globalResults[assetName]["price"] / SCALE_FACTOR) *
     (1 / 10 ** assetDictionary[assetName]["decimals"])
-  
+
   // collateralUSD
   extrapolatedData["collateralUSD"] =
     extrapolatedData["collateral_underlying_extrapolated"] *
@@ -291,8 +309,7 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
 
   // maxBorrowUSD
   extrapolatedData["maxBorrowUSD"] =
-    extrapolatedData["collateralUSD"] *
-    (globalResults[assetName]["collateral_factor"] / 1000)
+    extrapolatedData["collateralUSD"] * (globalResults[assetName]["collateral_factor"] / 1000)
 
   return extrapolatedData
 }
@@ -302,7 +319,7 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
  *
  * @param   {dict<string,int>}  userResults
  * @param   {string}            assetName
- * 
+ *
  * @return  {dict<string,int>}  extroplatedData
  */
 export async function updateGlobalUserTotals(userResults, assetName) {
@@ -316,56 +333,70 @@ export async function updateGlobalUserTotals(userResults, assetName) {
  *
  * @param   {dict<string,int>}  userResults
  * @param   {string}            assetName
- * 
+ *
  * @return  {dict<string,int>}  extroplatedData
  */
 export async function updateGlobalTotals(globalResults, assetName) {
-  globalResults["underlying_supplied_extrapolatedUSD"] += globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
-  globalResults["underlying_borrowed_extrapolatedUSD"] += globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
+  globalResults["underlying_supplied_extrapolatedUSD"] +=
+    globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
+  globalResults["underlying_borrowed_extrapolatedUSD"] +=
+    globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
 }
 
 /**
  * Function to calculate account opt in info
  *
  * @param   {accountInfo}       accountInfo
- * 
+ *
  * @return  {dict<string,int>}  userData    - userData with added USD values
  */
 export async function getAccountOptInData(accountInfo) {
   let accountOptInData = {}
 
   // min balance
-  const totalSchema = accountInfo['apps-total-schema']
-  let totalByteSlices = BigInt(0);
-  let totalUints = BigInt(0);
+  const totalSchema = accountInfo["apps-total-schema"]
+  let totalByteSlices = BigInt(0)
+  let totalUints = BigInt(0)
   if (totalSchema) {
-    if (totalSchema['num-byte-slice']) {
-      totalByteSlices = BigInt(totalSchema['num-byte-slice']);
+    if (totalSchema["num-byte-slice"]) {
+      totalByteSlices = BigInt(totalSchema["num-byte-slice"])
     }
-    if (totalSchema['num-uint']) {
-      totalUints = BigInt(totalSchema['num-uint']);
+    if (totalSchema["num-uint"]) {
+      totalUints = BigInt(totalSchema["num-uint"])
     }
   }
-  
-  const totalExtraPages = accountInfo['apps-total-extra-pages'] || BigInt(0);
 
-  const localApps = accountInfo['apps-local-state'] || [];
-  const createdApps = accountInfo['created-apps'] || [];
-  const assets = accountInfo['assets'] || [];
+  const totalExtraPages =
+    Number(accountInfo["apps-total-extra-pages"]) > 0 ? BigInt(accountInfo["apps-total-extra-pages"]) : BigInt(0)
+  const localApps = accountInfo["apps-local-state"] || []
+  const createdApps = accountInfo["created-apps"] || []
+  const assets = accountInfo["assets"] || []
 
-  accountOptInData['min_balance'] =
+  accountOptInData["min_balance"] =
     MIN_BALANCE_PER_ACCOUNT +
     MIN_BALANCE_PER_ASSET * BigInt(assets.length) +
     MIN_BALANCE_PER_APP * BigInt(createdApps.length + localApps.length) +
     MIN_BALANCE_PER_APP_UINT * totalUints +
     MIN_BALANCE_PER_APP_BYTESLICE * totalByteSlices +
-    MIN_BALANCE_PER_APP_EXTRA_PAGE * totalExtraPages;
-  
+    MIN_BALANCE_PER_APP_EXTRA_PAGE * totalExtraPages
+
+  accountOptInData["min_balance_primary_account"] =
+    MIN_BALANCE_PER_ASSET * NUMBER_OF_ASSETS + // cost to opt-in to ASAS, TODO - refine to exact value later
+    MIN_BALANCE_PER_APP + // cost to opt-in to manager
+    MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
+    MIN_BALANCE_PER_APP_UINT +
+    UINTS_FOR_PRIMARY_MANAGER
+
+  accountOptInData["min_balance_storage_account"] = MIN_BALANCE_PER_APP * NUMBER_OF_MARKETS // prep for paul's change, only opt-in storage account to markets
+  MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_STORAGE_MANAGER +
+    MIN_BALANCE_PER_APP_UINT +
+    NUMBER_OF_MARKETS * MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER
+
   // opted in applications
-  accountOptInData['apps'] = localApps
-  
+  accountOptInData["apps"] = localApps
+
   // opted in assets
-  accountOptInData['assets'] = assets
+  accountOptInData["assets"] = assets
 
   return accountOptInData
 }
