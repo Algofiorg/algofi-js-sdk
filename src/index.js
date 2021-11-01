@@ -13,7 +13,7 @@ import {
   extrapolateMarketData,
   extrapolateUserData,
   updateGlobalUserTotals,
-  updateGlobalTotals,
+  updateGlobalTotals
 } from "./stateUtils.js"
 import {
   orderedAssets,
@@ -62,12 +62,12 @@ const NO_EXTRA_ARGS = null
  *
  * @param   {Algodv2}         algoClient
  * @param   {string}          address
- * 
+ *
  * @return  {Transaction[]}   transaction group to opt into algofi markets contracts
  */
 export async function optInMarkets(algodClient, address) {
   const params = await getParams(algodClient)
-  
+
   // get app opt in data
   let accountInfo = await algodClient.accountInformation(address).do()
   let accountOptInData = await getAccountOptInData(accountInfo)
@@ -98,7 +98,7 @@ export async function optInMarkets(algodClient, address) {
  *
  * @param   {Algodv2}         algoClient
  * @param   {string}          address
- * 
+ *
  * @return  {Transaction[]}   get opt in transactions for non opted in algofi assets
  */
 export async function optInAssets(algodClient, address) {
@@ -157,7 +157,7 @@ export async function optInAssets(algodClient, address) {
  * @param   {Algodv2}         algoClient
  * @param   {string}          address
  * @param   {string}          storageAddress
- * 
+ *
  * @return  {Transaction[]}   create transactions to opt in to manager and rekey storage address to manager contract
  */
 export async function optInManager(algodClient, address, storageAddress) {
@@ -190,7 +190,7 @@ export async function optInManager(algodClient, address, storageAddress) {
  * @param   {string}    storageAddress
  * @param   {int}       amount
  * @param   {string}    assetName
- * 
+ *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform mint operation
  */
 export async function mint(algodClient, address, storageAddress, amount, assetName) {
@@ -198,8 +198,19 @@ export async function mint(algodClient, address, storageAddress, amount, assetNa
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  
-  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "mint", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    bankAssetId,
+    "mint",
+    NO_EXTRA_ARGS,
+    marketAddress,
+    underlyingAssetId,
+    amount
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -212,7 +223,7 @@ export async function mint(algodClient, address, storageAddress, amount, assetNa
  * @param   {string}    storageAddress
  * @param   {int}       amount
  * @param   {string}    assetName
- * 
+ *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform mint_to_collateral operation
  */
 export async function mintToCollateral(algodClient, address, storageAddress, amount, assetName) {
@@ -220,8 +231,19 @@ export async function mintToCollateral(algodClient, address, storageAddress, amo
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  
-  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "mint_to_collateral", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    bankAssetId,
+    "mint_to_collateral",
+    NO_EXTRA_ARGS,
+    marketAddress,
+    underlyingAssetId,
+    amount
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -234,7 +256,7 @@ export async function mintToCollateral(algodClient, address, storageAddress, amo
  * @param   {string}    storageAddress
  * @param   {int}       amount
  * @param   {string}    assetName
- * 
+ *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform burn operation
  */
 export async function burn(algodClient, address, storageAddress, amount, assetName) {
@@ -242,8 +264,19 @@ export async function burn(algodClient, address, storageAddress, amount, assetNa
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  
-  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "burn", NO_EXTRA_ARGS, marketAddress, bankAssetId, amount)
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    underlyingAssetId,
+    "burn",
+    NO_EXTRA_ARGS,
+    marketAddress,
+    bankAssetId,
+    amount
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -256,7 +289,7 @@ export async function burn(algodClient, address, storageAddress, amount, assetNa
  * @param   {string}    storageAddress
  * @param   {int}       amount
  * @param   {string}    assetName
- * 
+ *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform add_collateral operation
  */
 export async function addCollateral(algodClient, address, storageAddress, amount, assetName) {
@@ -264,8 +297,19 @@ export async function addCollateral(algodClient, address, storageAddress, amount
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  
-  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "add_collateral", NO_EXTRA_ARGS, marketAddress, bankAssetId, amount)
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    underlyingAssetId,
+    "add_collateral",
+    NO_EXTRA_ARGS,
+    marketAddress,
+    bankAssetId,
+    amount
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -278,7 +322,7 @@ export async function addCollateral(algodClient, address, storageAddress, amount
  * @param   {string}    storageAddress
  * @param   {int}       amount
  * @param   {string}    assetName
- * 
+ *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform remove_collateral operation
  */
 export async function removeCollateral(algodClient, address, storageAddress, amount, assetName) {
@@ -286,8 +330,16 @@ export async function removeCollateral(algodClient, address, storageAddress, amo
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  
-  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, bankAssetId, "remove_collateral", algosdk.encodeUint64(amount))
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    bankAssetId,
+    "remove_collateral",
+    algosdk.encodeUint64(amount)
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -300,7 +352,7 @@ export async function removeCollateral(algodClient, address, storageAddress, amo
  * @param   {string}    storageAddress
  * @param   {int}       amount
  * @param   {string}    assetName
- * 
+ *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform remove_collateral_underlying operation
  */
 export async function removeCollateralUnderlying(algodClient, address, storageAddress, amount, assetName) {
@@ -308,8 +360,16 @@ export async function removeCollateralUnderlying(algodClient, address, storageAd
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  
-  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "remove_collateral_underlying", algosdk.encodeUint64(amount))
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    underlyingAssetId,
+    "remove_collateral_underlying",
+    algosdk.encodeUint64(amount)
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -322,7 +382,7 @@ export async function removeCollateralUnderlying(algodClient, address, storageAd
  * @param   {string}    storageAddress
  * @param   {int}       amount
  * @param   {string}    assetName
- * 
+ *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform borrow operation
  */
 export async function borrow(algodClient, address, storageAddress, amount, assetName) {
@@ -330,8 +390,16 @@ export async function borrow(algodClient, address, storageAddress, amount, asset
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  
-  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "borrow", algosdk.encodeUint64(amount))
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    underlyingAssetId,
+    "borrow",
+    algosdk.encodeUint64(amount)
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -344,7 +412,7 @@ export async function borrow(algodClient, address, storageAddress, amount, asset
  * @param   {string}    storageAddress
  * @param   {int}       amount
  * @param   {string}    assetName
- * 
+ *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform repay_borrow operation
  */
 export async function repayBorrow(algodClient, address, storageAddress, amount, assetName) {
@@ -352,8 +420,19 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  
-  let txns = await buildUserTransaction(algodClient, address, storageAddress, marketAppId, underlyingAssetId, "repay_borrow", NO_EXTRA_ARGS, marketAddress, underlyingAssetId, amount)
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    underlyingAssetId,
+    "repay_borrow",
+    NO_EXTRA_ARGS,
+    marketAddress,
+    underlyingAssetId,
+    amount
+  )
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -369,7 +448,7 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform repay_borrow operation
  */
-export async function claimRewards(algodClient, address, storageAddress, assetName="ALGO", assetName2="ALGO") {
+export async function claimRewards(algodClient, address, storageAddress, assetName = "ALGO", assetName2 = "ALGO") {
   let primaryRewardsAsset = assetDictionary[assetName]["underlyingAssetId"]
   let secondaryRewardsAsset = assetDictionary[assetName2]["underlyingAssetId"]
 
@@ -414,7 +493,7 @@ export async function claimRewards(algodClient, address, storageAddress, assetNa
  *
  * @param   {Algodv2}   algodClient
  * @param   {string}    address
- * 
+ *
  * @return  {[dict<string,n>, dict<string,n>]} dictionaries containing the aggregated user protocol data
  */
 export async function getUserAndProtocolData(algodClient, address) {
@@ -425,7 +504,7 @@ export async function getUserAndProtocolData(algodClient, address) {
   // get current time in seconds
   let currentUnixTime = Date.now()
   currentUnixTime = Math.floor(currentUnixTime / 1000)
-  
+
   // initialize accountInfo
   let accountInfo = await algodClient.accountInformation(address).do()
 
@@ -446,7 +525,7 @@ export async function getUserAndProtocolData(algodClient, address) {
   globalResults["manager"] = {}
   let globalManagerData = await getGlobalManagerInfo(algodClient)
   if (globalManagerData && Object.keys(globalManagerData).length > 0) {
-    for (const [key, value] of Object.entries((globalManagerData))) {
+    for (const [key, value] of Object.entries(globalManagerData)) {
       globalResults["manager"][key] = value
     }
   }
@@ -460,13 +539,13 @@ export async function getUserAndProtocolData(algodClient, address) {
     // set balances
     userResults[assetName]["balance"] = balances[assetName]
     userResults[bAssetName]["balance"] = balances[bAssetName]
-    
+
     // get storage account data
     let userMarketData = null
     if (storageAccount) {
       let userMarketData = await getUserMarketData(storageAccountInfo, assetName)
       if (userMarketData && Object.keys(userMarketData).length > 0) {
-        for (const [key, value] of Object.entries((userMarketData))) {
+        for (const [key, value] of Object.entries(userMarketData)) {
           userResults[assetName][key] = value
         }
       }
@@ -479,7 +558,7 @@ export async function getUserAndProtocolData(algodClient, address) {
       globalResults[assetName]["price"] = prices[assetName]
       // get extrapolated global data
       let globalExtrapolatedData = await extrapolateMarketData(globalData, prices, assetName)
-      for (const [key, value] of Object.entries((globalExtrapolatedData))) {
+      for (const [key, value] of Object.entries(globalExtrapolatedData)) {
         globalResults[assetName][key] = value
       }
       await updateGlobalTotals(globalResults, assetName)
@@ -488,14 +567,14 @@ export async function getUserAndProtocolData(algodClient, address) {
     if (storageAccount) {
       let userMarketData = await getUserMarketData(storageAccountInfo, assetName)
       if (userMarketData && Object.keys(userMarketData).length > 0) {
-        for (const [key, value] of Object.entries((userMarketData))) {
+        for (const [key, value] of Object.entries(userMarketData)) {
           userResults[assetName][key] = value
         }
 
         // get extrapolated user data
         if (userResults && Object.keys(userResults).length > 0) {
           let userExtrapolatedData = await extrapolateUserData(userResults, globalResults, assetName)
-          for (const [key, value] of Object.entries((userExtrapolatedData))) {
+          for (const [key, value] of Object.entries(userExtrapolatedData)) {
             userResults[assetName][key] = value
           }
           await updateGlobalUserTotals(userResults, assetName)
@@ -506,9 +585,11 @@ export async function getUserAndProtocolData(algodClient, address) {
 
   // get opt in data
   let optInData = await getAccountOptInData(accountInfo)
-  userResults["min_balance"] = optInData["min_balance"]
-  userResults["opted_in_apps"] = optInData["apps"]
-  userResults["opted_in_assets"] = optInData["assets"]
+  userResults["minBalance"] = Number(optInData["min_balance"])
+  userResults["minBalancePrimaryAccount"] = Number(optInData["min_balance_primary_account"])
+  userResults["minBalanceStorageAccount"] = Number(optInData["min_balance_storage_account"])
+  userResults["optedInApps"] = optInData["apps"]
+  userResults["optedInAssets"] = optInData["assets"]
 
   return [userResults, globalResults]
 }
