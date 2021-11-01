@@ -26,7 +26,7 @@ async function run() {
   let storageAccount = algosdk.mnemonicToSecretKey(process.env.storagePass)
   console.log("PRIMARY ACCOUNT ADDRESS=", primaryAccount.addr)
   console.log("STORAGE ACCOUNT ADDRESS=", storageAccount.addr)
-
+  /*
   let accountInfo = await algodClient.accountInformation(primaryAccount.addr).do()
 
   // opt in storage account to markets
@@ -225,7 +225,7 @@ async function run() {
     console.log(userAndProtocolData)
   } catch (err) {
     console.log("User and Protocol data fetch failed with err=", err)
-  }
+  }*/
   try {
     // get state
     let userAndProtocolData = await algofi.getUserAndProtocolData(algodClient, primaryAccount.addr)

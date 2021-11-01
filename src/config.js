@@ -1,139 +1,84 @@
-export const orderedAssets = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "WADA", "WSOL"]
-export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "WADA", "WSOL", "EGHT", "NINE", "TENN", "ELVN", "TWLV", "TRTN", "FRTN", "FVTN", "SXTN"]
-export const managerAppId = 41505584
+export const orderedAssets = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "WSOL"]
+export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "WSOL"]
+export const managerAppId = 42506995
 export const assetDictionary = {
   ALGO: {
-    underlyingAssetId: 1,
+    total: 1e16,
     decimals: 6,
-    oracleAppId: 41504878,
+    underlyingAssetId: 1,
+    oracleAppId: 42506198,
     oracleFieldName: "price",
     marketCounter: 1,
-    marketAppId: 41504923,
-    marketAddress: "AJYBWHCQE5WAMNT6H7SAJGJSJR74S6ORMRIAOYLEWFUO4FNSQZUJB4YEGQ",
-    bankAssetId: 41505781
+    marketAppId: 42506234,
+    marketAddress: "WYH5OUK54CYCCXCQ3LK64LZZYCYIC6V7SZJLTHG3273GXF33E5PKKTZINU",
+    bankAssetId: 42507193
   },
   USDC: {
-    underlyingAssetId: 41504813,
+    total: 1e16,
     decimals: 6,
-    oracleAppId: 41504879,
+    underlyingAssetId: 42506117,
+    oracleAppId: 42506199,
     oracleFieldName: "price",
     marketCounter: 2,
-    marketAppId: 41504926,
-    marketAddress: "JVLOG7STFZUZT3DLVWT3YCPP6WE3JWGP24XHPNAOII5VC6IQSWT7SVKHNQ",
-    bankAssetId: 41505782
+    marketAppId: 42506236,
+    marketAddress: "IQKTUQGNFXL4LJTD6WTRW2LRMJ5KXA52VOMTHM2H5LQOMJA7DCS47AGDYM",
+    bankAssetId: 42507194
   },
   YLDY: {
-    underlyingAssetId: 41504814,
+    total: 1e16,
     decimals: 6,
-    oracleAppId: 41504880,
+    underlyingAssetId: 42506118,
+    oracleAppId: 42506200,
     oracleFieldName: "price",
     marketCounter: 3,
-    marketAppId: 41504928,
-    marketAddress: "CADYAN34E7477G65WZGJKIRA7XLYODJXMIVKLT2HN4COC4IBQTPWETIUIE",
-    bankAssetId: 41505783
+    marketAppId: 42506249,
+    marketAddress: "SQ3PTCGCNXQ5I57LEVFSMUCVJ7NS47RYDCMKDI5IFHE64HUU7HZFA5RDIQ",
+    bankAssetId: 42507195
   },
   WBTC: {
-    underlyingAssetId: 41504815,
+    total: 1e16,
     decimals: 6,
-    oracleAppId: 41504881,
+    underlyingAssetId: 42506119,
+    oracleAppId: 42506201,
     oracleFieldName: "price",
     marketCounter: 4,
-    marketAppId: 41504932,
-    marketAddress: "I3M2BH7ZCYGVAWUZAMN34SD52REI766ZKQPOG527OKRMIQJZOY22YAOVBA",
-    bankAssetId: 41505784
+    marketAppId: 42506251,
+    marketAddress: "2LO24Y4F2G77DRUVXFOJ7F56C5R2DYYRWQCNVWJDFLX7EG76ORUECRJXFY",
+    bankAssetId: 42507196
   },
   WETH: {
-    underlyingAssetId: 41504816,
+    total: 1e16,
     decimals: 6,
-    oracleAppId: 41504882,
+    underlyingAssetId: 42506120,
+    oracleAppId: 42506202,
     oracleFieldName: "price",
     marketCounter: 5,
-    marketAppId: 41504934,
-    marketAddress: "ISCMYAIXGZ5SIKFKS4ZWMK75SX4PMOLT7C67BFRH3RXAZGUZWV7CKMWRFU",
-    bankAssetId: 41505785
+    marketAppId: 42506253,
+    marketAddress: "7Q7P67WXUO3T3DEKWQMBFQIUWKKKMBDPC4SVNUJ66NBIR5LV6ASROFPN7E",
+    bankAssetId: 42507197
   },
-  WADA: {
-    underlyingAssetId: 41504817,
+  BANK: {
+    total: 1000000000000000.0,
     decimals: 6,
-    oracleAppId: 41504883,
+    underlyingAssetId: 42506121,
+    oracleAppId: 42506203,
     oracleFieldName: "price",
     marketCounter: 6,
-    marketAppId: 41504937,
-    marketAddress: "CNCIM7ABG5Z3UDNB2J4D5BYBB7DZRBDMI3ZD6SRBQUIO76OUUNIPCKYJTM",
-    bankAssetId: 41505786
+    marketAppId: 42506255,
+    marketAddress: "LWLJX4CY3TFZVM6HVX3WAQQT4EIFDGFVW32GJPDY6CQPMPUN55UWJWK6EU",
+    bankAssetId: 42507198
   },
   WSOL: {
-    underlyingAssetId: 41504818,
+    total: 1e16,
     decimals: 6,
-    oracleAppId: 41504884,
+    underlyingAssetId: 42506122,
+    oracleAppId: 42506204,
     oracleFieldName: "price",
     marketCounter: 7,
-    marketAppId: 41504950,
-    marketAddress: "7FXIZNM2AD7RP76QTJ3Q6ESABZJQK4SHNWDTFUZWFJEJSH2C47NZMXGULU",
-    bankAssetId: 41505787
-  },
-  EGHT: {
-    underlyingAssetId: 41504819,
-    decimals: 6,
-    marketCounter: 8,
-    marketAppId: 41504953,
-    marketAddress: "PVEW7OP4ZTCAPC4GH26Q24P6DEKLH36H7KHKSSQP47PMT4O467PJF5IJEQ"
-  },
-  NINE: {
-    underlyingAssetId: 41504820,
-    decimals: 6,
-    marketCounter: 9,
-    marketAppId: 41504956,
-    marketAddress: "ALZ6NQBRDOQXIFPAFHBAR2PSKY2V5OPLVOCNW5IYX2BILIJCMF5WHN6PTA"
-  },
-  TENN: {
-    underlyingAssetId: 41504821,
-    decimals: 6,
-    marketCounter: 10,
-    marketAppId: 41504960,
-    marketAddress: "Q73YQMOY24LLTHCS2KDIKS66RBQNSRFH2DSIW6KXEEFAPGOVXXAL4JLWVE"
-  },
-  ELVN: {
-    underlyingAssetId: 41504822,
-    decimals: 6,
-    marketCounter: 11,
-    marketAppId: 41504962,
-    marketAddress: "F2BGNRFC6W63AO5ODQRQEPQBEYNBM7LJPU3DVN2WGD6TEIBA22R5YWOYOI"
-  },
-  TWLV: {
-    underlyingAssetId: 41504823,
-    decimals: 6,
-    marketCounter: 12,
-    marketAppId: 41504964,
-    marketAddress: "GJMPGCVPHCVANS3RAL2XIIQAL5AEXKSOBZRILJUNRDOLBLQWI6VDYLENKE"
-  },
-  TRTN: {
-    underlyingAssetId: 41504824,
-    decimals: 6,
-    marketCounter: 13,
-    marketAppId: 41504967,
-    marketAddress: "N64EP5NPCMEVYENQ5RLOMZKMYEVDWIYJ3QNH4EBETPNIXGNCA5PJYSMC7Q"
-  },
-  FRTN: {
-    underlyingAssetId: 41504825,
-    decimals: 6,
-    marketCounter: 14,
-    marketAppId: 41504971,
-    marketAddress: "TPLPO7J3U3AVBKV4PMPPMVJDT2DYA7IOBIFCQOQMKLKP6R3HDKMMFZNXZE"
-  },
-  FVTN: {
-    underlyingAssetId: 41504826,
-    decimals: 6,
-    marketCounter: 15,
-    marketAppId: 41504983,
-    marketAddress: "VHYNETU4QQAF4RYMIHPLLHJ2DW2ZD5MAPOR5G2ENA5L7LZUXH4DGD2IWRQ"
-  },
-  SXTN: {
-    underlyingAssetId: 41504827,
-    decimals: 6,
-    marketCounter: 16,
-    marketAppId: 41504987,
-    marketAddress: "CLVEABMPWGVQZ46Z7NRK5ZNC4O3M752E4DM7HRAUWTA5SP23U4D5YQNSK4"
+    marketAppId: 42506258,
+    marketAddress: "IZGH7EQDKXIPKVUP7DNAMVPMS2UBXG4QVHE5UJ7X4ITBHEXEQ3465YM2CU",
+    marketAppId: 42506258,
+    bankAssetId: 42507199
   }
 }
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
@@ -144,6 +89,7 @@ let orderedOracleAppIds = []
 let orderedMarketAppIds = []
 let orderedSupportedMarketAppIds = []
 for (const assetName of orderedAssets) {
+  console.log("assetName=", assetName)
   orderedOracleAppIds.push(assetDictionary[assetName]["oracleAppId"])
   orderedSupportedMarketAppIds.push(assetDictionary[assetName]["marketAppId"])
 }

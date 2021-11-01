@@ -120,7 +120,7 @@ export async function optInAssets(algodClient, address) {
     let bankAssetId = assetDictionary[assetName]["bankAssetId"]
     let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
     // opt into underlying asset if not already opted in
-    if (!(underlyingAssetId in accountOptedInAssets)) {
+    if (!(underlyingAssetId in accountOptedInAssets) && underlyingAssetId != 1) {
       underlying_asset_txns.push(
         algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
           // Escrow txn
@@ -146,9 +146,15 @@ export async function optInAssets(algodClient, address) {
       )
     }
   }
-  algosdk.assignGroupID(underlying_asset_txns)
-  algosdk.assignGroupID(bank_asset_txns)
-  return [underlying_asset_txns, bank_asset_txns]
+  if (underlying_asset_txns.length > 8) {
+    algosdk.assignGroupID(underlying_asset_txns)
+    algosdk.assignGroupID(bank_asset_txns)
+    return [underlying_asset_txns, bank_asset_txns]
+  } else {
+    combinedAssets = underlying_asset_txns.concat(bank_asset_txns)
+    algosdk.assignGroupID(combinedAssets)
+    return combinedAssets
+  }
 }
 
 /**

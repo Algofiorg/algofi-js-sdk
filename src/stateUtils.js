@@ -23,10 +23,8 @@ const NUMBER_OF_ASSETS = BigInt(8)
 const BYTES_FOR_PRIMARY_MANAGER = BigInt(1)
 // local vars = user_global_max_borrow_in_dollars, user_rewards_asset_id, user_pending_rewards, user_rewards_latest_time + NUMBER_OF_MARKETS (for rewards)
 const UINTS_FOR_PRIMARY_MANAGER = BigInt(15) // 15 for now since we are over max, Paul will fix w/ Byteslice.
-// local vars =
-const BYTES_FOR_STORAGE_MANAGER = BigInt(0)
 // local uints = user_active_collateral, user_borrowed_amount, user_borrow_index_initial
-const UINTS_FOR_STORAGE_MARKET = BigInt(3)
+const UINTS_FOR_STORAGE_MARKET = BigInt(4) // 4 for now because of contract schema
 
 /**
  * Function to get the storage address for an algofi user. This address is stored in the users local state.
@@ -382,18 +380,14 @@ export async function getAccountOptInData(accountInfo) {
 
   // prep for paul's change, only opt-in storage account to markets
   accountOptInData["min_balance_primary_account"] =
-    NUMBER_OF_MARKETS *
-    (MIN_BALANCE_PER_APP +
-      MIN_BALANCE_PER_ASSET +
-      MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
-      MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MARKET)
+    BigInt(2) * NUMBER_OF_ASSETS * MIN_BALANCE_PER_ASSET +
+    MIN_BALANCE_PER_APP +
+    MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
+    MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER
 
   // prep for paul's change, only opt-in storage account to markets
   accountOptInData["min_balance_storage_account"] =
-    NUMBER_OF_MARKETS *
-    (MIN_BALANCE_PER_APP +
-      MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_STORAGE_MANAGER +
-      MIN_BALANCE_PER_APP_UINT * UINTS_FOR_STORAGE_MARKET)
+    NUMBER_OF_MARKETS * (MIN_BALANCE_PER_APP + MIN_BALANCE_PER_APP_UINT * UINTS_FOR_STORAGE_MARKET)
 
   // opted in applications
   accountOptInData["apps"] = localApps
