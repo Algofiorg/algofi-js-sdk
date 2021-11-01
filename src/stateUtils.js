@@ -380,17 +380,20 @@ export async function getAccountOptInData(accountInfo) {
     MIN_BALANCE_PER_APP_BYTESLICE * totalByteSlices +
     MIN_BALANCE_PER_APP_EXTRA_PAGE * totalExtraPages
 
+  // prep for paul's change, only opt-in storage account to markets
   accountOptInData["min_balance_primary_account"] =
-    MIN_BALANCE_PER_ASSET * NUMBER_OF_ASSETS + // cost to opt-in to ASAS, TODO - refine to exact value later
-    MIN_BALANCE_PER_APP + // cost to opt-in to manager
-    MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
-    MIN_BALANCE_PER_APP_UINT +
-    UINTS_FOR_PRIMARY_MANAGER
+    NUMBER_OF_MARKETS *
+    (MIN_BALANCE_PER_APP +
+      MIN_BALANCE_PER_ASSET +
+      MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
+      MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MARKET)
 
-  accountOptInData["min_balance_storage_account"] = MIN_BALANCE_PER_APP * NUMBER_OF_MARKETS // prep for paul's change, only opt-in storage account to markets
-  MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_STORAGE_MANAGER +
-    MIN_BALANCE_PER_APP_UINT +
-    NUMBER_OF_MARKETS * MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER
+  // prep for paul's change, only opt-in storage account to markets
+  accountOptInData["min_balance_storage_account"] =
+    NUMBER_OF_MARKETS *
+    (MIN_BALANCE_PER_APP +
+      MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_STORAGE_MANAGER +
+      MIN_BALANCE_PER_APP_UINT * UINTS_FOR_STORAGE_MARKET)
 
   // opted in applications
   accountOptInData["apps"] = localApps
