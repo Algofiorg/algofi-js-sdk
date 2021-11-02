@@ -151,7 +151,7 @@ export async function optInAssets(algodClient, address) {
     algosdk.assignGroupID(bank_asset_txns)
     return [underlying_asset_txns, bank_asset_txns]
   } else {
-    combinedAssets = underlying_asset_txns.concat(bank_asset_txns)
+    let combinedAssets = underlying_asset_txns.concat(bank_asset_txns)
     algosdk.assignGroupID(combinedAssets)
     return combinedAssets
   }
