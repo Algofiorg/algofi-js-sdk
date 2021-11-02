@@ -146,7 +146,7 @@ export async function optInAssets(algodClient, address) {
       )
     }
   }
-  if (underlying_asset_txns.length > 8) {
+  if (underlying_asset_txns.length + bank_asset_txns.length > 16) {
     algosdk.assignGroupID(underlying_asset_txns)
     algosdk.assignGroupID(bank_asset_txns)
     return [underlying_asset_txns, bank_asset_txns]
