@@ -113,9 +113,16 @@ export async function getBalanceInfo(algodClient, address) {
 export async function getGlobalManagerInfo(algodClient) {
   let response = await algodClient.getApplicationByID(managerAppId).do()
   let results = {}
+  
   response.params["global-state"].forEach(x => {
     let decodedKey = Base64Encoder.decode(x.key)
-    results[decodedKey] = x.value.uint
+    if (decodedKey.slice(-6) === '_price') {
+      results[decodedKey.charCodeAt(7) + '_price'] = x.value.uint
+    } else if (decodedKey.slice(-31) === '_counter_to_rewards_coefficient') {
+      results[decodedKey.charCodeAt(7) + '_counter_to_rewards_coefficient'] = x.value.uint
+    } else {
+      results[decodedKey] = x.value.uint
+    }
   })
   return results
 }
