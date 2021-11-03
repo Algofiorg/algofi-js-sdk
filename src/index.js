@@ -504,8 +504,9 @@ export async function claimRewards(algodClient, address, storageAddress, assetNa
  */
 export async function getUserAndProtocolData(algodClient, address) {
   // initialize return variables
-  let userResults = { maxBorrowUSD: 0, borrowUSD: 0, collateralUSD: 0 }
-  let globalResults = { underlying_supplied_extrapolatedUSD: 0, underlying_borrowed_extrapolatedUSD: 0 }
+  let userResults = {}
+  let globalResults = {}
+  let userActiveMarkets = []
 
   // get current time in seconds
   let currentUnixTime = Date.now()
@@ -520,6 +521,15 @@ export async function getUserAndProtocolData(algodClient, address) {
   let storageAccountInfo = null
   if (storageAccount) {
     storageAccountInfo = await algodClient.accountInformation(storageAccount).do()
+  }
+
+  // get user storage account info  
+  userResults["manager"] = {}
+  if (storageAccount) {
+    let userManagerData = await getUserManagerData(storageAccountInfo)
+    for (const [key, value] of Object.entries(userManagerData)) {
+      userResults["manager"][key] = value
+    }
   }
 
   // get balances
@@ -567,12 +577,14 @@ export async function getUserAndProtocolData(algodClient, address) {
       for (const [key, value] of Object.entries(globalExtrapolatedData)) {
         globalResults[assetName][key] = value
       }
-      await updateGlobalTotals(globalResults, assetName)
     }
 
     if (storageAccount) {
       let userMarketData = await getUserMarketData(storageAccountInfo, assetName)
       if (userMarketData && Object.keys(userMarketData).length > 0) {
+        // store active markets to be used for totaling operation
+        userActiveMarkets.push(assetName)
+        
         for (const [key, value] of Object.entries(userMarketData)) {
           userResults[assetName][key] = value
         }
@@ -583,10 +595,17 @@ export async function getUserAndProtocolData(algodClient, address) {
           for (const [key, value] of Object.entries(userExtrapolatedData)) {
             userResults[assetName][key] = value
           }
-          await updateGlobalUserTotals(userResults, assetName)
         }
       }
     }
+  }
+
+  // update global totals  
+  await updateGlobalTotals(globalResults)
+
+  // update user totals
+  if (storageAccount) {
+    await updateGlobalUserTotals(userResults, globalResults, userActiveMarkets)
   }
 
   // get opt in data
