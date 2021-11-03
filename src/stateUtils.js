@@ -142,7 +142,11 @@ export async function getUserManagerData(accountInfo) {
   if (managerData) {
     managerData["key-value"].forEach(x => {
       let decodedKey = Base64Encoder.decode(x.key)
-      results[decodedKey] = x.value.uint
+      if (decodedKey.slice(-44) === '_counter_to_user_rewards_coefficient_initial') {
+        results[decodedKey.charCodeAt(7) + '_counter_to_user_rewards_coefficient_initial'] = x.value.uint
+      } else {
+        results[decodedKey] = x.value.uint
+      }
     })
   }
   return results
@@ -247,7 +251,7 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
     extrapolatedData["underlying_reserves_extrapolated"]
 
   // total_lend_interest_rate_earned = (total interest less reserve factor) / (total supply)
-  globalData["total_lend_interest_rate_earned"] =
+  extrapolatedData["total_lend_interest_rate_earned"] =
     globalData["underlying_borrowed"] > 0
       ? (globalData["total_borrow_interest_rate"] * globalData["underlying_borrowed"] * reserveFreeMultiplier) /
         extrapolatedData["underlying_supplied_extrapolated"]
@@ -316,6 +320,15 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
   extrapolatedData["maxBorrowUSD"] =
     extrapolatedData["collateralUSD"] * (globalResults[assetName]["collateral_factor"] / 1000)
 
+  // extrapolated rewards
+  let marketCounter = globalResults[assetName]["manager_market_counter"].toString()
+  let userMarketTVL = extrapolatedData["borrowed_extrapolated"] + extrapolatedData["collateral_underlying_extrapolated"]
+  if (userResults["manager"]["user_rewards_program_number"] === globalResults["manager"]["n_rewards_programs"]) {
+    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][marketCounter + "_counter_to_rewards_coefficient"] - userResults["manager"][marketCounter + "_counter_to_user_rewards_coefficient_initial"]) / SCALE_FACTOR)
+  } else {
+    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][marketCounter + "_counter_to_rewards_coefficient"]) / SCALE_FACTOR)
+  }
+
   return extrapolatedData
 }
 
@@ -323,29 +336,70 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
  * Function to extrapolate data from user data
  *
  * @param   {dict<string,int>}  userResults
- * @param   {string}            assetName
  *
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function updateGlobalUserTotals(userResults, assetName) {
-  userResults["borrowUSD"] += userResults[assetName]["borrowUSD"]
-  userResults["collateralUSD"] += userResults[assetName]["collateralUSD"]
-  userResults["maxBorrowUSD"] += userResults[assetName]["maxBorrowUSD"]
+export async function updateGlobalTotals(globalResults) {
+  globalResults["underlying_supplied_extrapolatedUSD"] = 0
+  globalResults["underlying_borrowed_extrapolatedUSD"] = 0
+  
+  for (const assetName of orderedAssets) {
+    globalResults["underlying_supplied_extrapolatedUSD"] +=
+      globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
+    globalResults["underlying_borrowed_extrapolatedUSD"] +=
+      globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
+  }
+
+  // calculate market APY
+  let rewards_active = (globalResults["manager"]["rewards_start_time"] > 0 && globalResults["manager"]["rewards_amount"] > 0)
+  let rewards_per_year = globalResults["manager"]["rewards_per_second"] * 60 * 60 * 24 * 365
+  
+  // TODO account for reward free markets
+  for (const assetName of orderedAssets) {
+    if (rewards_active) {
+      globalResults[assetName]["reward_rate_per_1000USD"] = rewards_per_year * 1000 * (globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] / globalResults["underlying_borrowed_extrapolatedUSD"]) / (globalResults[assetName]["underlying_supplied_extrapolatedUSD"] + globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
+    } else {
+      globalResults[assetName]["reward_rate_per_1000USD"] = 0
+    }
+  }
 }
 
 /**
  * Function to extrapolate data from user data
  *
  * @param   {dict<string,int>}  userResults
- * @param   {string}            assetName
+ * @param   {dict<string,int>}  globalResults
+ * @param   {string[]}          activeMarkets
  *
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function updateGlobalTotals(globalResults, assetName) {
-  globalResults["underlying_supplied_extrapolatedUSD"] +=
-    globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
-  globalResults["underlying_borrowed_extrapolatedUSD"] +=
-    globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
+export async function updateGlobalUserTotals(userResults, globalResults, activeMarkets) {
+  userResults["borrowUSD"] = 0
+  userResults["collateralUSD"] = 0
+  userResults["maxBorrowUSD"] = 0
+  userResults["unrealized_rewards"] = 0
+  userResults["portfolio_reward_rate_per_1000USD"] = 0
+  userResults["portfolio_lend_interest_rate_earned"] = 0
+  userResults["portfolio_borrow_interest_rate"] = 0
+
+  if (globalResults["manager"]["rewards_start_time"] > 0 && userResults["manager"]["user_rewards_program_number"] === globalResults["manager"]["n_rewards_programs"]) {
+    userResults["pending_rewards_extrapolated"] = userResults["manager"]["user_pending_rewards"]
+  } else {
+    userResults["pending_rewards_extrapolated"] = 0
+  }
+  
+  for (const assetName of activeMarkets) {
+    userResults["borrowUSD"] += userResults[assetName]["borrowUSD"]
+    userResults["collateralUSD"] += userResults[assetName]["collateralUSD"]
+    userResults["maxBorrowUSD"] += userResults[assetName]["maxBorrowUSD"]
+    userResults["unrealized_rewards"] += userResults[assetName]["market_unrealized_rewards"]
+  }
+  
+  for (const assetName of activeMarkets) {
+    userResults["portfolio_reward_rate_per_1000USD"] += globalResults[assetName]["reward_rate_per_1000USD"] * (userResults[assetName]["borrowUSD"] + userResults[assetName]["collateralUSD"]) / (userResults["borrowUSD"] + userResults["collateralUSD"])
+    userResults["portfolio_lend_interest_rate_earned"] += globalResults[assetName]["total_lend_interest_rate_earned"] * userResults[assetName]["collateralUSD"] / userResults["collateralUSD"]
+    userResults["portfolio_borrow_interest_rate"] += globalResults[assetName]["total_borrow_interest_rate"] * userResults[assetName]["borrowUSD"] / userResults["borrowUSD"]
+  }
 }
 
 /**
