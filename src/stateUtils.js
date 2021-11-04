@@ -1,6 +1,7 @@
 const algosdk = require("algosdk")
 import {
   orderedAssets,
+  marketCounterToAssetName,
   managerAppId,
   assetDictionary,
   SECONDS_PER_YEAR,
@@ -117,9 +118,9 @@ export async function getGlobalManagerInfo(algodClient) {
   response.params["global-state"].forEach(x => {
     let decodedKey = Base64Encoder.decode(x.key)
     if (decodedKey.slice(-6) === '_price') {
-      results[decodedKey.charCodeAt(7) + '_price'] = x.value.uint
+      results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + '_price'] = x.value.uint
     } else if (decodedKey.slice(-31) === '_counter_to_rewards_coefficient') {
-      results[decodedKey.charCodeAt(7) + '_counter_to_rewards_coefficient'] = x.value.uint
+      results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + '_counter_to_rewards_coefficient'] = x.value.uint
     } else {
       results[decodedKey] = x.value.uint
     }
@@ -143,7 +144,7 @@ export async function getUserManagerData(accountInfo) {
     managerData["key-value"].forEach(x => {
       let decodedKey = Base64Encoder.decode(x.key)
       if (decodedKey.slice(-44) === '_counter_to_user_rewards_coefficient_initial') {
-        results[decodedKey.charCodeAt(7) + '_counter_to_user_rewards_coefficient_initial'] = x.value.uint
+        results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + '_counter_to_user_rewards_coefficient_initial'] = x.value.uint
       } else {
         results[decodedKey] = x.value.uint
       }
@@ -321,12 +322,11 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
     extrapolatedData["collateralUSD"] * (globalResults[assetName]["collateral_factor"] / 1000)
 
   // extrapolated rewards
-  let marketCounter = globalResults[assetName]["manager_market_counter"].toString()
   let userMarketTVL = extrapolatedData["borrowed_extrapolated"] + extrapolatedData["collateral_underlying_extrapolated"]
   if (userResults["manager"]["user_rewards_program_number"] === globalResults["manager"]["n_rewards_programs"]) {
-    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][marketCounter + "_counter_to_rewards_coefficient"] - userResults["manager"][marketCounter + "_counter_to_user_rewards_coefficient_initial"]) / SCALE_FACTOR)
+    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + "_counter_to_rewards_coefficient"] - userResults["manager"][assetName + "_counter_to_user_rewards_coefficient_initial"]) / SCALE_FACTOR)
   } else {
-    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][marketCounter + "_counter_to_rewards_coefficient"]) / SCALE_FACTOR)
+    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + "_counter_to_rewards_coefficient"]) / SCALE_FACTOR)
   }
 
   return extrapolatedData

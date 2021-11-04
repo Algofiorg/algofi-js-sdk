@@ -1,5 +1,6 @@
 export const orderedAssets = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "WSOL"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "WSOL"]
+export const marketCounterToAssetName = {1 : "ALGO", 2 : "USDC", 3 : "YLDY", 4 : "WBTC", 5 : "WETH", 6 : "BANK", 7 : "WSOL"}
 export const managerAppId = 42506995
 export const assetDictionary = {
   ALGO: {

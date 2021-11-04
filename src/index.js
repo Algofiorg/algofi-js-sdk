@@ -29,19 +29,6 @@ import {
 } from "./config.js"
 import { Base64Encoder } from "./encoder.js"
 export {
-  // FOR TESTING
-  getPriceInfo,
-  getBalanceInfo,
-  getUserMarketData,
-  getGlobalMarketInfo,
-  extrapolateMarketData,
-  extrapolateUserData,
-  updateGlobalUserTotals,
-  updateGlobalTotals,
-  getStorageAddress,
-  getGlobalManagerInfo,
-  Base64Encoder,
-  //
   getAccountOptInData,
   orderedAssets,
   orderedAssetsAndPlaceholders,
