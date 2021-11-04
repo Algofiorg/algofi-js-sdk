@@ -1,6 +1,5 @@
 export const orderedAssets = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "WSOL"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "WSOL"]
-export const marketCounterToAssetName = {1 : "ALGO", 2 : "USDC", 3 : "YLDY", 4 : "WBTC", 5 : "WETH", 6 : "BANK", 7 : "WSOL"}
 export const managerAppId = 42506995
 export const assetDictionary = {
   ALGO: {
@@ -89,12 +88,17 @@ export const PARAMETER_SCALE_FACTOR = 1e3
 let orderedOracleAppIds = []
 let orderedMarketAppIds = []
 let orderedSupportedMarketAppIds = []
+let marketCounterToAssetName = {}
+let assetIdToAssetName = {}
 for (const assetName of orderedAssets) {
   console.log("assetName=", assetName)
   orderedOracleAppIds.push(assetDictionary[assetName]["oracleAppId"])
   orderedSupportedMarketAppIds.push(assetDictionary[assetName]["marketAppId"])
+  marketCounterToAssetName[assetDictionary[assetName]["marketCounter"]] = assetName
+  assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
+  assetIdToAssetName[assetDictionary[assetName]["bankAssetId"]] = "b" + assetName
 }
 for (const assetName of orderedAssetsAndPlaceholders) {
   orderedMarketAppIds.push(assetDictionary[assetName]["marketAppId"])
 }
-export { orderedOracleAppIds, orderedMarketAppIds, orderedSupportedMarketAppIds }
+export { orderedOracleAppIds, orderedMarketAppIds, orderedSupportedMarketAppIds, marketCounterToAssetName, assetIdToAssetName }

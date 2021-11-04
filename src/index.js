@@ -436,14 +436,13 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
  * @param   {AlgodV2}   algodClient
  * @param   {string}    address
  * @param   {string}    storageAddress
- * @param   {string}       assetName
- * @param   {string}    assetName2
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform repay_borrow operation
  */
-export async function claimRewards(algodClient, address, storageAddress, assetName = "ALGO", assetName2 = "ALGO") {
-  let primaryRewardsAsset = assetDictionary[assetName]["underlyingAssetId"]
-  let secondaryRewardsAsset = assetDictionary[assetName2]["underlyingAssetId"]
+export async function claimRewards(algodClient, address, storageAddress) {
+  let globalManagerData = await getGlobalManagerInfo(algodClient)
+  let primaryRewardsAsset = globalManagerData["rewards_asset_id"]
+  let secondaryRewardsAsset = globalManagerData["rewards_secondary_asset_id"]
 
   // initialize encoder
   const enc = new TextEncoder()
@@ -457,10 +456,10 @@ export async function claimRewards(algodClient, address, storageAddress, assetNa
   })
 
   let foreign_assets = []
-  if (primaryRewardsAsset != 1) {
+  if (primaryRewardsAsset && primaryRewardsAsset != 1) {
     foreign_assets.push(primaryRewardsAsset)
   }
-  if (secondaryRewardsAsset != 1) {
+  if (secondaryRewardsAsset && secondaryRewardsAsset != 1) {
     foreign_assets.push(secondaryRewardsAsset)
   }
 
