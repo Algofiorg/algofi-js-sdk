@@ -2,6 +2,7 @@ const algosdk = require("algosdk")
 import {
   orderedAssets,
   marketCounterToAssetName,
+  assetIdToAssetName,
   managerAppId,
   assetDictionary,
   SECONDS_PER_YEAR,
@@ -121,6 +122,12 @@ export async function getGlobalManagerInfo(algodClient) {
       results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + '_price'] = x.value.uint
     } else if (decodedKey.slice(-31) === '_counter_to_rewards_coefficient') {
       results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + '_counter_to_rewards_coefficient'] = x.value.uint
+    } else if (decodedKey === "rewards_asset_id") {
+      results[decodedKey] = x.value.uint
+      results["rewards_asset"] = assetIdToAssetName[x.value.uint]
+    } else if (decodedKey === "rewards_secondary_asset_id") {
+      results[decodedKey] = x.value.uint
+      results["rewards_secondary_asset"] = assetIdToAssetName[x.value.uint]
     } else {
       results[decodedKey] = x.value.uint
     }
