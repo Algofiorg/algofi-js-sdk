@@ -465,6 +465,7 @@ export async function claimRewards(algodClient, address, storageAddress) {
 
   // construct manager pseudo-function transaction
   const params = await getParams(algodClient)
+  params.fee = 3000
   const claimRewardsTxn = algosdk.makeApplicationNoOpTxnFromObject({
     from: address,
     appIndex: managerAppId,
