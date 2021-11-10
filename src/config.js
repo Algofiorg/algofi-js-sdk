@@ -1,84 +1,84 @@
-export const orderedAssets = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "WSOL"]
-export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "WSOL"]
-export const managerAppId = 42506995
+
+export const orderedAssets = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "STBL"]
+export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "YLDY", "WBTC", "WETH", "BANK", "STBL"]
+export const managerAppId = 43995308
 export const assetDictionary = {
   ALGO: {
     total: 1e16,
     decimals: 6,
     underlyingAssetId: 1,
-    oracleAppId: 42506198,
+    oracleAppId: 43994992,
     oracleFieldName: "price",
     marketCounter: 1,
-    marketAppId: 42506234,
-    marketAddress: "WYH5OUK54CYCCXCQ3LK64LZZYCYIC6V7SZJLTHG3273GXF33E5PKKTZINU",
-    bankAssetId: 42507193
+    marketAppId: 43995020,
+    marketAddress: "QPVAYGJV7CZYOEYUGC3JGK4QDBVIZFRFQY6NKRIY54ZHRVHWE2UTYXNOEI",
+    bankAssetId: 43995449
   },
   USDC: {
     total: 1e16,
     decimals: 6,
-    underlyingAssetId: 42506117,
-    oracleAppId: 42506199,
+    underlyingAssetId: 43994922,
+    oracleAppId: 43994994,
     oracleFieldName: "price",
     marketCounter: 2,
-    marketAppId: 42506236,
-    marketAddress: "IQKTUQGNFXL4LJTD6WTRW2LRMJ5KXA52VOMTHM2H5LQOMJA7DCS47AGDYM",
-    bankAssetId: 42507194
+    marketAppId: 43995023,
+    marketAddress: "KX2K46V6RR3AGVGOISGEOYYYEVAILA2UA4AQ777WIGAMLCUTG7RGRDI6QY",
+    bankAssetId: 43995450
   },
   YLDY: {
     total: 1e16,
     decimals: 6,
-    underlyingAssetId: 42506118,
-    oracleAppId: 42506200,
+    underlyingAssetId: 43994923,
+    oracleAppId: 43994995,
     oracleFieldName: "price",
     marketCounter: 3,
-    marketAppId: 42506249,
-    marketAddress: "SQ3PTCGCNXQ5I57LEVFSMUCVJ7NS47RYDCMKDI5IFHE64HUU7HZFA5RDIQ",
-    bankAssetId: 42507195
+    marketAppId: 43995025,
+    marketAddress: "WSG2MT62OYZSK32QOG4FYPVY6O5GB32PTNOTPG6CI6CPOYDZZFJV5JTEXU",
+    bankAssetId: 43995451
   },
   WBTC: {
     total: 1e16,
     decimals: 6,
-    underlyingAssetId: 42506119,
-    oracleAppId: 42506201,
+    underlyingAssetId: 43994924,
+    oracleAppId: 43994996,
     oracleFieldName: "price",
     marketCounter: 4,
-    marketAppId: 42506251,
-    marketAddress: "2LO24Y4F2G77DRUVXFOJ7F56C5R2DYYRWQCNVWJDFLX7EG76ORUECRJXFY",
-    bankAssetId: 42507196
+    marketAppId: 43995027,
+    marketAddress: "BLKVVEHNYQHFWJG67GYJJLHBUFELWNOPRR7TL6T5V2AW4BVJ2B4PDPKNBY",
+    bankAssetId: 43995452
   },
   WETH: {
     total: 1e16,
     decimals: 6,
-    underlyingAssetId: 42506120,
-    oracleAppId: 42506202,
+    underlyingAssetId: 43994925,
+    oracleAppId: 43994997,
     oracleFieldName: "price",
     marketCounter: 5,
-    marketAppId: 42506253,
-    marketAddress: "7Q7P67WXUO3T3DEKWQMBFQIUWKKKMBDPC4SVNUJ66NBIR5LV6ASROFPN7E",
-    bankAssetId: 42507197
+    marketAppId: 43995039,
+    marketAddress: "EUNF25JEZYMEJNYFYGMRXIS76JXNQNK6YBAKTLLGRQ5XHRGFQTHYLX7RUU",
+    bankAssetId: 43995453
   },
   BANK: {
     total: 1000000000000000.0,
     decimals: 6,
-    underlyingAssetId: 42506121,
-    oracleAppId: 42506203,
+    underlyingAssetId: 43994926,
+    oracleAppId: 43994998,
     oracleFieldName: "price",
     marketCounter: 6,
-    marketAppId: 42506255,
-    marketAddress: "LWLJX4CY3TFZVM6HVX3WAQQT4EIFDGFVW32GJPDY6CQPMPUN55UWJWK6EU",
-    bankAssetId: 42507198
+    marketAppId: 43995041,
+    marketAddress: "BKN7NYZKJM2ZVLSJ5C5H376BSFRYZYBDSXO3R54TKIKFIUP6WPGKCZOFYA",
+    bankAssetId: 43995454
   },
-  WSOL: {
+  STBL: {
     total: 1e16,
     decimals: 6,
-    underlyingAssetId: 42506122,
-    oracleAppId: 42506204,
+    underlyingAssetId: 43994928,
+    oracleAppId: 43995000,
     oracleFieldName: "price",
     marketCounter: 7,
-    marketAppId: 42506258,
-    marketAddress: "IZGH7EQDKXIPKVUP7DNAMVPMS2UBXG4QVHE5UJ7X4ITBHEXEQ3465YM2CU",
-    marketAppId: 42506258,
-    bankAssetId: 42507199
+    marketAppId: 43995043,
+    marketAddress: "CC7WN6NUDP6FHA7MUKE43BFPLBZMM2D3HKY67FDKYQZIW2QN74EVIQYVZA",
+    bankAssetId: 43995455
   }
 }
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
