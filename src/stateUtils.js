@@ -360,8 +360,10 @@ export async function updateGlobalTotals(globalResults) {
   globalResults["active_collateral_extrapolatedUSD"] = 0
   
   for (const assetName of orderedAssets) {
-    globalResults["underlying_supplied_extrapolatedUSD"] +=
-      globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
+    if (assetName != "STBL") {
+      globalResults["underlying_supplied_extrapolatedUSD"] +=
+        globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
+    }
     globalResults["active_collateral_extrapolatedUSD"] +=
       globalResults[assetName]["active_collateral_extrapolatedUSD"]
     globalResults["underlying_borrowed_extrapolatedUSD"] +=
