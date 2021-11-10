@@ -543,17 +543,6 @@ export async function getUserAndProtocolData(algodClient, address) {
     userResults[assetName]["balance"] = balances[assetName]
     userResults[bAssetName]["balance"] = balances[bAssetName]
 
-    // get storage account data
-    let userMarketData = null
-    if (storageAccount) {
-      let userMarketData = await getUserMarketData(storageAccountInfo, assetName)
-      if (userMarketData && Object.keys(userMarketData).length > 0) {
-        for (const [key, value] of Object.entries(userMarketData)) {
-          userResults[assetName][key] = value
-        }
-      }
-    }
-
     // get market global data
     let globalData = await getGlobalMarketInfo(algodClient, assetDictionary[assetName]["marketAppId"])
     if (globalData && Object.keys(globalData).length > 0) {
@@ -567,7 +556,7 @@ export async function getUserAndProtocolData(algodClient, address) {
     }
 
     if (storageAccount) {
-      let userMarketData = await getUserMarketData(storageAccountInfo, assetName)
+      let userMarketData = await getUserMarketData(storageAccountInfo, globalResults, assetName)
       if (userMarketData && Object.keys(userMarketData).length > 0) {
         // store active markets to be used for totaling operation
         userActiveMarkets.push(assetName)

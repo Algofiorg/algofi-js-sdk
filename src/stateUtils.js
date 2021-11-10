@@ -168,7 +168,7 @@ export async function getUserManagerData(accountInfo) {
  *
  * @return  {dict<string,int>}  results       - dictionary of user market local state
  */
-export async function getUserMarketData(accountInfo, assetName) {
+export async function getUserMarketData(accountInfo, globalData, assetName) {
   let results = {}
   let marketData = accountInfo["apps-local-state"].filter(x => {
     return x.id === assetDictionary[assetName]["marketAppId"] && x["key-value"]
@@ -176,12 +176,12 @@ export async function getUserMarketData(accountInfo, assetName) {
   if (marketData) {
     marketData["key-value"].forEach(y => {
       let decodedKey = Base64Encoder.decode(y.key)
-      if (decodedKey === "user_borrowed_amount") {
-        results["borrowed"] = y.value.uint
+      if (decodedKey === "user_borrow_shares") {
+        results["borrowed"] = Math.floor(y.value.uint * globalData[assetName]["underlying_borrowed_extrapolated"] / globalData[assetName]["outstanding_borrow_shares"])
       } else if (decodedKey === "user_active_collateral") {
         results["active_collateral"] = Number(y.value.uint)
-      } else if (decodedKey === "user_borrow_index_initial") {
-        results["initial_index"] = Number(y.value.uint)
+      } else {
+        results[decodedKey] = y.value.uint
       }
     })
   }
@@ -240,7 +240,7 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
   // underlying_borrowed_extrapolated
   extrapolatedData["underlying_borrowed_extrapolated"] =
     extrapolatedData["borrow_index_extrapolated"] > 0
-      ? (globalData["underlying_borrowed"] * extrapolatedData["borrow_index_extrapolated"]) / globalData["borrow_index"]
+      ? (globalData["underlying_borrowed"] * extrapolatedData["borrow_index_extrapolated"]) / globalData["implied_borrow_index"]
       : globalData["underlying_borrowed"]
 
   // underlying_reserves_extrapolated
@@ -298,11 +298,7 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
   let extrapolatedData = {}
 
   // borrwed_extrapolated
-  extrapolatedData["borrowed_extrapolated"] =
-    userResults[assetName]["borrowed"] && globalResults[assetName]["borrow_index_extrapolated"]
-      ? (userResults[assetName]["borrowed"] * globalResults[assetName]["borrow_index_extrapolated"]) /
-        userResults[assetName]["initial_index"]
-      : 0
+  extrapolatedData["borrowed_extrapolated"] = userResults[assetName]["borrowed"] ? userResults[assetName]["borrowed"] : 0
 
   // collateral_underlying
   extrapolatedData["collateral_underlying_extrapolated"] =
