@@ -271,6 +271,12 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
       ? (extrapolatedData["underlying_supplied_extrapolated"] * SCALE_FACTOR) / globalData["bank_circulation"]
       : globalData["bank_to_underlying_exchange"]
 
+  // active_collateral_extrapolated
+  extrapolatedData["active_collateral_extrapolated"] = 
+    globalData["active_collateral"] ?
+    globalData["active_collateral"] * extrapolatedData["bank_to_underlying_exchange_extrapolated"] / SCALE_FACTOR :
+    0
+
   // calculate USD values
   extrapolatedData["underlying_borrowed_extrapolatedUSD"] =
     extrapolatedData["underlying_borrowed_extrapolated"] *
@@ -279,6 +285,12 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
 
   extrapolatedData["underlying_supplied_extrapolatedUSD"] =
     extrapolatedData["underlying_supplied_extrapolated"] *
+    (prices[assetName] / SCALE_FACTOR) *
+    (1 / 10 ** assetDictionary[assetName]["decimals"])
+    
+  // active_collateral_extrapolatedUSD
+  extrapolatedData["active_collateral_extrapolatedUSD"] =
+    extrapolatedData["active_collateral_extrapolated"] *
     (prices[assetName] / SCALE_FACTOR) *
     (1 / 10 ** assetDictionary[assetName]["decimals"])
 
@@ -345,10 +357,13 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
 export async function updateGlobalTotals(globalResults) {
   globalResults["underlying_supplied_extrapolatedUSD"] = 0
   globalResults["underlying_borrowed_extrapolatedUSD"] = 0
+  globalResults["active_collateral_extrapolatedUSD"] = 0
   
   for (const assetName of orderedAssets) {
     globalResults["underlying_supplied_extrapolatedUSD"] +=
       globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
+    globalResults["active_collateral_extrapolatedUSD"] +=
+      globalResults[assetName]["active_collateral_extrapolatedUSD"]
     globalResults["underlying_borrowed_extrapolatedUSD"] +=
       globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
   }
@@ -360,7 +375,7 @@ export async function updateGlobalTotals(globalResults) {
   // TODO account for reward free markets
   for (const assetName of orderedAssets) {
     if (rewards_active) {
-      globalResults[assetName]["reward_rate_per_1000USD"] = rewards_per_year * 1000 * (globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] / globalResults["underlying_borrowed_extrapolatedUSD"]) / (globalResults[assetName]["underlying_supplied_extrapolatedUSD"] + globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
+      globalResults[assetName]["reward_rate_per_1000USD"] = rewards_per_year * 1000 * (globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] / globalResults["underlying_borrowed_extrapolatedUSD"]) / (globalResults[assetName]["active_collateral_extrapolatedUSD"] + globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
     } else {
       globalResults[assetName]["reward_rate_per_1000USD"] = 0
     }
