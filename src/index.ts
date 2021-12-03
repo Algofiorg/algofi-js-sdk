@@ -39,7 +39,8 @@ export {
   orderedSupportedMarketAppIds,
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
-  SCALE_FACTOR
+  SCALE_FACTOR,
+  Base64Encoder
 }
 
 const NO_EXTRA_ARGS = null
@@ -402,7 +403,7 @@ export async function removeCollateralUnderlying(
   address:string,
   storageAddress:string,
   amount:number,
-  assetName:number
+  assetName:string
 ):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
