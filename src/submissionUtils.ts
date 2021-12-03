@@ -63,7 +63,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("fetch_market_variables")],
     suggestedParams: params,
-    note: enc.encode("Fetch Variables")
+    note: enc.encode("Fetch Variables"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // update prices
@@ -75,7 +78,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedOracleAppIds,
     appArgs: [enc.encode("update_prices")],
     suggestedParams: params,
-    note: enc.encode("Update Prices")
+    note: enc.encode("Update Prices"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // update protocol
@@ -87,7 +93,9 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     appArgs: [enc.encode("update_protocol_data")],
     accounts: [dataAccount],
     suggestedParams: params,
-    note: enc.encode("Update Protocol")
+    note: enc.encode("Update Protocol"),
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction one
@@ -97,7 +105,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_one")],
     suggestedParams: params,
-    note: enc.encode("First Dummy Txn")
+    note: enc.encode("First Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction two
@@ -107,7 +118,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_two")],
     suggestedParams: params,
-    note: enc.encode("Second Dummy Txn")
+    note: enc.encode("Second Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction three
@@ -117,7 +131,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_three")],
     suggestedParams: params,
-    note: enc.encode("Third Dummy Txn")
+    note: enc.encode("Third Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction four
@@ -127,7 +144,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_four")],
     suggestedParams: params,
-    note: enc.encode("Fourth Dummy Txn")
+    note: enc.encode("Fourth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction five
@@ -137,7 +157,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_five")],
     suggestedParams: params,
-    note: enc.encode("Fifth Dummy Txn")
+    note: enc.encode("Fifth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction six
@@ -147,7 +170,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_six")],
     suggestedParams: params,
-    note: enc.encode("Sixth Dummy Txn")
+    note: enc.encode("Sixth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction seven
@@ -157,7 +183,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_seven")],
     suggestedParams: params,
-    note: enc.encode("Seventh Dummy Txn")
+    note: enc.encode("Seventh Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction eight
@@ -167,7 +196,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_eight")],
     suggestedParams: params,
-    note: enc.encode("Eighth Dummy Txn")
+    note: enc.encode("Eighth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction nine
@@ -177,7 +209,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_nine")],
     suggestedParams: params,
-    note: enc.encode("Nineth Dummy Txn")
+    note: enc.encode("Nineth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // send transaction array
@@ -225,7 +260,11 @@ async function getStackGroup(
     appIndex: managerAppId,
     appArgs: managerAppArgs,
     suggestedParams: params,
-    note: enc.encode("Manager: " + functionString)
+    note: enc.encode("Manager: " + functionString),
+    accounts: undefined,
+    foreignApps: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
 
   // constructmarket pseudo-function transaction
@@ -237,7 +276,8 @@ async function getStackGroup(
     foreignAssets: [foreignAssetId],
     accounts: [dataAccount],
     suggestedParams: params,
-    note: enc.encode("Market: " + functionString)
+    note: enc.encode("Market: " + functionString),
+    rekeyTo: undefined,
   })
   return [applTx0, applTx1]
 }
@@ -268,7 +308,8 @@ async function getPaymentTxn(
         from: senderAccount,
         to: marketAddress,
         amount: amount,
-        suggestedParams: params
+        suggestedParams: params,
+        rekeyTo: undefined,
     })
     return algoPayment
 
@@ -278,7 +319,9 @@ async function getPaymentTxn(
         to: marketAddress,
         amount: amount,
         assetIndex: assetId,
-        suggestedParams: params
+        suggestedParams: params,
+        rekeyTo: undefined,
+        revocationTarget: undefined
     })
     return asaPayment
   }

@@ -71,7 +71,11 @@ export async function optInMarkets(algodClient, address) {
         algosdk.makeApplicationOptInTxnFromObject({
           from: address,
           appIndex: marketAppId,
-          suggestedParams: params
+          suggestedParams: params,
+          accounts: undefined,
+          foreignApps: undefined, 
+          foreignAssets:undefined, 
+          rekeyTo: undefined
         })
       )
     }
@@ -115,7 +119,9 @@ export async function optInAssets(algodClient, address) {
           to: address,
           amount: 0,
           assetIndex: underlyingAssetId,
-          from: address
+          from: address,
+          rekeyTo: undefined,
+          revocationTarget: undefined,
         })
       )
     }
@@ -128,7 +134,9 @@ export async function optInAssets(algodClient, address) {
           to: address,
           amount: 0,
           assetIndex: bankAssetId,
-          from: address
+          from: address,
+          rekeyTo: undefined,
+          revocationTarget: undefined,
         })
       )
     }
@@ -160,7 +168,11 @@ export async function optInManager(algodClient, address, storageAddress) {
     algosdk.makeApplicationOptInTxnFromObject({
       from: address,
       appIndex: managerAppId,
-      suggestedParams: params
+      suggestedParams: params,
+      accounts: undefined,
+      foreignApps: undefined, 
+      foreignAssets:undefined, 
+      rekeyTo: undefined,
     })
   )
   txns.push(
@@ -168,7 +180,10 @@ export async function optInManager(algodClient, address, storageAddress) {
       from: storageAddress,
       appIndex: managerAppId,
       suggestedParams: params,
-      rekeyTo: algosdk.getApplicationAddress(managerAppId)
+      rekeyTo: algosdk.getApplicationAddress(managerAppId),
+      accounts: undefined,
+      foreignApps: undefined, 
+      foreignAssets:undefined, 
     })
   )
   algosdk.assignGroupID(txns)
@@ -473,7 +488,9 @@ export async function claimRewards(algodClient, address, storageAddress) {
     suggestedParams: params,
     foreignAssets: foreign_assets,
     accounts: [storageAddress],
-    note: enc.encode("Manager: Claim rewards")
+    note: enc.encode("Manager: Claim rewards"),
+    foreignApps: undefined,
+    rekeyTo: undefined
   })
   txns.push(claimRewardsTxn)
 
