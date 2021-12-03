@@ -1,6 +1,5 @@
-import algosdk from "algosdk"
+import algosdk, { Algodv2, SuggestedParams, Transaction } from "algosdk"
 import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config"
-import { getGlobalManagerInfo } from "./stateUtils" 
 
 /**
  * Function that returns standard transaction parameters
@@ -9,7 +8,7 @@ import { getGlobalManagerInfo } from "./stateUtils"
  * 
  * @return params
  */
-export async function getParams(algodClient) {
+export async function getParams(algodClient: Algodv2): Promise<SuggestedParams> {
   let params = await algodClient.getTransactionParams().do()
   params.fee = 1000
   params.flatFee = true
@@ -20,11 +19,11 @@ export async function getParams(algodClient) {
  * Helper function to wait for a transaction to be completed
  *
  * @param   {Algodv2}   algofClient
- * @param   {int}       txid
+ * @param   {string}    txid
  * 
  * @return  {none}
  */
-export async function waitForConfirmation(algodClient, txId) {
+export async function waitForConfirmation(algodClient:Algodv2, txId:string):Promise<void> {
   const response = await algodClient.status().do()
   let lastround = response["last-round"]
   while (true) {
@@ -47,9 +46,9 @@ export async function waitForConfirmation(algodClient, txId) {
  * @param   {string}    senderAccount         - user account address
  * @param   {string}    dataAccount           - user storage account address
  * 
- * @return  {Txn[]}     preamble transaction array
+ * @return  {Transaction[]}     preamble transaction array
  */
-export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
+export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, dataAccount:string):Promise<Transaction[]> {
   // get default params
   let params = await getParams(algodClient)
 
@@ -233,14 +232,14 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
  * @return  {Transaction[]}                   - array of primary pseudo-function stransactions
  */
 async function getStackGroup(
-  algodClient,
-  senderAccount,
-  dataAccount,
-  marketAppId,
-  foreignAssetId,
-  functionString,
+  algodClient: Algodv2,
+  senderAccount: string,
+  dataAccount: string,
+  marketAppId:number,
+  foreignAssetId:number,
+  functionString:string,
   extraCallArgs = null
-) {
+):Promise<Transaction[]> {
   // initialize generic params
   const params = await getParams(algodClient)
   
@@ -294,12 +293,12 @@ async function getStackGroup(
  * @return  {Payment Transaction}
  */
 async function getPaymentTxn(
-  algodClient,
-  senderAccount,
-  marketAddress,
-  assetId,
-  amount
-) {
+  algodClient:Algodv2,
+  senderAccount:string,
+  marketAddress:string,
+  assetId:number,
+  amount:number
+):Promise<Transaction> {
   // initialize generic params
   const params = await getParams(algodClient)
   
@@ -344,17 +343,17 @@ async function getPaymentTxn(
  * @return {Transaction[]}
  */
 export async function buildUserTransaction(
-  algodClient,
-  senderAccount,
-  dataAccount,
-  marketAppId,
-  foreignAssetId,
-  functionString,
+  algodClient:Algodv2,
+  senderAccount:string,
+  dataAccount:string,
+  marketAppId:number,
+  foreignAssetId:number,
+  functionString:string,
   extraCallArgs = null,
   marketAddress = "",
   paymentAssetId = 0,
   paymentAmout = 0
-) {
+):Promise<Transaction[]> {
   let txns = []
   // get preamble transactions
   let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount)
