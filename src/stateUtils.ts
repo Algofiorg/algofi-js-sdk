@@ -1,5 +1,4 @@
 import algosdk, { Algodv2 } from "algosdk"
-import AccountInformation from "algosdk/dist/types/src/client/v2/algod/accountInformation"
 import {
   orderedAssets,
   marketCounterToAssetName,
@@ -37,7 +36,7 @@ const UINTS_FOR_STORAGE_MARKET = BigInt(4) // 4 for now because of contract sche
  *
  * @return  {string}              storageAccont - Storage address of user
  */
-export async function getStorageAddress(accountInfo:AccountInformation):Promise<string> {
+export async function getStorageAddress(accountInfo:any):Promise<string> {
   let storageAccount = null
 
   let localManager = accountInfo["apps-local-state"].filter(x => {
@@ -143,7 +142,7 @@ export async function getGlobalManagerInfo(algodClient:Algodv2):Promise<{}> {
  *
  * @return  {dict<string,int>}    results       - dictionary of global state for this market
  */
-export async function getUserManagerData(accountInfo:AccountInformation):Promise<{}> {
+export async function getUserManagerData(accountInfo:any):Promise<{}> {
   let results = {}
   let managerData = accountInfo["apps-local-state"].filter(x => {
     return x.id === managerAppId && x["key-value"]
@@ -170,7 +169,7 @@ export async function getUserManagerData(accountInfo:AccountInformation):Promise
  *
  * @return  {dict<string,int>}    results       - dictionary of user market local state
  */
-export async function getUserMarketData(accountInfo:AccountInformation, globalData:{}, assetName:string):Promise<{}> {
+export async function getUserMarketData(accountInfo:any, globalData:{}, assetName:string):Promise<{}> {
   let results = {}
   let marketData = accountInfo["apps-local-state"].filter(x => {
     return x.id === assetDictionary[assetName]["marketAppId"] && x["key-value"]
@@ -433,7 +432,7 @@ export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, a
  *
  * @return  {dict<string,int>}    userData    - userData with added USD values
  */
-export async function getAccountOptInData(accountInfo:AccountInformation):Promise<{}> {
+export async function getAccountOptInData(accountInfo:any):Promise<{}> {
   let accountOptInData = {}
 
   // min balance

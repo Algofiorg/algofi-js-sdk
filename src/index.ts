@@ -1,5 +1,5 @@
-import algosdk from "algosdk"
-import { getParams, waitForConfirmation, buildUserTransaction, getLeadingTxs } from "./submissionUtils.js"
+import algosdk, { Algodv2, Transaction } from "algosdk"
+import { getParams, waitForConfirmation, buildUserTransaction, getLeadingTxs } from "./submissionUtils"
 export { getParams, waitForConfirmation }
 import {
   getStorageAddress,
@@ -52,7 +52,7 @@ const NO_EXTRA_ARGS = null
  *
  * @return  {Transaction[]}   transaction group to opt into algofi markets contracts
  */
-export async function optInMarkets(algodClient, address) {
+export async function optInMarkets(algodClient:Algodv2, address:string):Promise<Transaction[]> {
   const params = await getParams(algodClient)
 
   // get app opt in data
@@ -92,7 +92,7 @@ export async function optInMarkets(algodClient, address) {
  *
  * @return  {Transaction[]}   get opt in transactions for non opted in algofi assets
  */
-export async function optInAssets(algodClient, address) {
+export async function optInAssets(algodClient:Algodv2, address:string):Promise<Transaction[][] | Transaction[]> {
   // get currently opted in assets
   let accountInfo = await algodClient.accountInformation(address).do()
   let accountOptInData = await getAccountOptInData(accountInfo)
@@ -161,7 +161,11 @@ export async function optInAssets(algodClient, address) {
  *
  * @return  {Transaction[]}   create transactions to opt in to manager and rekey storage address to manager contract
  */
-export async function optInManager(algodClient, address, storageAddress) {
+export async function optInManager(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string
+):Promise<Transaction[]> {
   const params = await getParams(algodClient)
   let txns = []
   txns.push(
@@ -201,7 +205,13 @@ export async function optInManager(algodClient, address, storageAddress) {
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform mint operation
  */
-export async function mint(algodClient, address, storageAddress, amount, assetName) {
+export async function mint(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string,
+  amount:number,
+  assetName:string
+):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
@@ -234,7 +244,13 @@ export async function mint(algodClient, address, storageAddress, amount, assetNa
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform mint_to_collateral operation
  */
-export async function mintToCollateral(algodClient, address, storageAddress, amount, assetName) {
+export async function mintToCollateral(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string,
+  amount:number,
+  assetName:string
+):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
@@ -267,7 +283,13 @@ export async function mintToCollateral(algodClient, address, storageAddress, amo
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform burn operation
  */
-export async function burn(algodClient, address, storageAddress, amount, assetName) {
+export async function burn(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string,
+  amount:number,
+  assetName:string
+):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
@@ -300,7 +322,13 @@ export async function burn(algodClient, address, storageAddress, amount, assetNa
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform add_collateral operation
  */
-export async function addCollateral(algodClient, address, storageAddress, amount, assetName) {
+export async function addCollateral(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string,
+  amount:number,
+  assetName:string
+):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
@@ -333,7 +361,13 @@ export async function addCollateral(algodClient, address, storageAddress, amount
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform remove_collateral operation
  */
-export async function removeCollateral(algodClient, address, storageAddress, amount, assetName) {
+export async function removeCollateral(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string,
+  amount:number,
+  assetName:string
+):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
@@ -363,10 +397,14 @@ export async function removeCollateral(algodClient, address, storageAddress, amo
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform remove_collateral_underlying operation
  */
-export async function removeCollateralUnderlying(algodClient, address, storageAddress, amount, assetName) {
+export async function removeCollateralUnderlying(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string,
+  amount:number,
+  assetName:number
+):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
-  let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
 
   let txns = await buildUserTransaction(
@@ -393,10 +431,13 @@ export async function removeCollateralUnderlying(algodClient, address, storageAd
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform borrow operation
  */
-export async function borrow(algodClient, address, storageAddress, amount, assetName) {
+export async function borrow(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string,
+  amount:number,
+  assetName:string):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
-  let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
 
   let txns = await buildUserTransaction(
@@ -423,7 +464,13 @@ export async function borrow(algodClient, address, storageAddress, amount, asset
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform repay_borrow operation
  */
-export async function repayBorrow(algodClient, address, storageAddress, amount, assetName) {
+export async function repayBorrow(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string,
+  amount:number,
+  assetName:string
+):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
   let bankAssetId = assetDictionary[assetName]["bankAssetId"]
@@ -454,7 +501,11 @@ export async function repayBorrow(algodClient, address, storageAddress, amount, 
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform repay_borrow operation
  */
-export async function claimRewards(algodClient, address, storageAddress) {
+export async function claimRewards(
+  algodClient:Algodv2,
+  address:string,
+  storageAddress:string
+):Promise<Transaction[]> {
   let globalManagerData = await getGlobalManagerInfo(algodClient)
   let primaryRewardsAsset = globalManagerData["rewards_asset_id"]
   let secondaryRewardsAsset = globalManagerData["rewards_secondary_asset_id"]
@@ -506,7 +557,10 @@ export async function claimRewards(algodClient, address, storageAddress) {
  *
  * @return  {[dict<string,n>, dict<string,n>]} dictionaries containing the aggregated user protocol data
  */
-export async function getUserAndProtocolData(algodClient, address) {
+export async function getUserAndProtocolData(
+  algodClient:Algodv2,
+  address:string
+):Promise<any> {
   // initialize return variables
   let userResults = {}
   let globalResults = {}
