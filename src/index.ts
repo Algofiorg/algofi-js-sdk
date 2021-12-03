@@ -14,7 +14,7 @@ import {
   extrapolateUserData,
   updateGlobalUserTotals,
   updateGlobalTotals
-} from "./stateUtils.js"
+} from "./stateUtils"
 import {
   orderedAssets,
   orderedAssetsAndPlaceholders,
@@ -26,8 +26,8 @@ import {
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR
-} from "./config.js"
-import { Base64Encoder } from "./encoder.js"
+} from "./config"
+import { Base64Encoder } from "./encoder"
 export {
   getAccountOptInData,
   orderedAssets,

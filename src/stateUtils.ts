@@ -8,8 +8,8 @@ import {
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR
-} from "./config.js"
-import { Base64Encoder } from "./encoder.js"
+} from "./config"
+import { Base64Encoder } from "./encoder"
 
 // CONSTANTS
 const MIN_BALANCE_PER_ACCOUNT = BigInt(100000)

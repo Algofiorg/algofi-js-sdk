@@ -1,6 +1,6 @@
 import algosdk from "algosdk"
-import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config.js"
-import { getGlobalManagerInfo } from "./stateUtils.js" 
+import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config"
+import { getGlobalManagerInfo } from "./stateUtils" 
 
 /**
  * Function that returns standard transaction parameters
