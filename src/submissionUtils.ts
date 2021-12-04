@@ -1,5 +1,9 @@
 import algosdk, { Algodv2, SuggestedParams, Transaction } from "algosdk"
 import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config"
+import {
+  managerStrings,
+  marketStrings
+} from "./contractStrings"
 
 /**
  * Function that returns standard transaction parameters
@@ -60,7 +64,7 @@ export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, d
     from: senderAccount,
     appIndex: managerAppId,
     foreignApps: orderedSupportedMarketAppIds,
-    appArgs: [enc.encode("fetch_market_variables")],
+    appArgs: [enc.encode(managerStrings.fetch_market_variables)],
     suggestedParams: params,
     note: enc.encode("Fetch Variables"),
     accounts: undefined,
@@ -75,7 +79,7 @@ export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, d
     from: senderAccount,
     appIndex: managerAppId,
     foreignApps: orderedOracleAppIds,
-    appArgs: [enc.encode("update_prices")],
+    appArgs: [enc.encode(managerStrings.update_prices)],
     suggestedParams: params,
     note: enc.encode("Update Prices"),
     accounts: undefined,
@@ -89,7 +93,7 @@ export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, d
     from: senderAccount,
     appIndex: managerAppId,
     foreignApps: orderedSupportedMarketAppIds,
-    appArgs: [enc.encode("update_protocol_data")],
+    appArgs: [enc.encode(managerStrings.update_protocol_data)],
     accounts: [dataAccount],
     suggestedParams: params,
     note: enc.encode("Update Protocol"),
