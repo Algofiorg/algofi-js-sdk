@@ -7,7 +7,7 @@ export const Base64Encoder = {
    * @param   string  e   String to be encoded
    * @return  string  t   Encoded string e
    */
-  encode: function (e) {
+  encode: function (e:string):string {
     var t = ""
     var n, r, i, s, o, u, a
     var f = 0
@@ -36,7 +36,7 @@ export const Base64Encoder = {
    * @param   string  e   String to be decoded
    * @return  string  t   Decoded string e
    */
-  decode: function (e) {
+  decode: function (e:string):string {
     var t = ""
     var n, r, i
     var s, o, u, a
@@ -68,7 +68,7 @@ export const Base64Encoder = {
    * @param   string  e   String to be utf8 encoded
    * @return  string  t   Encoded string e
    */
-  _utf8_encode: function (e) {
+  _utf8_encode: function (e:string):string {
     e = e.replace(/\r\n/g, "\n")
     var t = ""
     for (var n = 0; n < e.length; n++) {
@@ -93,7 +93,7 @@ export const Base64Encoder = {
    * @param   string  e   String to be utf8 decoded
    * @return  string  t   Decoded string e
    */
-  _utf8_decode: function (e) {
+  _utf8_decode: function (e:string):string {
     var t = ""
     var n = 0
     var r = 0

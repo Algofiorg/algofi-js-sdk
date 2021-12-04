@@ -1,6 +1,5 @@
-import algosdk from "algosdk"
-import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config.js"
-import { getGlobalManagerInfo } from "./stateUtils.js" 
+import algosdk, { Algodv2, SuggestedParams, Transaction } from "algosdk"
+import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config"
 
 /**
  * Function that returns standard transaction parameters
@@ -9,7 +8,7 @@ import { getGlobalManagerInfo } from "./stateUtils.js"
  * 
  * @return params
  */
-export async function getParams(algodClient) {
+export async function getParams(algodClient: Algodv2): Promise<SuggestedParams> {
   let params = await algodClient.getTransactionParams().do()
   params.fee = 1000
   params.flatFee = true
@@ -20,11 +19,11 @@ export async function getParams(algodClient) {
  * Helper function to wait for a transaction to be completed
  *
  * @param   {Algodv2}   algofClient
- * @param   {int}       txid
+ * @param   {string}    txid
  * 
  * @return  {none}
  */
-export async function waitForConfirmation(algodClient, txId) {
+export async function waitForConfirmation(algodClient:Algodv2, txId:string):Promise<void> {
   const response = await algodClient.status().do()
   let lastround = response["last-round"]
   while (true) {
@@ -47,9 +46,9 @@ export async function waitForConfirmation(algodClient, txId) {
  * @param   {string}    senderAccount         - user account address
  * @param   {string}    dataAccount           - user storage account address
  * 
- * @return  {Txn[]}     preamble transaction array
+ * @return  {Transaction[]}     preamble transaction array
  */
-export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
+export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, dataAccount:string):Promise<Transaction[]> {
   // get default params
   let params = await getParams(algodClient)
 
@@ -63,7 +62,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("fetch_market_variables")],
     suggestedParams: params,
-    note: enc.encode("Fetch Variables")
+    note: enc.encode("Fetch Variables"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // update prices
@@ -75,7 +77,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedOracleAppIds,
     appArgs: [enc.encode("update_prices")],
     suggestedParams: params,
-    note: enc.encode("Update Prices")
+    note: enc.encode("Update Prices"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // update protocol
@@ -87,7 +92,9 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     appArgs: [enc.encode("update_protocol_data")],
     accounts: [dataAccount],
     suggestedParams: params,
-    note: enc.encode("Update Protocol")
+    note: enc.encode("Update Protocol"),
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction one
@@ -97,7 +104,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_one")],
     suggestedParams: params,
-    note: enc.encode("First Dummy Txn")
+    note: enc.encode("First Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction two
@@ -107,7 +117,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_two")],
     suggestedParams: params,
-    note: enc.encode("Second Dummy Txn")
+    note: enc.encode("Second Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction three
@@ -117,7 +130,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_three")],
     suggestedParams: params,
-    note: enc.encode("Third Dummy Txn")
+    note: enc.encode("Third Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction four
@@ -127,7 +143,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_four")],
     suggestedParams: params,
-    note: enc.encode("Fourth Dummy Txn")
+    note: enc.encode("Fourth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction five
@@ -137,7 +156,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_five")],
     suggestedParams: params,
-    note: enc.encode("Fifth Dummy Txn")
+    note: enc.encode("Fifth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction six
@@ -147,7 +169,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_six")],
     suggestedParams: params,
-    note: enc.encode("Sixth Dummy Txn")
+    note: enc.encode("Sixth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction seven
@@ -157,7 +182,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_seven")],
     suggestedParams: params,
-    note: enc.encode("Seventh Dummy Txn")
+    note: enc.encode("Seventh Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction eight
@@ -167,7 +195,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_eight")],
     suggestedParams: params,
-    note: enc.encode("Eighth Dummy Txn")
+    note: enc.encode("Eighth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // dummy transaction nine
@@ -177,7 +208,10 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
     foreignApps: orderedSupportedMarketAppIds,
     appArgs: [enc.encode("dummy_nine")],
     suggestedParams: params,
-    note: enc.encode("Nineth Dummy Txn")
+    note: enc.encode("Nineth Dummy Txn"),
+    accounts: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
   
   // send transaction array
@@ -198,14 +232,14 @@ export async function getLeadingTxs(algodClient, senderAccount, dataAccount) {
  * @return  {Transaction[]}                   - array of primary pseudo-function stransactions
  */
 async function getStackGroup(
-  algodClient,
-  senderAccount,
-  dataAccount,
-  marketAppId,
-  foreignAssetId,
-  functionString,
+  algodClient: Algodv2,
+  senderAccount: string,
+  dataAccount: string,
+  marketAppId:number,
+  foreignAssetId:number,
+  functionString:string,
   extraCallArgs = null
-) {
+):Promise<Transaction[]> {
   // initialize generic params
   const params = await getParams(algodClient)
   
@@ -225,7 +259,11 @@ async function getStackGroup(
     appIndex: managerAppId,
     appArgs: managerAppArgs,
     suggestedParams: params,
-    note: enc.encode("Manager: " + functionString)
+    note: enc.encode("Manager: " + functionString),
+    accounts: undefined,
+    foreignApps: undefined,
+    foreignAssets: undefined,
+    rekeyTo: undefined,
   })
 
   // constructmarket pseudo-function transaction
@@ -237,7 +275,8 @@ async function getStackGroup(
     foreignAssets: [foreignAssetId],
     accounts: [dataAccount],
     suggestedParams: params,
-    note: enc.encode("Market: " + functionString)
+    note: enc.encode("Market: " + functionString),
+    rekeyTo: undefined,
   })
   return [applTx0, applTx1]
 }
@@ -254,12 +293,12 @@ async function getStackGroup(
  * @return  {Payment Transaction}
  */
 async function getPaymentTxn(
-  algodClient,
-  senderAccount,
-  marketAddress,
-  assetId,
-  amount
-) {
+  algodClient:Algodv2,
+  senderAccount:string,
+  marketAddress:string,
+  assetId:number,
+  amount:number
+):Promise<Transaction> {
   // initialize generic params
   const params = await getParams(algodClient)
   
@@ -268,7 +307,8 @@ async function getPaymentTxn(
         from: senderAccount,
         to: marketAddress,
         amount: amount,
-        suggestedParams: params
+        suggestedParams: params,
+        rekeyTo: undefined,
     })
     return algoPayment
 
@@ -278,7 +318,9 @@ async function getPaymentTxn(
         to: marketAddress,
         amount: amount,
         assetIndex: assetId,
-        suggestedParams: params
+        suggestedParams: params,
+        rekeyTo: undefined,
+        revocationTarget: undefined
     })
     return asaPayment
   }
@@ -301,17 +343,17 @@ async function getPaymentTxn(
  * @return {Transaction[]}
  */
 export async function buildUserTransaction(
-  algodClient,
-  senderAccount,
-  dataAccount,
-  marketAppId,
-  foreignAssetId,
-  functionString,
+  algodClient:Algodv2,
+  senderAccount:string,
+  dataAccount:string,
+  marketAppId:number,
+  foreignAssetId:number,
+  functionString:string,
   extraCallArgs = null,
   marketAddress = "",
   paymentAssetId = 0,
   paymentAmout = 0
-) {
+):Promise<Transaction[]> {
   let txns = []
   // get preamble transactions
   let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount)

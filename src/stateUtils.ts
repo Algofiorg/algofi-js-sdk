@@ -1,4 +1,4 @@
-const algosdk = require("algosdk")
+import algosdk, { Algodv2 } from "algosdk"
 import {
   orderedAssets,
   marketCounterToAssetName,
@@ -8,8 +8,8 @@ import {
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR
-} from "./config.js"
-import { Base64Encoder } from "./encoder.js"
+} from "./config"
+import { Base64Encoder } from "./encoder"
 
 // CONSTANTS
 const MIN_BALANCE_PER_ACCOUNT = BigInt(100000)
@@ -36,7 +36,7 @@ const UINTS_FOR_STORAGE_MARKET = BigInt(4) // 4 for now because of contract sche
  *
  * @return  {string}              storageAccont - Storage address of user
  */
-export async function getStorageAddress(accountInfo) {
+export async function getStorageAddress(accountInfo:any):Promise<string> {
   let storageAccount = null
 
   let localManager = accountInfo["apps-local-state"].filter(x => {
@@ -55,11 +55,11 @@ export async function getStorageAddress(accountInfo) {
 /**
  * Function to get oracle price info
  *
- * @param   {Algodv2} algodClient
+ * @param   {Algodv2}           algodClient
  *
- * @return  {int[]}   prices        - array of price values
+ * @return  {dict<string,int}   prices
  */
-export async function getPriceInfo(algodClient) {
+export async function getPriceInfo(algodClient:Algodv2):Promise<{}> {
   let prices = {}
   for (const assetName of orderedAssets) {
     let response = await algodClient.getApplicationByID(assetDictionary[assetName]["oracleAppId"]).do()
@@ -81,7 +81,7 @@ export async function getPriceInfo(algodClient) {
  *
  * @return  {dict<string,int>}  balanceInfo   - dictionary of asset names to balances
  */
-export async function getBalanceInfo(algodClient, address) {
+export async function getBalanceInfo(algodClient:Algodv2, address:string): Promise<{}> {
   let accountInfo = await algodClient.accountInformation(address).do()
   let balanceInfo = {}
   balanceInfo["ALGO"] = accountInfo["amount"]
@@ -112,7 +112,7 @@ export async function getBalanceInfo(algodClient, address) {
  *
  * @return  {dict<string,int>}  results       - dictionary of global state for this market
  */
-export async function getGlobalManagerInfo(algodClient) {
+export async function getGlobalManagerInfo(algodClient:Algodv2):Promise<{}> {
   let response = await algodClient.getApplicationByID(managerAppId).do()
   let results = {}
   
@@ -138,11 +138,11 @@ export async function getGlobalManagerInfo(algodClient) {
 /**
  * Function to get manager global state
  *
- * @param   {Algodv2}           algodClient
+ * @param   {AccountInformation}  accountInfo
  *
- * @return  {dict<string,int>}  results       - dictionary of global state for this market
+ * @return  {dict<string,int>}    results       - dictionary of global state for this market
  */
-export async function getUserManagerData(accountInfo) {
+export async function getUserManagerData(accountInfo:any):Promise<{}> {
   let results = {}
   let managerData = accountInfo["apps-local-state"].filter(x => {
     return x.id === managerAppId && x["key-value"]
@@ -163,12 +163,13 @@ export async function getUserManagerData(accountInfo) {
 /**
  * Function to get a users local state in a given market
  *
- * @param   {accountInfo}       accountInfo
- * @param   {string}            assetName
+ * @param   {AccountInformation}  accountInfo
+ * @param   {any}                 globalData
+ * @param   {string}              assetName
  *
- * @return  {dict<string,int>}  results       - dictionary of user market local state
+ * @return  {dict<string,int>}    results       - dictionary of user market local state
  */
-export async function getUserMarketData(accountInfo, globalData, assetName) {
+export async function getUserMarketData(accountInfo:any, globalData:{}, assetName:string):Promise<{}> {
   let results = {}
   let marketData = accountInfo["apps-local-state"].filter(x => {
     return x.id === assetDictionary[assetName]["marketAppId"] && x["key-value"]
@@ -192,11 +193,11 @@ export async function getUserMarketData(accountInfo, globalData, assetName) {
  * Function to get market global state
  *
  * @param   {Algodv2}           algodClient
- * @param   {string}            marketId
+ * @param   {number}            marketId
  *
  * @return  {dict<string,int>}  results       - dictionary of global state for this market
  */
-export async function getGlobalMarketInfo(algodClient, marketId) {
+export async function getGlobalMarketInfo(algodClient:Algodv2, marketId:number):Promise<{}> {
   let response = await algodClient.getApplicationByID(marketId).do()
   let results = {}
   response.params["global-state"].forEach(x => {
@@ -210,10 +211,12 @@ export async function getGlobalMarketInfo(algodClient, marketId) {
  * Function to get extrapolate additional data from market global state
  *
  * @param   {dict<string,int>}  globalData        - dictionary of market global state
- *
- * @return  {dict<string,int}   extrapolatedData  - dictionary of market extrapolated values
+ * @param   {dict<string,int>}  prices
+ * @param   {string}            assetName
+ * 
+ * @return  {dict<string,int>}  extrapolatedData  - dictionary of market extrapolated values
  */
-export async function extrapolateMarketData(globalData, prices, assetName) {
+export async function extrapolateMarketData(globalData:{}, prices:{}, assetName:string):Promise<{}> {
   let extrapolatedData = {}
 
   // get current time
@@ -306,7 +309,7 @@ export async function extrapolateMarketData(globalData, prices, assetName) {
  *
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function extrapolateUserData(userResults, globalResults, assetName) {
+export async function extrapolateUserData(userResults:{}, globalResults:{}, assetName:string):Promise<{}> {
   let extrapolatedData = {}
 
   // borrwed_extrapolated
@@ -354,7 +357,7 @@ export async function extrapolateUserData(userResults, globalResults, assetName)
  *
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function updateGlobalTotals(globalResults) {
+export async function updateGlobalTotals(globalResults:{}):Promise<void> {
   globalResults["underlying_supplied_extrapolatedUSD"] = 0
   globalResults["underlying_borrowed_extrapolatedUSD"] = 0
   globalResults["active_collateral_extrapolatedUSD"] = 0
@@ -393,7 +396,7 @@ export async function updateGlobalTotals(globalResults) {
  *
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function updateGlobalUserTotals(userResults, globalResults, activeMarkets) {
+export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, activeMarkets:string[]):Promise<void> {
   userResults["borrowUSD"] = 0
   userResults["collateralUSD"] = 0
   userResults["maxBorrowUSD"] = 0
@@ -425,11 +428,11 @@ export async function updateGlobalUserTotals(userResults, globalResults, activeM
 /**
  * Function to calculate account opt in info
  *
- * @param   {accountInfo}       accountInfo
+ * @param   {AccountInformation}  accountInfo
  *
- * @return  {dict<string,int>}  userData    - userData with added USD values
+ * @return  {dict<string,int>}    userData    - userData with added USD values
  */
-export async function getAccountOptInData(accountInfo) {
+export async function getAccountOptInData(accountInfo:any):Promise<{}> {
   let accountOptInData = {}
 
   // min balance
