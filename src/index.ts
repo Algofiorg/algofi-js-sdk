@@ -16,6 +16,10 @@ import {
   updateGlobalTotals
 } from "./stateUtils"
 import {
+  managerStrings,
+  marketStrings
+} from "./contractStrings"
+import {
   orderedAssets,
   orderedAssetsAndPlaceholders,
   managerAppId,
@@ -224,7 +228,7 @@ export async function mint(
     storageAddress,
     marketAppId,
     bankAssetId,
-    "mint",
+    managerStrings.mint,
     NO_EXTRA_ARGS,
     marketAddress,
     underlyingAssetId,
@@ -263,7 +267,7 @@ export async function mintToCollateral(
     storageAddress,
     marketAppId,
     bankAssetId,
-    "mint_to_collateral",
+    managerStrings.mint_to_collateral,
     NO_EXTRA_ARGS,
     marketAddress,
     underlyingAssetId,
@@ -302,7 +306,7 @@ export async function burn(
     storageAddress,
     marketAppId,
     underlyingAssetId,
-    "burn",
+    managerStrings.burn,
     NO_EXTRA_ARGS,
     marketAddress,
     bankAssetId,
@@ -341,7 +345,7 @@ export async function addCollateral(
     storageAddress,
     marketAppId,
     underlyingAssetId,
-    "add_collateral",
+    managerStrings.add_collateral,
     NO_EXTRA_ARGS,
     marketAddress,
     bankAssetId,
@@ -380,7 +384,7 @@ export async function removeCollateral(
     storageAddress,
     marketAppId,
     bankAssetId,
-    "remove_collateral",
+    managerStrings.remove_collateral,
     algosdk.encodeUint64(amount)
   )
   algosdk.assignGroupID(txns)
@@ -414,7 +418,7 @@ export async function removeCollateralUnderlying(
     storageAddress,
     marketAppId,
     underlyingAssetId,
-    "remove_collateral_underlying",
+    managerStrings.remove_collateral_underlying,
     algosdk.encodeUint64(amount)
   )
   algosdk.assignGroupID(txns)
@@ -447,7 +451,7 @@ export async function borrow(
     storageAddress,
     marketAppId,
     underlyingAssetId,
-    "borrow",
+    managerStrings.borrow,
     algosdk.encodeUint64(amount)
   )
   algosdk.assignGroupID(txns)
@@ -483,7 +487,7 @@ export async function repayBorrow(
     storageAddress,
     marketAppId,
     underlyingAssetId,
-    "repay_borrow",
+    managerStrings.repay_borrow,
     NO_EXTRA_ARGS,
     marketAddress,
     underlyingAssetId,
@@ -508,8 +512,8 @@ export async function claimRewards(
   storageAddress:string
 ):Promise<Transaction[]> {
   let globalManagerData = await getGlobalManagerInfo(algodClient)
-  let primaryRewardsAsset = globalManagerData["rewards_asset_id"]
-  let secondaryRewardsAsset = globalManagerData["rewards_secondary_asset_id"]
+  let primaryRewardsAsset = globalManagerData[managerStrings.rewards_asset_id]
+  let secondaryRewardsAsset = globalManagerData[managerStrings.rewards_secondary_asset_id]
 
   // initialize encoder
   const enc = new TextEncoder()
@@ -536,7 +540,7 @@ export async function claimRewards(
   const claimRewardsTxn = algosdk.makeApplicationNoOpTxnFromObject({
     from: address,
     appIndex: managerAppId,
-    appArgs: [enc.encode("claim_rewards")],
+    appArgs: [enc.encode(managerStrings.claim_rewards)],
     suggestedParams: params,
     foreignAssets: foreign_assets,
     accounts: [storageAddress],
