@@ -468,14 +468,18 @@ export async function getAccountOptInData(accountInfo:any):Promise<{}> {
 
   // prep for paul's change, only opt-in storage account to markets
   accountOptInData["min_balance_primary_account"] =
-    BigInt(2) * NUMBER_OF_ASSETS * MIN_BALANCE_PER_ASSET +
+    // BigInt(2) * NUMBER_OF_ASSETS * MIN_BALANCE_PER_ASSET + TODO - uncomment if we need bank assets again
+    NUMBER_OF_ASSETS * MIN_BALANCE_PER_ASSET + 
     MIN_BALANCE_PER_APP +
     MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
     MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER
 
   // prep for paul's change, only opt-in storage account to markets
   accountOptInData["min_balance_storage_account"] =
-    NUMBER_OF_MARKETS * (MIN_BALANCE_PER_APP + MIN_BALANCE_PER_APP_UINT * UINTS_FOR_STORAGE_MARKET)
+    NUMBER_OF_MARKETS * (MIN_BALANCE_PER_APP + MIN_BALANCE_PER_APP_UINT * UINTS_FOR_STORAGE_MARKET) +
+    MIN_BALANCE_PER_APP +
+    MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
+    MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER + MIN_BALANCE_PER_ACCOUNT + BigInt(100000)
 
   // opted in applications
   accountOptInData["apps"] = localApps

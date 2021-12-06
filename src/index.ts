@@ -131,7 +131,7 @@ export async function optInAssets(algodClient:Algodv2, address:string):Promise<T
       )
     }
     // opt into bank asset
-    if (!(bankAssetId in accountOptedInAssets)) {
+    /*if (!(bankAssetId in accountOptedInAssets)) {
       bank_asset_txns.push(
         algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
           // Escrow txn
@@ -144,7 +144,7 @@ export async function optInAssets(algodClient:Algodv2, address:string):Promise<T
           revocationTarget: undefined,
         })
       )
-    }
+    }*/
   }
   if (underlying_asset_txns.length + bank_asset_txns.length > 16) {
     algosdk.assignGroupID(underlying_asset_txns)
