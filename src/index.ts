@@ -97,7 +97,7 @@ export async function optInMarkets(algodClient:Algodv2, address:string):Promise<
  *
  * @return  {Transaction[]}   get opt in transactions for non opted in algofi assets
  */
-export async function optInAssets(algodClient:Algodv2, address:string):Promise<Transaction[][] | Transaction[]> {
+export async function optInUnderlyingAssets(algodClient:Algodv2, address:string):Promise<Transaction[][] | Transaction[]> {
   // get currently opted in assets
   let accountInfo = await algodClient.accountInformation(address).do()
   let accountOptInData = await getAccountOptInData(accountInfo)
@@ -130,31 +130,9 @@ export async function optInAssets(algodClient:Algodv2, address:string):Promise<T
         })
       )
     }
-    // opt into bank asset
-    /*if (!(bankAssetId in accountOptedInAssets)) {
-      bank_asset_txns.push(
-        algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-          // Escrow txn
-          suggestedParams: params,
-          to: address,
-          amount: 0,
-          assetIndex: bankAssetId,
-          from: address,
-          rekeyTo: undefined,
-          revocationTarget: undefined,
-        })
-      )
-    }*/
-  }
-  if (underlying_asset_txns.length + bank_asset_txns.length > 16) {
-    algosdk.assignGroupID(underlying_asset_txns)
-    algosdk.assignGroupID(bank_asset_txns)
-    return [underlying_asset_txns, bank_asset_txns]
-  } else {
-    let combinedAssets = underlying_asset_txns.concat(bank_asset_txns)
-    algosdk.assignGroupID(combinedAssets)
-    return combinedAssets
-  }
+  let combinedAssets = underlying_asset_txns.concat(bank_asset_txns)
+  algosdk.assignGroupID(combinedAssets)
+  return combinedAssets
 }
 
 /**
@@ -172,7 +150,36 @@ export async function optInManager(
   storageAddress:string
 ):Promise<Transaction[]> {
   const params = await getParams(algodClient)
+  // initialize encoder
+  const enc = new TextEncoder()
+  
   let txns = []
+  // fill App NoOp transactions
+  txns.push(algosdk.makeApplicationNoOpTxnFromObject({
+      from: storageAddress,
+      appIndex: managerAppId,
+      foreignApps: orderedMarketAppIds.slice(0,8),
+      appArgs: [enc.encode(managerStrings.storage_opt_in)],
+      suggestedParams: params,
+      note: enc.encode("x1"),
+      accounts: undefined,
+      foreignAssets: undefined,
+      rekeyTo: undefined,
+    })
+  )
+  txns.push(algosdk.makeApplicationNoOpTxnFromObject({
+      from: storageAddress,
+      appIndex: managerAppId,
+      foreignApps: orderedMarketAppIds.slice(8,16),
+      appArgs: [enc.encode(managerStrings.storage_opt_in)],
+      suggestedParams: params,
+      note: enc.encode("x2"),
+      accounts: undefined,
+      foreignAssets: undefined,
+      rekeyTo: undefined,
+    })
+  )
+  // fill App OptIn transactions
   txns.push(
     algosdk.makeApplicationOptInTxnFromObject({
       from: address,

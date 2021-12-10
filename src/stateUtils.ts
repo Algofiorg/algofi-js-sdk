@@ -42,7 +42,6 @@ const UINTS_FOR_STORAGE_MARKET = BigInt(4) // 4 for now because of contract sche
  */
 export async function getStorageAddress(accountInfo:any):Promise<string> {
   let storageAccount = null
-
   let localManager = accountInfo["apps-local-state"].filter(x => {
     return x.id === managerAppId && x["key-value"]
   })
