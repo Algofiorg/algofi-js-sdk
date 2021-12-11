@@ -286,18 +286,18 @@ export async function extrapolateMarketData(globalData:{}, prices:{}, assetName:
   // calculate USD values
   extrapolatedData["underlying_borrowed_extrapolatedUSD"] =
     extrapolatedData["underlying_borrowed_extrapolated"] *
-    (prices[assetName] / SCALE_FACTOR) *
+    (prices[assetName] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
 
   extrapolatedData["underlying_supplied_extrapolatedUSD"] =
     extrapolatedData["underlying_supplied_extrapolated"] *
-    (prices[assetName] / SCALE_FACTOR) *
+    (prices[assetName] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
     
   // active_collateral_extrapolatedUSD
   extrapolatedData["active_collateral_extrapolatedUSD"] =
     extrapolatedData["active_collateral_extrapolated"] *
-    (prices[assetName] / SCALE_FACTOR) *
+    (prices[assetName] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
 
   return extrapolatedData
@@ -317,25 +317,22 @@ export async function extrapolateUserData(userResults:{}, globalResults:{}, asse
 
   // borrwed_extrapolated
   extrapolatedData["borrowed_extrapolated"] = userResults[assetName]["borrowed"] ? userResults[assetName]["borrowed"] : 0
-
   // collateral_underlying
   extrapolatedData["collateral_underlying_extrapolated"] =
-    userResults[assetName][marketStrings.active_collateral] && globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]
-      ? (userResults[assetName][marketStrings.active_collateral] *
+    userResults[assetName]['active_collateral'] && globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]
+      ? (userResults[assetName]['active_collateral'] *
           globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]) /
         SCALE_FACTOR
       : 0
-
   // borrowUSD
   extrapolatedData["borrowUSD"] =
     extrapolatedData["borrowed_extrapolated"] *
-    (globalResults[assetName]["price"] / SCALE_FACTOR) *
+    (globalResults[assetName]["price"] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
-
   // collateralUSD
   extrapolatedData["collateralUSD"] =
     extrapolatedData["collateral_underlying_extrapolated"] *
-    (globalResults[assetName]["price"] / SCALE_FACTOR) *
+    (globalResults[assetName]["price"] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
 
   // maxBorrowUSD
