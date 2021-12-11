@@ -228,9 +228,9 @@ async function run() {
   }*/
   try {
     // get state
-    let userAndProtocolData = await algofi.getUserAndProtocolData(algodClient, "A4CNKHAKHUVE5CPVS24OMPSKBBYOD7HFG5RVY3GZ7I2XDF7MNOL4PHPLXA")
+    let userAndProtocolData = await algofi.getUserAndProtocolData(algodClient, "L3X62M4DSB3IG5H2JDZSK27G4OVZYHGDUCGBHVZEQFOQGTR42PWLAMRPUY")
     console.log("SUCCESSFULY FETCHED STATE DATA ")
-    //console.log(userAndProtocolData[1])
+    console.log(userAndProtocolData[1])
     //console.log(userAndProtocolData[1]['ALGO'])
   } catch (err) {
     console.log("User and Protocol data fetch failed with err=", err)

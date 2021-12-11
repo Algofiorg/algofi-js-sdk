@@ -575,14 +575,11 @@ export async function getUserAndProtocolData(
   let userResults = {}
   let globalResults = {}
   let userActiveMarkets = []
-
   // get current time in seconds
   let currentUnixTime = Date.now()
   currentUnixTime = Math.floor(currentUnixTime / 1000)
-
   // initialize accountInfo
   let accountInfo = await algodClient.accountInformation(address).do()
-
   // get stoarage account info
   let storageAccount = await getStorageAddress(accountInfo)
   userResults["storageAccount"] = storageAccount
@@ -590,7 +587,6 @@ export async function getUserAndProtocolData(
   if (storageAccount) {
     storageAccountInfo = await algodClient.accountInformation(storageAccount).do()
   }
-
   // get user storage account info  
   userResults["manager"] = {}
   if (storageAccount) {
@@ -599,13 +595,10 @@ export async function getUserAndProtocolData(
       userResults["manager"][key] = value
     }
   }
-
   // get balances
   let balances = await getBalanceInfo(algodClient, address)
-
   // get prices
   let prices = await getPriceInfo(algodClient)
-
   globalResults["manager"] = {}
   let globalManagerData = await getGlobalManagerInfo(algodClient)
   if (globalManagerData && Object.keys(globalManagerData).length > 0) {
@@ -613,7 +606,6 @@ export async function getUserAndProtocolData(
       globalResults["manager"][key] = value
     }
   }
-
   // get and set data for each market
   for (const assetName of orderedAssets) {
     let bAssetName = "b" + assetName
@@ -635,16 +627,16 @@ export async function getUserAndProtocolData(
         globalResults[assetName][key] = value
       }
     }
-
     if (storageAccount) {
       let userMarketData = await getUserMarketData(storageAccountInfo, globalResults, assetName)
       if (userMarketData && Object.keys(userMarketData).length > 0) {
         // store active markets to be used for totaling operation
         userActiveMarkets.push(assetName)
-        
+
         for (const [key, value] of Object.entries(userMarketData)) {
           userResults[assetName][key] = value
         }
+
         // get extrapolated user data
         if (userResults && Object.keys(userResults).length > 0) {
           let userExtrapolatedData = await extrapolateUserData(userResults, globalResults, assetName)
