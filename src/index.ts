@@ -110,10 +110,8 @@ export async function optInUnderlyingAssets(algodClient:Algodv2, address:string)
 
   const params = await getParams(algodClient)
   let underlying_asset_txns = []
-  let bank_asset_txns = []
   for (const assetName of orderedAssets) {
     // get underlying and bank asset ids
-    let bankAssetId = assetDictionary[assetName]["bankAssetId"]
     let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
     // opt into underlying asset if not already opted in
     if (!(underlyingAssetId in accountOptedInAssets) && underlyingAssetId != 1) {
@@ -130,7 +128,8 @@ export async function optInUnderlyingAssets(algodClient:Algodv2, address:string)
         })
       )
     }
-  let combinedAssets = underlying_asset_txns.concat(bank_asset_txns)
+  }
+  let combinedAssets = underlying_asset_txns
   algosdk.assignGroupID(combinedAssets)
   return combinedAssets
 }
@@ -485,7 +484,6 @@ export async function repayBorrow(
 ):Promise<Transaction[]> {
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
 
   let txns = await buildUserTransaction(
@@ -647,7 +645,6 @@ export async function getUserAndProtocolData(
         for (const [key, value] of Object.entries(userMarketData)) {
           userResults[assetName][key] = value
         }
-
         // get extrapolated user data
         if (userResults && Object.keys(userResults).length > 0) {
           let userExtrapolatedData = await extrapolateUserData(userResults, globalResults, assetName)
