@@ -22,7 +22,7 @@ export const assetDictionary = {
         "marketAddress": "SPEZVO3RHLOPQVBXXYK5UJRGZXYG6FTH4EML4QEPTHAGMEV7LFZVSCSQOA",
         "bankAssetId": 51422937,
         "bankAssetDecimals": 6,
-        "underlyingAssetId": 51422937,
+        "underlyingAssetId": 51435943,
         "oracleAppId": 48649820,
         "oracleFieldName": "price"
     },
