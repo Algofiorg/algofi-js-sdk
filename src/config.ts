@@ -1,5 +1,6 @@
 
 export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
+export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "SIIX", "SEVN", "EGHT", "NINE", "TENN", "ELVN" ,"TWLV", "TRTN", "FRTN", "FVTN" , "SXTN"]
 
 export const managerAppId = 51422788;
@@ -135,6 +136,10 @@ for (const assetName of orderedAssets) {
   assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
   assetIdToAssetName[assetDictionary[assetName]["bankAssetId"]] = "b" + assetName
 }
+for (const assetName of extraAssets) {
+  assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
+}
+
 for (const assetName of orderedAssetsAndPlaceholders) {
   orderedMarketAppIds.push(assetDictionary[assetName]["marketAppId"])
 }
