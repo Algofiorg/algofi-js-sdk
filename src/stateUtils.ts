@@ -22,7 +22,7 @@ const MIN_BALANCE_PER_APP = BigInt(100000)
 const MIN_BALANCE_PER_APP_BYTESLICE = BigInt(25000 + 25000)
 const MIN_BALANCE_PER_APP_UINT = BigInt(25000 + 3500)
 const MIN_BALANCE_PER_APP_EXTRA_PAGE = BigInt(100000)
-const NUMBER_OF_MARKETS = BigInt(16)
+const NUMBER_OF_MARKETS_TO_OPT_IN = BigInt(13)
 // assume we are launching with 8 assets
 const NUMBER_OF_ASSETS = BigInt(8)
 // local vars = user_storage_address
@@ -472,7 +472,7 @@ export async function getAccountOptInData(accountInfo:any):Promise<{}> {
 
   // prep for paul's change, only opt-in storage account to markets
   accountOptInData["min_balance_storage_account"] =
-    NUMBER_OF_MARKETS * (MIN_BALANCE_PER_APP + MIN_BALANCE_PER_APP_UINT * UINTS_FOR_STORAGE_MARKET) +
+    NUMBER_OF_MARKETS_TO_OPT_IN * (MIN_BALANCE_PER_APP + MIN_BALANCE_PER_APP_UINT * UINTS_FOR_STORAGE_MARKET) +
     MIN_BALANCE_PER_APP +
     MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
     MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER + MIN_BALANCE_PER_ACCOUNT + BigInt(100000)
