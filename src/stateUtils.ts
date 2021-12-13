@@ -421,7 +421,7 @@ export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, a
   for (const assetName of activeMarkets) {
     userResults["portfolio_reward_rate_per_1000USD"] += globalResults[assetName]["reward_rate_per_1000USD"] * (userResults[assetName]["borrowUSD"] + userResults[assetName]["collateralUSD"]) / (userResults["borrowUSD"] + userResults["collateralUSD"])
     userResults["portfolio_lend_interest_rate_earned"] += globalResults[assetName]["total_lend_interest_rate_earned"] * userResults[assetName]["collateralUSD"] / userResults["collateralUSD"]
-    userResults["portfolio_borrow_interest_rate"] += globalResults[assetName]["total_borrow_interest_rate"] * userResults[assetName]["borrowUSD"] / userResults["borrowUSD"]
+    userResults["portfolio_borrow_interest_rate"] += globalResults[assetName][marketStrings.total_borrow_interest_rate] * userResults[assetName]["borrowUSD"] / userResults["borrowUSD"]
   }
 }
 
