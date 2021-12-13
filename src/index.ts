@@ -140,45 +140,49 @@ export async function optInUnderlyingAssets(algodClient:Algodv2, address:string)
  * @param   {Algodv2}         algoClient
  * @param   {string}          address
  * @param   {string}          storageAddress
+ * @param   {number}          storageAddressFundingAmount
  *
  * @return  {Transaction[]}   create transactions to opt in to manager and rekey storage address to manager contract
  */
 export async function optInManager(
   algodClient:Algodv2,
   address:string,
-  storageAddress:string
+  storageAddress:string,
+  storageAddressFundingAmount:number,
 ):Promise<Transaction[]> {
   const params = await getParams(algodClient)
   // initialize encoder
   const enc = new TextEncoder()
   
   let txns = []
-  // fill App NoOp transactions
-  txns.push(algosdk.makeApplicationNoOpTxnFromObject({
-      from: storageAddress,
-      appIndex: managerAppId,
-      foreignApps: orderedMarketAppIds.slice(0,8),
-      appArgs: [enc.encode(managerStrings.storage_opt_in)],
+  // fund storage account
+  txns.push(
+    algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      from: address,
+      amount: storageAddressFundingAmount,
+      to: storageAddress,
       suggestedParams: params,
-      note: enc.encode("x1"),
-      accounts: undefined,
-      foreignAssets: undefined,
+      closeRemainderTo: undefined,
       rekeyTo: undefined,
     })
   )
-  txns.push(algosdk.makeApplicationNoOpTxnFromObject({
-      from: storageAddress,
-      appIndex: managerAppId,
-      foreignApps: orderedMarketAppIds.slice(8,16),
-      appArgs: [enc.encode(managerStrings.storage_opt_in)],
-      suggestedParams: params,
-      note: enc.encode("x2"),
-      accounts: undefined,
-      foreignAssets: undefined,
-      rekeyTo: undefined,
-    })
-  )
-  // fill App OptIn transactions
+
+  // opt storage account into markets
+  for (const marketAppId of orderedMarketAppIds.slice(0,14)) {
+    txns.push(
+      algosdk.makeApplicationOptInTxnFromObject({
+        from: storageAddress,
+        appIndex: marketAppId,
+        suggestedParams: params,
+        accounts: undefined,
+        foreignApps: undefined,
+        foreignAssets:undefined,
+        rekeyTo: undefined,
+      })
+    )
+  }
+
+  // opt user into manager
   txns.push(
     algosdk.makeApplicationOptInTxnFromObject({
       from: address,
@@ -190,6 +194,8 @@ export async function optInManager(
       rekeyTo: undefined,
     })
   )
+
+  // opt storage account into manager
   txns.push(
     algosdk.makeApplicationOptInTxnFromObject({
       from: storageAddress,
@@ -201,6 +207,7 @@ export async function optInManager(
       foreignAssets:undefined, 
     })
   )
+
   algosdk.assignGroupID(txns)
   return txns
 }
