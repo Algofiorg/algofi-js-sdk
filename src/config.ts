@@ -113,6 +113,10 @@ export const assetDictionary = {
         "marketCounter": 16,
         "marketAppId": 51422186,
         "marketAddress": "M4KM3XMRF4RGEEGCNOSDLPZKMEBKUQGCP76WOZ66B3RYOHSUCU67HALJMU"
+    },
+    "BANK": {
+        "decimals": 6,
+        "underlyingAssetId": 51642940
     }
 }
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
