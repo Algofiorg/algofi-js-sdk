@@ -168,7 +168,7 @@ export async function optInManager(
   )
 
   // opt storage account into markets
-  for (const marketAppId of orderedMarketAppIds.slice(0,14)) {
+  for (const marketAppId of orderedMarketAppIds.slice(0,13)) {
     txns.push(
       algosdk.makeApplicationOptInTxnFromObject({
         from: storageAddress,
