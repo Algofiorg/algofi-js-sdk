@@ -407,6 +407,7 @@ export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, a
 
   if (globalResults["manager"][managerStrings.rewards_start_time] > 0 && userResults["manager"][managerStrings.user_rewards_program_number] === globalResults["manager"][managerStrings.n_rewards_programs]) {
     userResults["pending_rewards_extrapolated"] = userResults["manager"][managerStrings.user_pending_rewards]
+    userResults["pending_secondary_rewards_extrapolated"] = userResults["manager"][managerStrings.user_secondary_pending_rewards]
   } else {
     userResults["pending_rewards_extrapolated"] = 0
   }
