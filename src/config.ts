@@ -61,59 +61,59 @@ export const assetDictionary = {
     },
     "SIIX": {
         "marketCounter": 6,
-        "marketAppId": 51422152,
-        "marketAddress": "IGTRCFMCDZ55ARBLWWQE7575MXKYUEQYQO5XJQ6NUEU66L2XM73NULIAHQ"
-    },
+        "marketAppId": 465814318,
+        "marketAddress": "DAUL5I34T4C4U5OMXS7YBPJIERQ2NH3O7XPZCIJEGKP4NO3LK4UWDCHAG4"
+},
     "SEVN": {
         "marketCounter": 7,
-        "marketAppId": 51422155,
-        "marketAddress": "4RXSIBGICX5GAE7RZB35VVGLTTQVAMFN2NWSOZPYGVOYZDNY37IBWJUZLU"
-    },
+        "marketAppId": 465814371,
+        "marketAddress": "K75YX4ZN3J43R2JTRWB6M3KXNPWAJJVPFSMIRAGQO77TKXKHKBFKSRZGGA"
+},
     "EGHT": {
         "marketCounter": 8,
-        "marketAppId": 51422158,
-        "marketAddress": "HPWOJQPSJQZVZBBNCN53H7JEGGK3PL4LVLVZ4IFPCCKPSQGRIPTZL5L5EQ"
-    },
+        "marketAppId": 465814435,
+        "marketAddress": "P6B5MK2FMN24IVRYMQMEPZHJPCNN6OUKFI5OSTOUREC47HPQNUXAUKF4TY"
+},
     "NINE": {
         "marketCounter": 9,
-        "marketAppId": 51422161,
-        "marketAddress": "AY5ZXVYG3SNQUDWWLCVH6X64LCVDHV6LY2Z7N2TMMIM4ENM36MDIG2GGMY"
-    },
+        "marketAppId": 465814472,
+        "marketAddress": "PWVB7SHASD5XJNQFZHC5UAR5UYY33TW62YA6JVOW6PMYNZ7KMARPXKMFRU"
+},
     "TENN": {
         "marketCounter": 10,
-        "marketAppId": 51422164,
-        "marketAddress": "CROFL2FEP5ZHRDWAXPTNF2NXRDGZL2OS7RI3K7QGT6ZVSQKOGEKF6CF3E4"
-    },
+        "marketAppId": 465814527,
+        "marketAddress": "K7TNWBPCKLJKX3KHUZ5VA7YKGWNPHM4E6HQ5HGD7VFVYZ3232RJFGATMTM"
+},
     "ELVN": {
         "marketCounter": 11,
-        "marketAppId": 51422170,
-        "marketAddress": "3DARRF6Z2WUHGQLLX2FIMDOZVMWROX7JK2CE6CGHRILMXUXKWRS7RVBXRQ"
-    },
+        "marketAppId": 465814582,
+        "marketAddress": "LEHVWIH62DHSXLXFBPAXHYZZYGO7ONJ4HJHQLX4LJSIXSM66FPN5BXRCPU"
+},
     "TWLV": {
         "marketCounter": 12,
-        "marketAppId": 51422172,
-        "marketAddress": "GEXK6AWIUCDORHO6NZONKCBJPNLSSI235DUQDHTMJEYMN7QE37GBUAJY5M"
-    },
+        "marketAppId": 465814620,
+        "marketAddress": "S6LBCGD4UFECPY3P67QFURVDXCBPWZXG56VJ43UVBK7ODIODF6UOX6BX4A"
+},
     "TRTN": {
         "marketCounter": 13,
-        "marketAppId": 51422175,
-        "marketAddress": "F7QOTS5WF23ENFJEMUHTWXJWSQIDE7AUFTIAJFUB3IIM2U7SVECMCS7Y4U"
-    },
+        "marketAppId": 465814664,
+        "marketAddress": "HHHROS6MPEFEXJ7JQOKASR67EEPRM3NRGWLREW54XBUHF6AQ3HYGQQIGCY"
+},
     "FRTN": {
         "marketCounter": 14,
-        "marketAppId": 51422177,
-        "marketAddress": "EHZ4ILW7P5GM3SKVB42FPVFBT2HAOADMW4VSWPESHUKRGX5XXJ7DMSUIKQ"
-    },
+        "marketAppId": 465814701,
+        "marketAddress": "XFWV3BF47DBLJ2GY2WUUIIA3W4VTOFOALKKEJJNCWFG6DLHWZ6SFUQXPJA"
+},
     "FVTN": {
         "marketCounter": 15,
-        "marketAppId": 51422179,
-        "marketAddress": "HVBCCT3YCGYJ7INC2ZMBU5XNLISX7KKRZL2ISTTQQ7P56LD5TKM5U73NQU"
-    },
+        "marketAppId": 465814744,
+        "marketAddress": "BTC4OBXRM53F3WT3YXK5LEP2JYB6OIDGQHM4EOHYPOYORKR4QHY7CMD35M"
+},
     "SXTN": {
         "marketCounter": 16,
-        "marketAppId": 51422186,
-        "marketAddress": "M4KM3XMRF4RGEEGCNOSDLPZKMEBKUQGCP76WOZ66B3RYOHSUCU67HALJMU"
-    },
+        "marketAppId": 465814807,
+        "marketAddress": "F253XGHUENH36WTAVWR2DE6VPAF2FV7L7H3QESM5Q7QXQTEX5T2C2HT3NU"
+},
     "BANK": {
         "decimals": 6,
         "underlyingAssetId": 51642940
