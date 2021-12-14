@@ -4,6 +4,8 @@ export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "SIIX", "SEVN", "EGHT", "NINE", "TENN", "ELVN" ,"TWLV", "TRTN", "FRTN", "FVTN" , "SXTN"]
 
 export const managerAppId = 51422788;
+export const managerAddress = "67N4UE4SAH5N75T7HYYOMUTUF3AW3H6EMGLZABJAU4KION3LO7MMWLO7DA";
+
 export const assetDictionary = {
     "ALGO": {
         "decimals": 6,

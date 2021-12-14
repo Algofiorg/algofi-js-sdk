@@ -4,6 +4,7 @@ import {
   marketCounterToAssetName,
   assetIdToAssetName,
   managerAppId,
+  managerAddress,
   assetDictionary,
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
@@ -118,6 +119,10 @@ export async function getBalanceInfo(algodClient:Algodv2, address:string): Promi
 export async function getGlobalManagerInfo(algodClient:Algodv2):Promise<{}> {
   let response = await algodClient.getApplicationByID(managerAppId).do()
   let results = {}
+
+  // get manager balance
+  // 
+  const managerBalances = await getBalanceInfo(algodClient, managerAddress);
   
   response.params["global-state"].forEach(x => {
     let decodedKey = Base64Encoder.decode(x.key)
@@ -127,10 +132,12 @@ export async function getGlobalManagerInfo(algodClient:Algodv2):Promise<{}> {
       results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.counter_indexed_rewards_coefficient] = x.value.uint
     } else if (decodedKey === managerStrings.rewards_asset_id) {
       results[decodedKey] = x.value.uint
-      results["rewards_asset"] = assetIdToAssetName[x.value.uint]
+      results["rewards_asset"] = assetIdToAssetName[x.value.uint];
+      results["rewards_asset_balance"] = managerBalances[results["rewards_asset"]];
     } else if (decodedKey === managerStrings.rewards_secondary_asset_id) {
       results[decodedKey] = x.value.uint
       results["rewards_secondary_asset"] = assetIdToAssetName[x.value.uint]
+      results["rewards_secondary_asset_balance"] = managerBalances[results["rewards_secondary_asset"]];
     } else {
       results[decodedKey] = x.value.uint
     }
