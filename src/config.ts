@@ -2,62 +2,61 @@
 export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
 export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "SIIX", "SEVN", "EGHT", "NINE", "TENN", "ELVN" ,"TWLV", "TRTN", "FRTN", "FVTN" , "SXTN"]
-
-export const managerAppId = 51422788;
+export const managerAppId = 465818260;
 export const assetDictionary = {
     "ALGO": {
         "decimals": 6,
         "marketCounter": 1,
-        "marketAppId": 51422140,
-        "marketAddress": "ZBKXCEKDSHXQDKZIDC7NOV5H6LRW4YD252DBNVUI5BOR4DO624LSDKIPNM",
-        "bankAssetId": 51422936,
+        "marketAppId": 465814065,
+        "marketAddress": "TY5N6G67JWHSMWFFFZ252FXWKLRO5UZLBEJ4LGV7TPR5PVSKPLDWH3YRXU",
+        "bankAssetId": 465818547,
         "bankAssetDecimals": 6,
         "underlyingAssetId": 1,
-        "oracleAppId": 48649676,
+        "oracleAppId": 451324964,
         "oracleFieldName": "latest_twap_price"
     },
     "USDC": {
         "decimals": 6,
         "marketCounter": 2,
-        "marketAppId": 51422142,
-        "marketAddress": "SPEZVO3RHLOPQVBXXYK5UJRGZXYG6FTH4EML4QEPTHAGMEV7LFZVSCSQOA",
-        "bankAssetId": 51422937,
+        "marketAppId": 465814103,
+        "marketAddress": "ABQHZLNGGPWWZVA5SOQO3HBEECVJSE3OHYLKACOTC7TC4BS52ZHREPF7QY",
+        "bankAssetId": 465818553,
         "bankAssetDecimals": 6,
-        "underlyingAssetId": 51435943,
-        "oracleAppId": 48649820,
+        "underlyingAssetId": 31566704,
+        "oracleAppId": 451327550,
         "oracleFieldName": "price"
     },
     "goBTC": {
         "decimals": 8,
         "marketCounter": 3,
-        "marketAppId": 51422146,
-        "marketAddress": "O7SVUP64TIS2TX4L74KRHO5ZLFYJVWMTID2U2E5IHS2RG7CYSEXJQ4VNXY",
-        "bankAssetId": 51422938,
+        "marketAppId": 465814149,
+        "marketAddress": "W5UCMHDSTGKWBOV6YVLDVPJGPE4L4ISTU6TGXC7WRF63Y7GOVFOBUNJB5Q",
+        "bankAssetId": 465818554,
         "bankAssetDecimals": 8,
-        "underlyingAssetId": 51436723,
-        "oracleAppId": 48649713,
+        "underlyingAssetId": 386192725,
+        "oracleAppId": 451325630,
         "oracleFieldName": "latest_twap_price"
     },
     "goETH": {
         "decimals": 8,
         "marketCounter": 4,
-        "marketAppId": 51422149,
-        "marketAddress": "ZBW5PTDNHI4VLBZPJQSIA6QW3BCOGXYYVNG5VHHQ63XQKHT56DP7QOCYHE",
-        "bankAssetId": 51422939,
+        "marketAppId": 465814222,
+        "marketAddress": "KATD43XBJJIDXB3U5UCPIFUDU3CZ3YQNVWA5PDDMZVGKSR4E3QWPJX67CY",
+        "bankAssetId": 465818555,
         "bankAssetDecimals": 8,
-        "underlyingAssetId": 51437163,
-        "oracleAppId": 48649735,
+        "underlyingAssetId": 386195940,
+        "oracleAppId": 451326395,
         "oracleFieldName": "latest_twap_price"
     },
     "STBL": {
         "decimals": 6,
         "marketCounter": 5,
-        "marketAppId": 51422151,
-        "marketAddress": "OODFAQGVZPGKZRFAYKBCCDKR62UPYF6RXV2WAUFIWXPJPMWZV3XJV3PZZQ",
-        "bankAssetId": 51422940,
+        "marketAppId": 465814278,
+        "marketAddress": "OPY7XNB5LVMECF3PHJGQV2U33LZPM5FBUXA3JJPHANAG5B7GEYUPZJVYRE",
+        "bankAssetId": 465818563,
         "bankAssetDecimals": 6,
-        "underlyingAssetId": 51437956,
-        "oracleAppId": 48649820,
+        "underlyingAssetId": 465865291,
+        "oracleAppId": 451327550,
         "oracleFieldName": "price"
     },
     "SIIX": {

@@ -28,9 +28,9 @@ const NUMBER_OF_ASSETS = BigInt(8)
 // local vars = user_storage_address
 const BYTES_FOR_PRIMARY_MANAGER = BigInt(1)
 // local vars = user_global_max_borrow_in_dollars, user_rewards_asset_id, user_pending_rewards, user_rewards_latest_time + NUMBER_OF_MARKETS (for rewards)
-const UINTS_FOR_PRIMARY_MANAGER = BigInt(15) // 15 for now since we are over max, Paul will fix w/ Byteslice.
+const UINTS_FOR_PRIMARY_MANAGER = BigInt(15)
 // local uints = user_active_collateral, user_borrowed_amount, user_borrow_index_initial
-const UINTS_FOR_STORAGE_MARKET = BigInt(4) // 4 for now because of contract schema
+const UINTS_FOR_STORAGE_MARKET = BigInt(3)
 
 /**
  * Function to get the storage address for an algofi user. This address is stored in the users local state.
