@@ -189,7 +189,7 @@ export async function optInManager(
       appIndex: managerAppId,
       suggestedParams: params,
       accounts: undefined,
-      foreignApps: undefined, 
+      foreignApps: [1,2,3,4],
       foreignAssets:undefined, 
       rekeyTo: undefined,
     })
@@ -203,7 +203,6 @@ export async function optInManager(
       suggestedParams: params,
       rekeyTo: algosdk.getApplicationAddress(managerAppId),
       accounts: undefined,
-      foreignApps: [1,2,3,4],
       foreignAssets:undefined, 
     })
   )
