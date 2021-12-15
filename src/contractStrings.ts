@@ -64,9 +64,6 @@ export const marketStrings = {
     update_market_params : "ump",
     user_active_collateral : "uac",
     user_borrow_shares : "ubs",
-    __dict__ : "<attribute '__dict__' of 'algofi_market_strings' objects>",
-    __weakref__ : "<attribute '__weakref__' of 'algofi_market_strings' objects>",
-    __doc__ : "None",
 }
 export const managerStrings = {
     __module__ : "globals",
@@ -116,7 +113,4 @@ export const managerStrings = {
     user_pending_rewards : "upr",
     user_secondary_pending_rewards : "us",
     counter_to_user_rewards_coefficient_initial : "_uc",
-    __dict__ : "<attribute '__dict__' of 'algofi_manager_strings' objects>",
-    __weakref__ : "<attribute '__weakref__' of 'algofi_manager_strings' objects>",
-    __doc__ : "None",
 }
