@@ -3,6 +3,7 @@ export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
 export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "SIIX", "SEVN", "EGHT", "NINE", "TENN", "ELVN" ,"TWLV", "TRTN", "FRTN", "FVTN" , "SXTN"]
 export const managerAppId = 465818260;
+export const managerAddress = "2SGUKZCOBEVGN3HPKSXPS6DTCXZ7LSP6G3BQF6KVUIUREBBY2QTGSON7WQ";
 export const assetDictionary = {
     "ALGO": {
         "decimals": 6,

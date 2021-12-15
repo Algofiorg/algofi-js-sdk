@@ -613,6 +613,7 @@ export async function getUserAndProtocolData(
       globalResults["manager"][key] = value
     }
   }
+  console.log("globalResults=",globalResults);
   // get and set data for each market
   for (const assetName of orderedAssets) {
     let bAssetName = "b" + assetName
