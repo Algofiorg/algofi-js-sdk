@@ -122,6 +122,7 @@ export const assetDictionary = {
 }
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
 export const SCALE_FACTOR = 1e9
+export const REWARDS_SCALE_FACTOR = 1e14
 export const PARAMETER_SCALE_FACTOR = 1e3
 
 let orderedOracleAppIds = []
