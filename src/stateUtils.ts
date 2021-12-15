@@ -7,7 +7,8 @@ import {
   assetDictionary,
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
-  SCALE_FACTOR
+  SCALE_FACTOR,
+  REWARDS_SCALE_FACTOR
 } from "./config"
 import { Base64Encoder } from "./encoder"
 import {
@@ -344,9 +345,9 @@ export async function extrapolateUserData(userResults:{}, globalResults:{}, asse
   // extrapolated rewards
   let userMarketTVL = extrapolatedData["borrowed_extrapolated"] + extrapolatedData["collateral"]
   if (userResults["manager"][managerStrings.user_rewards_program_number] === globalResults["manager"][managerStrings.n_rewards_programs]) {
-    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient] - userResults["manager"][assetName + managerStrings.counter_to_user_rewards_coefficient_initial]) / SCALE_FACTOR)
+    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient] - userResults["manager"][assetName + managerStrings.counter_to_user_rewards_coefficient_initial]) / REWARDS_SCALE_FACTOR)
   } else {
-    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient]) / SCALE_FACTOR)
+    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient]) / REWARDS_SCALE_FACTOR)
   }
   return extrapolatedData
 }
@@ -409,10 +410,10 @@ export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, a
   userResults["rewards_secondary_ratio"] = globalResults["manager"][managerStrings.rewards_secondary_ratio]
   if (globalResults["manager"][managerStrings.rewards_start_time] > 0 && userResults["manager"][managerStrings.user_rewards_program_number] === globalResults["manager"][managerStrings.n_rewards_programs]) {
     userResults["pending_rewards_extrapolated"] = userResults["manager"][managerStrings.user_pending_rewards]
-
     userResults["pending_secondary_rewards_extrapolated"] = userResults["manager"][managerStrings.user_secondary_pending_rewards]
   } else {
     userResults["pending_rewards_extrapolated"] = 0
+    userResults["pending_secondary_rewards_extrapolated"] = 0
   }
   
   for (const assetName of activeMarkets) {
