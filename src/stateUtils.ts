@@ -128,7 +128,7 @@ export async function getGlobalManagerInfo(algodClient:Algodv2):Promise<{}> {
     let decodedKey = Base64Encoder.decode(x.key)
     if (decodedKey.slice(-6) === managerStrings.price_string) {
       results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.price_string] = x.value.uint
-    } else if (decodedKey.slice(-31) === managerStrings.counter_indexed_rewards_coefficient) {
+    } else if (decodedKey.slice(-3) === managerStrings.counter_indexed_rewards_coefficient) {
       results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.counter_indexed_rewards_coefficient] = x.value.uint
     } else if (decodedKey === managerStrings.rewards_asset_id) {
       results[decodedKey] = x.value.uint
@@ -160,7 +160,7 @@ export async function getUserManagerData(accountInfo:any):Promise<{}> {
   if (managerData) {
     managerData["key-value"].forEach(x => {
       let decodedKey = Base64Encoder.decode(x.key)
-      if (decodedKey.slice(-44) === managerStrings.counter_to_user_rewards_coefficient_initial) {
+      if (decodedKey.slice(-3) === managerStrings.counter_to_user_rewards_coefficient_initial) {
         results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.counter_to_user_rewards_coefficient_initial] = x.value.uint
       } else {
         results[decodedKey] = x.value.uint
@@ -325,6 +325,8 @@ export async function extrapolateUserData(userResults:{}, globalResults:{}, asse
   // borrwed_extrapolated
   extrapolatedData["borrowed_extrapolated"] = userResults[assetName]["borrowed"] ? userResults[assetName]["borrowed"] : 0
   // collateral_underlying
+  extrapolatedData["collateral"] = userResults[assetName]['active_collateral']? userResults[assetName]['active_collateral'] : 0
+
   extrapolatedData["collateral_underlying_extrapolated"] =
     userResults[assetName]['active_collateral'] && globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]
       ? (userResults[assetName]['active_collateral'] *
@@ -347,13 +349,12 @@ export async function extrapolateUserData(userResults:{}, globalResults:{}, asse
     extrapolatedData["collateralUSD"] * (globalResults[assetName][marketStrings.collateral_factor] / 1000)
 
   // extrapolated rewards
-  let userMarketTVL = extrapolatedData["borrowed_extrapolated"] + extrapolatedData["collateral_underlying_extrapolated"]
+  let userMarketTVL = extrapolatedData["borrowed_extrapolated"] + extrapolatedData["collateral"]
   if (userResults["manager"][managerStrings.user_rewards_program_number] === globalResults["manager"][managerStrings.n_rewards_programs]) {
     extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient] - userResults["manager"][assetName + managerStrings.counter_to_user_rewards_coefficient_initial]) / SCALE_FACTOR)
   } else {
     extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient]) / SCALE_FACTOR)
   }
-
   return extrapolatedData
 }
 
@@ -412,8 +413,10 @@ export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, a
   userResults["portfolio_lend_interest_rate_earned"] = 0
   userResults["portfolio_borrow_interest_rate"] = 0
 
+  userResults["rewards_secondary_ratio"] = globalResults["manager"][managerStrings.rewards_secondary_ratio]
   if (globalResults["manager"][managerStrings.rewards_start_time] > 0 && userResults["manager"][managerStrings.user_rewards_program_number] === globalResults["manager"][managerStrings.n_rewards_programs]) {
     userResults["pending_rewards_extrapolated"] = userResults["manager"][managerStrings.user_pending_rewards]
+
     userResults["pending_secondary_rewards_extrapolated"] = userResults["manager"][managerStrings.user_secondary_pending_rewards]
   } else {
     userResults["pending_rewards_extrapolated"] = 0
