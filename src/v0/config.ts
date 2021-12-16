@@ -120,6 +120,8 @@ export const assetDictionary = {
         "underlyingAssetId": 51642940
     }
 }
+export const foreignAppIds = [465814065, 465814103, 465814149, 465814222, 465814278]
+
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
 export const SCALE_FACTOR = 1e9
 export const REWARDS_SCALE_FACTOR = 1e14
