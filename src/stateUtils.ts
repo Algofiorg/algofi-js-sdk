@@ -12,10 +12,7 @@ import {
   REWARDS_SCALE_FACTOR
 } from "./config"
 import { Base64Encoder } from "./encoder"
-import {
-  managerStrings,
-  marketStrings
-} from "./contractStrings"
+import { managerStrings, marketStrings } from "./contractStrings"
 
 // CONSTANTS
 const MIN_BALANCE_PER_ACCOUNT = BigInt(100000)
@@ -42,7 +39,7 @@ const UINTS_FOR_STORAGE_MARKET = BigInt(3)
  *
  * @return  {string}              storageAccont - Storage address of user
  */
-export async function getStorageAddress(accountInfo:any):Promise<string> {
+export async function getStorageAddress(accountInfo: any): Promise<string> {
   let storageAccount = null
   let localManager = accountInfo["apps-local-state"].filter(x => {
     return x.id === managerAppId && x["key-value"]
@@ -64,7 +61,7 @@ export async function getStorageAddress(accountInfo:any):Promise<string> {
  *
  * @return  {dict<string,int}   prices
  */
-export async function getPriceInfo(algodClient:Algodv2):Promise<{}> {
+export async function getPriceInfo(algodClient: Algodv2): Promise<{}> {
   let prices = {}
   for (const assetName of orderedAssets) {
     let response = await algodClient.getApplicationByID(assetDictionary[assetName]["oracleAppId"]).do()
@@ -86,7 +83,7 @@ export async function getPriceInfo(algodClient:Algodv2):Promise<{}> {
  *
  * @return  {dict<string,int>}  balanceInfo   - dictionary of asset names to balances
  */
-export async function getBalanceInfo(algodClient:Algodv2, address:string): Promise<{}> {
+export async function getBalanceInfo(algodClient: Algodv2, address: string): Promise<{}> {
   let accountInfo = await algodClient.accountInformation(address).do()
   let balanceInfo = {}
   balanceInfo["ALGO"] = accountInfo["amount"]
@@ -117,28 +114,29 @@ export async function getBalanceInfo(algodClient:Algodv2, address:string): Promi
  *
  * @return  {dict<string,int>}  results       - dictionary of global state for this market
  */
-export async function getGlobalManagerInfo(algodClient:Algodv2):Promise<{}> {
+export async function getGlobalManagerInfo(algodClient: Algodv2): Promise<{}> {
   let response = await algodClient.getApplicationByID(managerAppId).do()
   let results = {}
 
   // get manager balance
-  // 
-  const managerBalances = await getBalanceInfo(algodClient, managerAddress);
-  
+  //
+  const managerBalances = await getBalanceInfo(algodClient, managerAddress)
+
   response.params["global-state"].forEach(x => {
     let decodedKey = Base64Encoder.decode(x.key)
     if (decodedKey.slice(-6) === managerStrings.price_string) {
       results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.price_string] = x.value.uint
     } else if (decodedKey.slice(-3) === managerStrings.counter_indexed_rewards_coefficient) {
-      results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.counter_indexed_rewards_coefficient] = x.value.uint
+      results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.counter_indexed_rewards_coefficient] =
+        x.value.uint
     } else if (decodedKey === managerStrings.rewards_asset_id) {
       results[decodedKey] = x.value.uint
-      results["rewards_asset"] = assetIdToAssetName[x.value.uint];
-      results["rewards_asset_balance"] = managerBalances[results["rewards_asset"]];
+      results["rewards_asset"] = assetIdToAssetName[x.value.uint]
+      results["rewards_asset_balance"] = managerBalances[results["rewards_asset"]]
     } else if (decodedKey === managerStrings.rewards_secondary_asset_id) {
       results[decodedKey] = x.value.uint
       results["rewards_secondary_asset"] = assetIdToAssetName[x.value.uint]
-      results["rewards_secondary_asset_balance"] = managerBalances[results["rewards_secondary_asset"]];
+      results["rewards_secondary_asset_balance"] = managerBalances[results["rewards_secondary_asset"]]
     } else {
       results[decodedKey] = x.value.uint
     }
@@ -153,7 +151,7 @@ export async function getGlobalManagerInfo(algodClient:Algodv2):Promise<{}> {
  *
  * @return  {dict<string,int>}    results       - dictionary of global state for this market
  */
-export async function getUserManagerData(accountInfo:any):Promise<{}> {
+export async function getUserManagerData(accountInfo: any): Promise<{}> {
   let results = {}
   let managerData = accountInfo["apps-local-state"].filter(x => {
     return x.id === managerAppId && x["key-value"]
@@ -162,7 +160,10 @@ export async function getUserManagerData(accountInfo:any):Promise<{}> {
     managerData["key-value"].forEach(x => {
       let decodedKey = Base64Encoder.decode(x.key)
       if (decodedKey.slice(-3) === managerStrings.counter_to_user_rewards_coefficient_initial) {
-        results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.counter_to_user_rewards_coefficient_initial] = x.value.uint
+        results[
+          marketCounterToAssetName[decodedKey.charCodeAt(7)] +
+            managerStrings.counter_to_user_rewards_coefficient_initial
+        ] = x.value.uint
       } else {
         results[decodedKey] = x.value.uint
       }
@@ -180,7 +181,7 @@ export async function getUserManagerData(accountInfo:any):Promise<{}> {
  *
  * @return  {dict<string,int>}    results       - dictionary of user market local state
  */
-export async function getUserMarketData(accountInfo:any, globalData:{}, assetName:string):Promise<{}> {
+export async function getUserMarketData(accountInfo: any, globalData: {}, assetName: string): Promise<{}> {
   let results = {}
   let marketData = accountInfo["apps-local-state"].filter(x => {
     return x.id === assetDictionary[assetName]["marketAppId"] && x["key-value"]
@@ -189,7 +190,10 @@ export async function getUserMarketData(accountInfo:any, globalData:{}, assetNam
     marketData["key-value"].forEach(y => {
       let decodedKey = Base64Encoder.decode(y.key)
       if (decodedKey === marketStrings.user_borrow_shares) {
-        results["borrowed"] = Math.floor(y.value.uint * globalData[assetName]["underlying_borrowed_extrapolated"] / globalData[assetName][marketStrings.outstanding_borrow_shares])
+        results["borrowed"] = Math.floor(
+          (y.value.uint * globalData[assetName]["underlying_borrowed_extrapolated"]) /
+            globalData[assetName][marketStrings.outstanding_borrow_shares]
+        )
       } else if (decodedKey === marketStrings.user_active_collateral) {
         results["active_collateral"] = Number(y.value.uint)
       } else {
@@ -208,7 +212,7 @@ export async function getUserMarketData(accountInfo:any, globalData:{}, assetNam
  *
  * @return  {dict<string,int>}  results       - dictionary of global state for this market
  */
-export async function getGlobalMarketInfo(algodClient:Algodv2, marketId:number):Promise<{}> {
+export async function getGlobalMarketInfo(algodClient: Algodv2, marketId: number): Promise<{}> {
   let response = await algodClient.getApplicationByID(marketId).do()
   let results = {}
   response.params["global-state"].forEach(x => {
@@ -224,10 +228,10 @@ export async function getGlobalMarketInfo(algodClient:Algodv2, marketId:number):
  * @param   {dict<string,int>}  globalData        - dictionary of market global state
  * @param   {dict<string,int>}  prices
  * @param   {string}            assetName
- * 
+ *
  * @return  {dict<string,int>}  extrapolatedData  - dictionary of market extrapolated values
  */
-export async function extrapolateMarketData(globalData:{}, prices:{}, assetName:string):Promise<{}> {
+export async function extrapolateMarketData(globalData: {}, prices: {}, assetName: string): Promise<{}> {
   let extrapolatedData = {}
 
   // get current time
@@ -241,32 +245,38 @@ export async function extrapolateMarketData(globalData:{}, prices:{}, assetName:
 
   // get reserve mults
   let reserveMultiplier = globalData[marketStrings.reserve_factor] / PARAMETER_SCALE_FACTOR
-  let reserveFreeMultiplier = (PARAMETER_SCALE_FACTOR - globalData[marketStrings.reserve_factor]) / PARAMETER_SCALE_FACTOR
+  let reserveFreeMultiplier =
+    (PARAMETER_SCALE_FACTOR - globalData[marketStrings.reserve_factor]) / PARAMETER_SCALE_FACTOR
 
   // borrow_index_extrapolated = last borrow index + current calculated next borrow index
   extrapolatedData["borrow_index_extrapolated"] = Math.floor(
     globalData[marketStrings.borrow_index] *
       (1 +
-        ((globalData[marketStrings.total_borrow_interest_rate] / 1e9) * (currentUnixTime - globalData[marketStrings.latest_time])) /
+        ((globalData[marketStrings.total_borrow_interest_rate] / 1e9) *
+          (currentUnixTime - globalData[marketStrings.latest_time])) /
           SECONDS_PER_YEAR)
   )
 
   // underlying_borrowed_extrapolated
   extrapolatedData["underlying_borrowed_extrapolated"] =
     extrapolatedData["borrow_index_extrapolated"] > 0
-      ? (globalData[marketStrings.underlying_borrowed] * extrapolatedData["borrow_index_extrapolated"]) / globalData[marketStrings.implied_borrow_index]
+      ? (globalData[marketStrings.underlying_borrowed] * extrapolatedData["borrow_index_extrapolated"]) /
+        globalData[marketStrings.implied_borrow_index]
       : globalData[marketStrings.underlying_borrowed]
 
   // underlying_reserves_extrapolated
   extrapolatedData["underlying_reserves_extrapolated"] =
     extrapolatedData["underlying_borrowed_extrapolated"] > 0
-      ? (extrapolatedData["underlying_borrowed_extrapolated"] - globalData[marketStrings.underlying_borrowed]) * reserveMultiplier +
+      ? (extrapolatedData["underlying_borrowed_extrapolated"] - globalData[marketStrings.underlying_borrowed]) *
+          reserveMultiplier +
         globalData[marketStrings.underlying_reserves]
       : globalData[marketStrings.underlying_reserves]
 
   // underlying_supplied
   extrapolatedData["underlying_supplied"] =
-    globalData[marketStrings.underlying_cash] + globalData[marketStrings.underlying_borrowed] - globalData[marketStrings.underlying_reserves]
+    globalData[marketStrings.underlying_cash] +
+    globalData[marketStrings.underlying_borrowed] -
+    globalData[marketStrings.underlying_reserves]
   extrapolatedData["underlying_supplied_extrapolated"] =
     globalData[marketStrings.underlying_cash] +
     extrapolatedData["underlying_borrowed_extrapolated"] -
@@ -275,37 +285,43 @@ export async function extrapolateMarketData(globalData:{}, prices:{}, assetName:
   // total_lend_interest_rate_earned = (total interest less reserve factor) / (total supply)
   extrapolatedData["total_lend_interest_rate_earned"] =
     globalData[marketStrings.underlying_borrowed] > 0
-      ? (globalData[marketStrings.total_borrow_interest_rate] * globalData[marketStrings.underlying_borrowed] * reserveFreeMultiplier) /
+      ? (globalData[marketStrings.total_borrow_interest_rate] *
+          globalData[marketStrings.underlying_borrowed] *
+          reserveFreeMultiplier) /
         extrapolatedData["underlying_supplied_extrapolated"]
       : 0
 
   // bank_to_underlying_exchange_extrapolated
   extrapolatedData["bank_to_underlying_exchange_extrapolated"] =
     globalData[marketStrings.bank_circulation] > 0
-      ? (extrapolatedData["underlying_supplied_extrapolated"] * SCALE_FACTOR) / globalData[marketStrings.bank_circulation]
+      ? (extrapolatedData["underlying_supplied_extrapolated"] * SCALE_FACTOR) /
+        globalData[marketStrings.bank_circulation]
       : globalData[marketStrings.bank_to_underlying_exchange]
 
   // active_collateral_extrapolated
-  extrapolatedData["active_collateral_extrapolated"] = 
-    globalData[marketStrings.active_collateral] ?
-    globalData[marketStrings.active_collateral] * extrapolatedData["bank_to_underlying_exchange_extrapolated"] / SCALE_FACTOR :
-    0
+  extrapolatedData["active_collateral_extrapolated"] = globalData[marketStrings.active_collateral]
+    ? (globalData[marketStrings.active_collateral] * extrapolatedData["bank_to_underlying_exchange_extrapolated"]) /
+      SCALE_FACTOR
+    : 0
 
   // calculate USD values
   extrapolatedData["underlying_borrowed_extrapolatedUSD"] =
     extrapolatedData["underlying_borrowed_extrapolated"] *
-    (prices[assetName] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
+    (prices[assetName] / SCALE_FACTOR) *
+    1000 * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
 
   extrapolatedData["underlying_supplied_extrapolatedUSD"] =
     extrapolatedData["underlying_supplied_extrapolated"] *
-    (prices[assetName] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
+    (prices[assetName] / SCALE_FACTOR) *
+    1000 * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
-    
+
   // active_collateral_extrapolatedUSD
   extrapolatedData["active_collateral_extrapolatedUSD"] =
     extrapolatedData["active_collateral_extrapolated"] *
-    (prices[assetName] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
+    (prices[assetName] / SCALE_FACTOR) *
+    1000 * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
 
   return extrapolatedData
@@ -320,29 +336,35 @@ export async function extrapolateMarketData(globalData:{}, prices:{}, assetName:
  *
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function extrapolateUserData(userResults:{}, globalResults:{}, assetName:string):Promise<{}> {
+export async function extrapolateUserData(userResults: {}, globalResults: {}, assetName: string): Promise<{}> {
   let extrapolatedData = {}
 
   // borrwed_extrapolated
-  extrapolatedData["borrowed_extrapolated"] = userResults[assetName]["borrowed"] ? userResults[assetName]["borrowed"] : 0
+  extrapolatedData["borrowed_extrapolated"] = userResults[assetName]["borrowed"]
+    ? userResults[assetName]["borrowed"]
+    : 0
   // collateral_underlying
-  extrapolatedData["collateral"] = userResults[assetName]['active_collateral']? userResults[assetName]['active_collateral'] : 0
+  extrapolatedData["collateral"] = userResults[assetName]["active_collateral"]
+    ? userResults[assetName]["active_collateral"]
+    : 0
 
   extrapolatedData["collateral_underlying_extrapolated"] =
-    userResults[assetName]['active_collateral'] && globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]
-      ? (userResults[assetName]['active_collateral'] *
+    userResults[assetName]["active_collateral"] && globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]
+      ? (userResults[assetName]["active_collateral"] *
           globalResults[assetName]["bank_to_underlying_exchange_extrapolated"]) /
         SCALE_FACTOR
       : 0
   // borrowUSD
   extrapolatedData["borrowUSD"] =
     extrapolatedData["borrowed_extrapolated"] *
-    (globalResults[assetName]["price"] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
+    (globalResults[assetName]["price"] / SCALE_FACTOR) *
+    1000 * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
   // collateralUSD
   extrapolatedData["collateralUSD"] =
     extrapolatedData["collateral_underlying_extrapolated"] *
-    (globalResults[assetName]["price"] / SCALE_FACTOR) * 1000  * // multiply by 1000 b/c we scale orcale by 1000
+    (globalResults[assetName]["price"] / SCALE_FACTOR) *
+    1000 * // multiply by 1000 b/c we scale orcale by 1000
     (1 / 10 ** assetDictionary[assetName]["decimals"])
 
   // maxBorrowUSD
@@ -351,10 +373,19 @@ export async function extrapolateUserData(userResults:{}, globalResults:{}, asse
 
   // extrapolated rewards
   let userMarketTVL = extrapolatedData["borrowed_extrapolated"] + extrapolatedData["collateral"]
-  if (userResults["manager"][managerStrings.user_rewards_program_number] === globalResults["manager"][managerStrings.n_rewards_programs]) {
-    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient] - userResults["manager"][assetName + managerStrings.counter_to_user_rewards_coefficient_initial]) / REWARDS_SCALE_FACTOR)
+  if (
+    userResults["manager"][managerStrings.user_rewards_program_number] ===
+    globalResults["manager"][managerStrings.n_rewards_programs]
+  ) {
+    extrapolatedData["market_unrealized_rewards"] =
+      (userMarketTVL *
+        (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient] -
+          userResults["manager"][assetName + managerStrings.counter_to_user_rewards_coefficient_initial])) /
+      REWARDS_SCALE_FACTOR
   } else {
-    extrapolatedData["market_unrealized_rewards"] = (userMarketTVL * (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient]) / REWARDS_SCALE_FACTOR)
+    extrapolatedData["market_unrealized_rewards"] =
+      (userMarketTVL * globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient]) /
+      REWARDS_SCALE_FACTOR
   }
   return extrapolatedData
 }
@@ -366,30 +397,37 @@ export async function extrapolateUserData(userResults:{}, globalResults:{}, asse
  *
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function updateGlobalTotals(globalResults:{}):Promise<void> {
+export async function updateGlobalTotals(globalResults: {}): Promise<void> {
   globalResults["underlying_supplied_extrapolatedUSD"] = 0
   globalResults["underlying_borrowed_extrapolatedUSD"] = 0
   globalResults["active_collateral_extrapolatedUSD"] = 0
-  
+
   for (const assetName of orderedAssets) {
     if (assetName != "STBL") {
       globalResults["underlying_supplied_extrapolatedUSD"] +=
         globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
     }
-    globalResults["active_collateral_extrapolatedUSD"] +=
-      globalResults[assetName]["active_collateral_extrapolatedUSD"]
+    globalResults["active_collateral_extrapolatedUSD"] += globalResults[assetName]["active_collateral_extrapolatedUSD"]
     globalResults["underlying_borrowed_extrapolatedUSD"] +=
       globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
   }
 
   // calculate market APY
-  let rewards_active = (globalResults["manager"][managerStrings.rewards_start_time] > 0 && globalResults["manager"][managerStrings.rewards_amount] > 0)
+  let rewards_active =
+    globalResults["manager"][managerStrings.rewards_start_time] > 0 &&
+    globalResults["manager"][managerStrings.rewards_amount] > 0
   let rewards_per_year = globalResults["manager"][managerStrings.rewards_per_second] * 60 * 60 * 24 * 365
-  
+
   // TODO account for reward free markets
   for (const assetName of orderedAssets) {
     if (rewards_active) {
-      globalResults[assetName]["reward_rate_per_1000USD"] = rewards_per_year * 1000 * (globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] / globalResults["underlying_borrowed_extrapolatedUSD"]) / (globalResults[assetName]["active_collateral_extrapolatedUSD"] + globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
+      globalResults[assetName]["reward_rate_per_1000USD"] =
+        (rewards_per_year *
+          1000 *
+          (globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] /
+            globalResults["underlying_borrowed_extrapolatedUSD"])) /
+        (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
+          globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
     } else {
       globalResults[assetName]["reward_rate_per_1000USD"] = 0
     }
@@ -405,7 +443,11 @@ export async function updateGlobalTotals(globalResults:{}):Promise<void> {
  *
  * @return  {dict<string,int>}  extroplatedData
  */
-export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, activeMarkets:string[]):Promise<void> {
+export async function updateGlobalUserTotals(
+  userResults: {},
+  globalResults: {},
+  activeMarkets: string[]
+): Promise<void> {
   userResults["borrowUSD"] = 0
   userResults["collateralUSD"] = 0
   userResults["maxBorrowUSD"] = 0
@@ -415,25 +457,37 @@ export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, a
   userResults["portfolio_borrow_interest_rate"] = 0
 
   userResults["rewards_secondary_ratio"] = globalResults["manager"][managerStrings.rewards_secondary_ratio]
-  if (globalResults["manager"][managerStrings.rewards_start_time] > 0 && userResults["manager"][managerStrings.user_rewards_program_number] === globalResults["manager"][managerStrings.n_rewards_programs]) {
+  if (
+    globalResults["manager"][managerStrings.rewards_start_time] > 0 &&
+    userResults["manager"][managerStrings.user_rewards_program_number] ===
+      globalResults["manager"][managerStrings.n_rewards_programs]
+  ) {
     userResults["pending_rewards_extrapolated"] = userResults["manager"][managerStrings.user_pending_rewards]
-    userResults["pending_secondary_rewards_extrapolated"] = userResults["manager"][managerStrings.user_secondary_pending_rewards]
+    userResults["pending_secondary_rewards_extrapolated"] =
+      userResults["manager"][managerStrings.user_secondary_pending_rewards]
   } else {
     userResults["pending_rewards_extrapolated"] = 0
     userResults["pending_secondary_rewards_extrapolated"] = 0
   }
-  
+
   for (const assetName of activeMarkets) {
     userResults["borrowUSD"] += userResults[assetName]["borrowUSD"]
     userResults["collateralUSD"] += userResults[assetName]["collateralUSD"]
     userResults["maxBorrowUSD"] += userResults[assetName]["maxBorrowUSD"]
     userResults["unrealized_rewards"] += userResults[assetName]["market_unrealized_rewards"]
   }
-  
+
   for (const assetName of activeMarkets) {
-    userResults["portfolio_reward_rate_per_1000USD"] += globalResults[assetName]["reward_rate_per_1000USD"] * (userResults[assetName]["borrowUSD"] + userResults[assetName]["collateralUSD"]) / (userResults["borrowUSD"] + userResults["collateralUSD"])
-    userResults["portfolio_lend_interest_rate_earned"] += globalResults[assetName]["total_lend_interest_rate_earned"] * userResults[assetName]["collateralUSD"] / userResults["collateralUSD"]
-    userResults["portfolio_borrow_interest_rate"] += globalResults[assetName][marketStrings.total_borrow_interest_rate] * userResults[assetName]["borrowUSD"] / userResults["borrowUSD"]
+    userResults["portfolio_reward_rate_per_1000USD"] +=
+      (globalResults[assetName]["reward_rate_per_1000USD"] *
+        (userResults[assetName]["borrowUSD"] + userResults[assetName]["collateralUSD"])) /
+      (userResults["borrowUSD"] + userResults["collateralUSD"])
+    userResults["portfolio_lend_interest_rate_earned"] +=
+      (globalResults[assetName]["total_lend_interest_rate_earned"] * userResults[assetName]["collateralUSD"]) /
+      userResults["collateralUSD"]
+    userResults["portfolio_borrow_interest_rate"] +=
+      (globalResults[assetName][marketStrings.total_borrow_interest_rate] * userResults[assetName]["borrowUSD"]) /
+      userResults["borrowUSD"]
   }
 }
 
@@ -444,7 +498,7 @@ export async function updateGlobalUserTotals(userResults:{}, globalResults:{}, a
  *
  * @return  {dict<string,int>}    userData    - userData with added USD values
  */
-export async function getAccountOptInData(accountInfo:any):Promise<{}> {
+export async function getAccountOptInData(accountInfo: any): Promise<{}> {
   let accountOptInData = {}
 
   // min balance
@@ -477,7 +531,7 @@ export async function getAccountOptInData(accountInfo:any):Promise<{}> {
   // prep for paul's change, only opt-in storage account to markets
   accountOptInData["min_balance_primary_account"] =
     // BigInt(2) * NUMBER_OF_ASSETS * MIN_BALANCE_PER_ASSET + TODO - uncomment if we need bank assets again
-    NUMBER_OF_ASSETS * MIN_BALANCE_PER_ASSET + 
+    NUMBER_OF_ASSETS * MIN_BALANCE_PER_ASSET +
     MIN_BALANCE_PER_APP +
     MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
     MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER
@@ -487,7 +541,9 @@ export async function getAccountOptInData(accountInfo:any):Promise<{}> {
     NUMBER_OF_MARKETS_TO_OPT_IN * (MIN_BALANCE_PER_APP + MIN_BALANCE_PER_APP_UINT * UINTS_FOR_STORAGE_MARKET) +
     MIN_BALANCE_PER_APP +
     MIN_BALANCE_PER_APP_BYTESLICE * BYTES_FOR_PRIMARY_MANAGER +
-    MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER + MIN_BALANCE_PER_ACCOUNT + BigInt(100000)
+    MIN_BALANCE_PER_APP_UINT * UINTS_FOR_PRIMARY_MANAGER +
+    MIN_BALANCE_PER_ACCOUNT +
+    BigInt(100000)
 
   // opted in applications
   accountOptInData["apps"] = localApps
