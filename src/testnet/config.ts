@@ -2,8 +2,8 @@
 export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
 export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "SIIX", "SEVN", "EGHT", "NINE", "TENN", "ELVN" ,"TWLV", "TRTN", "FRTN", "FVTN" , "SXTN"]
-
 export const managerAppId = 51422788;
+export const managerAddress = "67N4UE4SAH5N75T7HYYOMUTUF3AW3H6EMGLZABJAU4KION3LO7MMWLO7DA";
 export const assetDictionary = {
     "ALGO": {
         "decimals": 6,
@@ -120,8 +120,12 @@ export const assetDictionary = {
         "underlyingAssetId": 51642940
     }
 }
+
+export const foreignAppIds = [1, 2, 3, 4]
+
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
 export const SCALE_FACTOR = 1e9
+export const REWARDS_SCALE_FACTOR = 1e14
 export const PARAMETER_SCALE_FACTOR = 1e3
 
 let orderedOracleAppIds = []
