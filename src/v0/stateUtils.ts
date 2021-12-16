@@ -135,8 +135,14 @@ export async function getGlobalManagerInfo(algodClient: Algodv2): Promise<{}> {
       results["rewards_asset_balance"] = managerBalances[results["rewards_asset"]]
     } else if (decodedKey === managerStrings.rewards_secondary_asset_id) {
       results[decodedKey] = x.value.uint
-      results["rewards_secondary_asset"] = assetIdToAssetName[x.value.uint]
-      results["rewards_secondary_asset_balance"] = managerBalances[results["rewards_secondary_asset"]]
+      if (x.value.uint && assetIdToAssetName[x.value.uint]){
+        results["rewards_secondary_asset"] = assetIdToAssetName[x.value.uint]
+        results["rewards_secondary_asset_balance"] = managerBalances[results["rewards_secondary_asset"]]
+      } else if (x.value.uint){
+        // the ALGOFI protocol will only ever support one unexpected rewards symbol -- BANK
+        results["rewards_secondary_asset"] = "BANK"
+        results["rewards_secondary_asset_balance"] = 0;
+      }
     } else {
       results[decodedKey] = x.value.uint
     }
