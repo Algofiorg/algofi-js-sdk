@@ -289,7 +289,7 @@ export async function extrapolateMarketData(globalData: {}, prices: {}, assetNam
     extrapolatedData["underlying_reserves_extrapolated"]
 
   // total_lend_interest_rate_earned = (total interest less reserve factor) / (total supply)
-  const ALGO_STAKING_APY = Number(0.0081*1e9);
+  const ALGO_STAKING_APY = Number(0.025*1e9);
   const borrowUtil = (globalData[marketStrings.underlying_borrowed] / extrapolatedData["underlying_supplied_extrapolated"]);
   extrapolatedData["total_lend_interest_rate_earned"] =
         globalData[marketStrings.underlying_borrowed] > 0
