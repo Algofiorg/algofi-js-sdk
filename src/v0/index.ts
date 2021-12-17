@@ -117,7 +117,7 @@ export async function optInUnderlyingAssets(
     // get underlying and bank asset ids
     let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
     // opt into underlying asset if not already opted in
-    if (!(underlyingAssetId in accountOptedInAssets) && underlyingAssetId != 1) {
+    if (!accountOptedInAssets.includes(underlyingAssetId) && underlyingAssetId != 1) {
       underlying_asset_txns.push(
         algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
           // Escrow txn
