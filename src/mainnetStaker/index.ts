@@ -50,6 +50,83 @@ export {
 const NO_EXTRA_ARGS = null
 
 /**
+ * Function to get opt in transactions for algofi supported assets
+ *
+ * @param   {Algodv2}         algoClient
+ * @param   {string}          address
+ * @param   {string}          storageAddress
+ * @param   {number}          storageAddressFundingAmount
+ *
+ * @return  {Transaction[]}   create transactions to opt in to Staker and rekey storage address to manager contract
+ */
+ export async function optInStaker(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string,
+  storageAddressFundingAmount: number,
+) {
+  const params = await getParams(algodClient)
+
+  let txns = []
+
+  // fund storage account
+  txns.push(
+    algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      from: address,
+      amount: storageAddressFundingAmount,
+      to: storageAddress,
+      suggestedParams: params,
+      closeRemainderTo: undefined,
+      rekeyTo: undefined
+    })
+  )
+
+  const stblMarketAppId = assetDictionary["STBL"]["marketAppId"]
+  
+  // opt in storage account
+  txns.push(
+    algosdk.makeApplicationOptInTxnFromObject({
+      from: storageAddress,
+      appIndex: stblMarketAppId,
+      suggestedParams: params,
+      accounts: undefined,
+      foreignApps: undefined,
+      foreignAssets: undefined,
+      rekeyTo: undefined
+    })
+  )
+
+  // opt user into manager
+  txns.push(
+    algosdk.makeApplicationOptInTxnFromObject({
+      from: address,
+      appIndex: managerAppId,
+      suggestedParams: params,
+      foreignApps: [482608867],
+      accounts: undefined,
+      foreignAssets: undefined,
+      rekeyTo: undefined,
+    })
+  )
+
+  // opt storage account into manager
+  txns.push(
+    algosdk.makeApplicationOptInTxnFromObject({
+      from: storageAddress,
+      appIndex: managerAppId,
+      suggestedParams: params,
+      rekeyTo: algosdk.getApplicationAddress(managerAppId),
+      foreignApps: undefined,
+      accounts: undefined,
+      foreignAssets: undefined
+    })
+  )
+
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
  * Function to create transactions to opt address into our market contracts
  *
  * @param   {Algodv2}         algoClient
