@@ -15,7 +15,7 @@ import {
   updateGlobalUserTotals,
   updateGlobalTotals
 } from "./stateUtils"
-export { getGlobalManagerInfo }
+export { getGlobalManagerInfo, getStorageAddress}
 import { managerStrings, marketStrings } from "./contractStrings"
 export { managerStrings, marketStrings }
 import {
