@@ -60,6 +60,19 @@ export const assetDictionary = {
         "oracleAppId": 451327550,
         "oracleFieldName": "price"
     },
+    "STBL-USDC-LP": {
+        "decimals": 6,
+        "marketAppId": 485244022,
+        "managerAppId": 485247444,
+        "managerAddress": "IG3KDYTH7IB46DC5K4ME4Z3R46VJEFXFPHRHVV3KKBTULW5ODHPJL7ZFU4",
+        "marketAddress": "Z3GWRL5HGCJQYIXP4MINCRWCKWDHZ5VSYJHDLIDLEIOARIZWJX6GLAWWEI",
+        "creatorAddress": "TFONT6HASLUUWDRE3MEEC4GS5PIMLEKNCE7Z2JMGNBFIHVZZ2QEJ7MODZE",
+        "oracleAppId": 451327550,
+        "bankAssetId": 485254141,
+        "bankAssetDecimals": 6,
+        "underlyingAssetId": 467020179,
+        "oracleFieldName": "price"
+    },
     "SIIX": {
         "marketCounter": 6,
         "marketAppId": 465814318,
