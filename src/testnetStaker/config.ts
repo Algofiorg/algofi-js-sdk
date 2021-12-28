@@ -1,7 +1,6 @@
 export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
 export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "SIIX", "SEVN", "EGHT", "NINE", "TENN", "ELVN" ,"TWLV", "TRTN", "FRTN", "FVTN" , "SXTN"]
-export const managerAppId = 53570235;
 export const managerAddress = "K6VZL3BA6KPMNMPTKUAWOJPMVWGYFZDR7WIXBJWIRI3MSKSQX4JKLULV44";
 export const assetDictionary = {
     "ALGO": {
@@ -52,11 +51,25 @@ export const assetDictionary = {
         "decimals": 6,
         "marketCounter": 5,
         "marketAppId": 53570045,
+        "managerAppId": 53570235,
         "marketAddress": "C7UG3IUS7PVBTAQTJ3KLTBNGT3AYUNTNUFHJMZLZ53I7MXA7TEJ6Q4Y23Q",
         "bankAssetId": 51422940,
         "bankAssetDecimals": 6,
         "underlyingAssetId": 51437956,
         "oracleAppId": 48649820,
+        "oracleFieldName": "price"
+    },
+    "STBL-USDC-LP": {
+        "decimals": 6,
+        "marketAppId": 485244022,
+        "managerAppId": 485247444,
+        "managerAddress": "IG3KDYTH7IB46DC5K4ME4Z3R46VJEFXFPHRHVV3KKBTULW5ODHPJL7ZFU4",
+        "marketAddress": "Z3GWRL5HGCJQYIXP4MINCRWCKWDHZ5VSYJHDLIDLEIOARIZWJX6GLAWWEI",
+        "creatorAddress": "TFONT6HASLUUWDRE3MEEC4GS5PIMLEKNCE7Z2JMGNBFIHVZZ2QEJ7MODZE",
+        "oracleAppId": 451327550,
+        "bankAssetId": 485254141,
+        "bankAssetDecimals": 6,
+        "underlyingAssetId": 467020179,
         "oracleFieldName": "price"
     },
     "SIIX": {
