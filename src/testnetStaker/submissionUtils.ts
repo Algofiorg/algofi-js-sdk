@@ -1,5 +1,5 @@
 import algosdk, { Algodv2, SuggestedParams, Transaction } from "algosdk"
-import { managerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config"
+import { orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config"
 import {
   managerStrings,
   marketStrings
@@ -49,10 +49,16 @@ export async function waitForConfirmation(algodClient:Algodv2, txId:string):Prom
  * @param   {Algodv2}}  algodclient
  * @param   {string}    senderAccount         - user account address
  * @param   {string}    dataAccount           - user storage account address
+ * @param   {int}       managerAppId
  * 
  * @return  {Transaction[]}     preamble transaction array
  */
-export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, dataAccount:string):Promise<Transaction[]> {
+export async function getLeadingTxs(
+  algodClient:Algodv2, 
+  senderAccount:string, 
+  dataAccount:string,
+  managerAppId: number,
+):Promise<Transaction[]> {
   // get default params
   let params = await getParams(algodClient)
 
@@ -229,6 +235,7 @@ export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, d
  * @param   {string}    senderAccount
  * @param   {string}    dataAccount
  * @param   {int}       marketAppId
+ * @param   {int}       managerAppId
  * @param   {int}       foreignAssetId
  * @param   {string}    functionString        - contract psuedo-function string
  * @param   {[]}        extraCallArgs         - additional application arguments for the manager transaction
@@ -240,6 +247,7 @@ async function getStackGroup(
   senderAccount: string,
   dataAccount: string,
   marketAppId:number,
+  managerAppId: number,
   foreignAssetId:number,
   functionString:string,
   extraCallArgs = null
@@ -337,6 +345,7 @@ async function getPaymentTxn(
  * @param   {string}      senderAccount
  * @param   {string}      dataAccount
  * @param   {int}         marketAppId
+ * @param   {int}         managerAppId
  * @param   {int}         foreignAssetId
  * @param   {string}      functionString
  * @param   {[]}          extralCallArgs
@@ -351,6 +360,7 @@ export async function buildUserTransaction(
   senderAccount:string,
   dataAccount:string,
   marketAppId:number,
+  managerAppId: number,
   foreignAssetId:number,
   functionString:string,
   extraCallArgs = null,
@@ -360,12 +370,12 @@ export async function buildUserTransaction(
 ):Promise<Transaction[]> {
   let txns = []
   // get preamble transactions
-  let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount)
+  let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount, managerAppId)
   leadingTxs.forEach(txn => {
     txns.push(txn)
   })
   // get function transactions
-  let followingTxs = await getStackGroup(algodClient, senderAccount, dataAccount, marketAppId, foreignAssetId, functionString, extraCallArgs)
+  let followingTxs = await getStackGroup(algodClient, senderAccount, dataAccount, marketAppId, managerAppId, foreignAssetId, functionString, extraCallArgs)
   followingTxs.forEach(txn => {
     txns.push(txn)
   })

@@ -2,7 +2,6 @@
 export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
 export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "SIIX", "SEVN", "EGHT", "NINE", "TENN", "ELVN" ,"TWLV", "TRTN", "FRTN", "FVTN" , "SXTN"]
-export const managerAppId = 482625868;
 export const managerAddress = "PFM3A2ZKNZBBK6OKJCP32EU2PCCZGHU4XZPVPTA5ASXUK5EM2YO4FUENPQ";
 export const assetDictionary = {
     "ALGO": {
@@ -53,6 +52,7 @@ export const assetDictionary = {
         "decimals": 6,
         "marketCounter": 5,
         "marketAppId": 482608867,
+        "managerAppId": 482625868,
         "marketAddress": "DYLJJES76YQCOUK6D4RALIPJ76U5QT7L6A2KP6QTOH63OBLFKLTER2J6IA",
         "bankAssetId": 465818563,
         "bankAssetDecimals": 6,
