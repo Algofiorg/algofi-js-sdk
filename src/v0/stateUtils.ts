@@ -125,8 +125,6 @@ export async function getBalanceInfo(algodClient: Algodv2, address: string): Pro
  * @return  {dict<string,int>}  results       - dictionary of global state for this market
  */
 export async function getGlobalManagerInfo(algodClient: Algodv2, stakeAsset: string = "ALGO"): Promise<{}> {
-  console.log("assetDictionary=", assetDictionary)
-  console.log("stakeAsset=", stakeAsset)
   let response = await algodClient.getApplicationByID(assetDictionary[stakeAsset]["managerAppId"]).do()
   let results = {}
 
