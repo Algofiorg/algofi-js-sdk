@@ -1,7 +1,8 @@
 
 export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
 export const extraAssets = ["BANK"]
-export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "STBL-ALGO-LP", "STBL-USDC-LP", "STBL-USDC-LP-V2", "STBL-YLDY-LP"]
+export const orderedAssetsAndPlaceholders = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "SIIX", "SEVN", "EGHT", "NINE", "TENN", "ELVN" ,"TWLV", "TRTN", "FRTN", "FVTN" , "SXTN", "STBL-ALGO-LP", "STBL-USDC-LP", "STBL-USDC-LP-V2", "STBL-YLDY-LP"]
+
 export const protocolManagerAppId = 465818260;
 export const managerAddress = "2SGUKZCOBEVGN3HPKSXPS6DTCXZ7LSP6G3BQF6KVUIUREBBY2QTGSON7WQ";
 export const assetDictionary = {
@@ -130,7 +131,62 @@ export const assetDictionary = {
     "BANK": {
         "decimals": 6,
         "underlyingAssetId": 51642940
-    }
+    },
+    "SIIX": {
+        "marketCounter": 6,
+        "marketAppId": 465814318,
+        "marketAddress": "DAUL5I34T4C4U5OMXS7YBPJIERQ2NH3O7XPZCIJEGKP4NO3LK4UWDCHAG4"
+    },
+    "SEVN": {
+        "marketCounter": 7,
+        "marketAppId": 465814371,
+        "marketAddress": "K75YX4ZN3J43R2JTRWB6M3KXNPWAJJVPFSMIRAGQO77TKXKHKBFKSRZGGA"
+    },
+    "EGHT": {
+        "marketCounter": 8,
+        "marketAppId": 465814435,
+        "marketAddress": "P6B5MK2FMN24IVRYMQMEPZHJPCNN6OUKFI5OSTOUREC47HPQNUXAUKF4TY"
+    },
+    "NINE": {
+        "marketCounter": 9,
+        "marketAppId": 465814472,
+        "marketAddress": "PWVB7SHASD5XJNQFZHC5UAR5UYY33TW62YA6JVOW6PMYNZ7KMARPXKMFRU"
+    },
+    "TENN": {
+        "marketCounter": 10,
+        "marketAppId": 465814527,
+        "marketAddress": "K7TNWBPCKLJKX3KHUZ5VA7YKGWNPHM4E6HQ5HGD7VFVYZ3232RJFGATMTM"
+    },
+    "ELVN": {
+        "marketCounter": 11,
+        "marketAppId": 465814582,
+        "marketAddress": "LEHVWIH62DHSXLXFBPAXHYZZYGO7ONJ4HJHQLX4LJSIXSM66FPN5BXRCPU"
+    },
+    "TWLV": {
+        "marketCounter": 12,
+        "marketAppId": 465814620,
+        "marketAddress": "S6LBCGD4UFECPY3P67QFURVDXCBPWZXG56VJ43UVBK7ODIODF6UOX6BX4A"
+    },
+    "TRTN": {
+        "marketCounter": 13,
+        "marketAppId": 465814664,
+        "marketAddress": "HHHROS6MPEFEXJ7JQOKASR67EEPRM3NRGWLREW54XBUHF6AQ3HYGQQIGCY"
+    },
+    "FRTN": {
+        "marketCounter": 14,
+        "marketAppId": 465814701,
+        "marketAddress": "XFWV3BF47DBLJ2GY2WUUIIA3W4VTOFOALKKEJJNCWFG6DLHWZ6SFUQXPJA"
+    },
+    "FVTN": {
+        "marketCounter": 15,
+        "marketAppId": 465814744,
+        "marketAddress": "BTC4OBXRM53F3WT3YXK5LEP2JYB6OIDGQHM4EOHYPOYORKR4QHY7CMD35M"
+    },
+    "SXTN": {
+        "marketCounter": 16,
+        "marketAppId": 465814807,
+        "marketAddress": "F253XGHUENH36WTAVWR2DE6VPAF2FV7L7H3QESM5Q7QXQTEX5T2C2HT3NU"
+    },
 }
 export const foreignAppIds = [465814065, 465814103, 465814149, 465814222, 465814278]
 
