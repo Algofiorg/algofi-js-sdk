@@ -514,9 +514,6 @@ export async function removeCollateralUnderlying(
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
 
-  console.log("calling removeCollateralUnderlying with asset=", assetName)
-  
-
   let txns = await buildUserTransaction(
     algodClient,
     address,
@@ -663,7 +660,6 @@ export async function claimRewards(
     rekeyTo: undefined
   })
   txns.push(claimRewardsTxn)
-  console.log("txns=", txns)
   algosdk.assignGroupID(txns)
   return txns
 }

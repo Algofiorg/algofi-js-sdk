@@ -59,10 +59,8 @@ export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, d
 
   // initialize text encoder
   const enc = new TextEncoder()
-  console.log("asset=", asset)
   // check if staking asset
   const isStaking = asset.includes("LP") || asset.includes("STAKE")
-  console.log("isStaking=", isStaking)
   // fetch market variables transaction
   const applTx00 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
