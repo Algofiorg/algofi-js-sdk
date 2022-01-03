@@ -15,13 +15,13 @@ import {
   updateGlobalUserTotals,
   updateGlobalTotals
 } from "./stateUtils"
-export { getGlobalManagerInfo }
+export { getUserManagerData, getGlobalManagerInfo, getStorageAddress }
 import { managerStrings, marketStrings } from "./contractStrings"
 export { managerStrings, marketStrings }
 import {
   orderedAssets,
   orderedAssetsAndPlaceholders,
-  managerAppId,
+  protocolManagerAppId,
   assetDictionary,
   orderedOracleAppIds,
   orderedMarketAppIds,
@@ -36,7 +36,7 @@ export {
   getAccountOptInData,
   orderedAssets,
   orderedAssetsAndPlaceholders,
-  managerAppId,
+  protocolManagerAppId,
   assetDictionary,
   orderedOracleAppIds,
   orderedMarketAppIds,
@@ -85,6 +85,84 @@ export async function optInMarkets(algodClient: Algodv2, address: string): Promi
       )
     }
   }
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+
+/**
+ * Function to get opt in transactions for algofi supported assets
+ *
+ * @param   {Algodv2}         algoClient
+ * @param   {string}          stakeAsset
+ * @param   {string}          address
+ * @param   {string}          storageAddress
+ * @param   {number}          storageAddressFundingAmount
+ *
+ * @return  {Transaction[]}   create transactions to opt in to Staker and rekey storage address to manager contract
+ */
+ export async function optInStaker(
+  algodClient: Algodv2,
+  stakeAsset: string,
+  address: string,
+  storageAddress: string,
+  storageAddressFundingAmount: number,
+) {
+  const params = await getParams(algodClient)
+
+  let txns = []
+
+  // fund storage account
+  txns.push(
+    algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      from: address,
+      amount: storageAddressFundingAmount,
+      to: storageAddress,
+      suggestedParams: params,
+      closeRemainderTo: undefined,
+      rekeyTo: undefined
+    })
+  )
+
+  // opt in storage account
+  txns.push(
+    algosdk.makeApplicationOptInTxnFromObject({
+      from: storageAddress,
+      appIndex: assetDictionary[stakeAsset]["marketAppId"],
+      suggestedParams: params,
+      accounts: undefined,
+      foreignApps: undefined,
+      foreignAssets: undefined,
+      rekeyTo: undefined
+    })
+  )
+
+  // opt user into manager
+  txns.push(
+    algosdk.makeApplicationOptInTxnFromObject({
+      from: address,
+      appIndex: assetDictionary[stakeAsset]["managerAppId"],
+      suggestedParams: params,
+      foreignApps: [assetDictionary[stakeAsset]["marketAppId"]],
+      accounts: undefined,
+      foreignAssets: undefined,
+      rekeyTo: undefined,
+    })
+  )
+
+  // opt storage account into manager
+  txns.push(
+    algosdk.makeApplicationOptInTxnFromObject({
+      from: storageAddress,
+      appIndex: assetDictionary[stakeAsset]["managerAppId"],
+      suggestedParams: params,
+      rekeyTo: algosdk.getApplicationAddress(assetDictionary[stakeAsset]["managerAppId"]),
+      foreignApps: undefined,
+      accounts: undefined,
+      foreignAssets: undefined
+    })
+  )
+
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -189,7 +267,7 @@ export async function optInManager(
   txns.push(
     algosdk.makeApplicationOptInTxnFromObject({
       from: address,
-      appIndex: managerAppId,
+      appIndex: protocolManagerAppId,
       suggestedParams: params,
       accounts: undefined,
       foreignApps: foreignAppIds,
@@ -202,9 +280,9 @@ export async function optInManager(
   txns.push(
     algosdk.makeApplicationOptInTxnFromObject({
       from: storageAddress,
-      appIndex: managerAppId,
+      appIndex: protocolManagerAppId,
       suggestedParams: params,
-      rekeyTo: algosdk.getApplicationAddress(managerAppId),
+      rekeyTo: algosdk.getApplicationAddress(protocolManagerAppId),
       foreignApps: undefined,
       accounts: undefined,
       foreignAssets: undefined
@@ -248,7 +326,8 @@ export async function mint(
     NO_EXTRA_ARGS,
     marketAddress,
     underlyingAssetId,
-    amount
+    amount,
+    assetName
   )
   algosdk.assignGroupID(txns)
   return txns
@@ -287,7 +366,8 @@ export async function mintToCollateral(
     NO_EXTRA_ARGS,
     marketAddress,
     underlyingAssetId,
-    amount
+    amount,
+    assetName
   )
   algosdk.assignGroupID(txns)
   return txns
@@ -326,7 +406,8 @@ export async function burn(
     NO_EXTRA_ARGS,
     marketAddress,
     bankAssetId,
-    amount
+    amount,
+    assetName
   )
   algosdk.assignGroupID(txns)
   return txns
@@ -365,7 +446,8 @@ export async function addCollateral(
     NO_EXTRA_ARGS,
     marketAddress,
     bankAssetId,
-    amount
+    amount,
+    assetName
   )
   algosdk.assignGroupID(txns)
   return txns
@@ -401,7 +483,11 @@ export async function removeCollateral(
     marketAppId,
     bankAssetId,
     managerStrings.remove_collateral,
-    algosdk.encodeUint64(amount)
+    algosdk.encodeUint64(amount),
+    "",
+    0,
+    0,
+    assetName
   )
   algosdk.assignGroupID(txns)
   return txns
@@ -428,6 +514,9 @@ export async function removeCollateralUnderlying(
   let marketAppId = assetDictionary[assetName]["marketAppId"]
   let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
 
+  console.log("calling removeCollateralUnderlying with asset=", assetName)
+  
+
   let txns = await buildUserTransaction(
     algodClient,
     address,
@@ -435,7 +524,11 @@ export async function removeCollateralUnderlying(
     marketAppId,
     underlyingAssetId,
     managerStrings.remove_collateral_underlying,
-    algosdk.encodeUint64(amount)
+    algosdk.encodeUint64(amount),
+    "",
+    0,
+    0,
+    assetName
   )
   algosdk.assignGroupID(txns)
   return txns
@@ -469,7 +562,11 @@ export async function borrow(
     marketAppId,
     underlyingAssetId,
     managerStrings.borrow,
-    algosdk.encodeUint64(amount)
+    algosdk.encodeUint64(amount),
+    "",
+    0,
+    0,
+    assetName
   )
   algosdk.assignGroupID(txns)
   return txns
@@ -507,7 +604,8 @@ export async function repayBorrow(
     NO_EXTRA_ARGS,
     marketAddress,
     underlyingAssetId,
-    amount
+    amount,
+    assetName
   )
   algosdk.assignGroupID(txns)
   return txns
@@ -524,10 +622,11 @@ export async function repayBorrow(
  */
 export async function claimRewards(
   algodClient: Algodv2,
+  asset: string,
   address: string,
   storageAddress: string
 ): Promise<Transaction[]> {
-  let globalManagerData = await getGlobalManagerInfo(algodClient)
+  let globalManagerData = await getGlobalManagerInfo(algodClient, asset)
   let primaryRewardsAsset = globalManagerData[managerStrings.rewards_asset_id]
   let secondaryRewardsAsset = globalManagerData[managerStrings.rewards_secondary_asset_id]
 
@@ -535,9 +634,8 @@ export async function claimRewards(
   const enc = new TextEncoder()
 
   let txns = []
-
   // get preamble transactions
-  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress)
+  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress, asset)
   leadingTxs.forEach(txn => {
     txns.push(txn)
   })
@@ -555,7 +653,7 @@ export async function claimRewards(
   params.fee = 3000
   const claimRewardsTxn = algosdk.makeApplicationNoOpTxnFromObject({
     from: address,
-    appIndex: managerAppId,
+    appIndex: assetDictionary[asset]["managerAppId"],
     appArgs: [enc.encode(managerStrings.claim_rewards)],
     suggestedParams: params,
     foreignAssets: foreign_assets,
@@ -565,7 +663,7 @@ export async function claimRewards(
     rekeyTo: undefined
   })
   txns.push(claimRewardsTxn)
-
+  console.log("txns=", txns)
   algosdk.assignGroupID(txns)
   return txns
 }
@@ -666,7 +764,9 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
     // initialize user market results
     userResults[assetName] = {}
     userResults[bAssetName] = {}
-    userResults["STBL-USDC-LP"] = balances["STBL-USDC-LP"]
+    userResults["STBL-ALGO-LP"] = balances[""]
+    userResults["STBL-USDC-LP"] = balances[""]
+    userResults["STBL-YLDY-LP"] = balances[""]
     // set balances
     userResults[assetName]["balance"] = balances[assetName]
     userResults[bAssetName]["balance"] = balances[bAssetName]

@@ -3,7 +3,7 @@ import {
   orderedAssets,
   marketCounterToAssetName,
   assetIdToAssetName,
-  managerAppId,
+  protocolManagerAppId,
   managerAddress,
   assetDictionary,
   SECONDS_PER_YEAR,
@@ -39,10 +39,10 @@ const UINTS_FOR_STORAGE_MARKET = BigInt(3)
  *
  * @return  {string}              storageAccont - Storage address of user
  */
-export async function getStorageAddress(accountInfo: any): Promise<string> {
+export async function getStorageAddress(accountInfo: any, stakeAsset: string = "ALGO"): Promise<string> {
   let storageAccount = null
   let localManager = accountInfo["apps-local-state"].filter(x => {
-    return x.id === managerAppId && x["key-value"]
+    return x.id === assetDictionary[stakeAsset]["managerAppId"] && x["key-value"]
   })
   if (localManager && localManager.length > 0) {
     let storageAccountBytes = localManager[0]["key-value"].filter(x => {
@@ -102,9 +102,16 @@ export async function getBalanceInfo(algodClient: Algodv2, address: string): Pro
         balanceInfo["b" + assetName] = Number(asset["amount"])
       }
     }
+    if (asset["asset-id"]== 468634109){
+      balanceInfo["STBL-ALGO-LP"] = Number(asset["amount"])
+    }
     if (asset["asset-id"]== 467020179){
       balanceInfo["STBL-USDC-LP"] = Number(asset["amount"])
     }
+    if (asset["asset-id"]== 468695586){
+      balanceInfo["STBL-YLDY-LP"] = Number(asset["amount"])
+    }
+
   }
 
   return balanceInfo
@@ -117,8 +124,10 @@ export async function getBalanceInfo(algodClient: Algodv2, address: string): Pro
  *
  * @return  {dict<string,int>}  results       - dictionary of global state for this market
  */
-export async function getGlobalManagerInfo(algodClient: Algodv2): Promise<{}> {
-  let response = await algodClient.getApplicationByID(managerAppId).do()
+export async function getGlobalManagerInfo(algodClient: Algodv2, stakeAsset: string = "ALGO"): Promise<{}> {
+  console.log("assetDictionary=", assetDictionary)
+  console.log("stakeAsset=", stakeAsset)
+  let response = await algodClient.getApplicationByID(assetDictionary[stakeAsset]["managerAppId"]).do()
   let results = {}
 
   // get manager balance
@@ -160,10 +169,10 @@ export async function getGlobalManagerInfo(algodClient: Algodv2): Promise<{}> {
  *
  * @return  {dict<string,int>}    results       - dictionary of global state for this market
  */
-export async function getUserManagerData(accountInfo: any): Promise<{}> {
+export async function getUserManagerData(accountInfo: any,  stakeAsset: string = "ALGO"): Promise<{}> {
   let results = {}
   let managerData = accountInfo["apps-local-state"].filter(x => {
-    return x.id === managerAppId && x["key-value"]
+    return x.id === assetDictionary[stakeAsset]["managerAppId"] && x["key-value"]
   })[0]
   if (managerData) {
     managerData["key-value"].forEach(x => {
