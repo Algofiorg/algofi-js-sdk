@@ -80,13 +80,17 @@ export async function getLeadingTxs(
   let oracleAppIds = []
   for (const assetName of orderedAssets) {
     let marketData = await algodClient.getApplicationByID(assetDictionary[assetName]["marketAppId"]).do()
+    console.log("marketData=", marketData)
     for (const y of marketData.params["global-state"]) {
       let decodedKey = Base64Encoder.decode(y.key)
-      if (decodedKey === assetDictionary[assetName]["oracle_app_id"]) {
+      if (decodedKey === marketStrings["oracle_app_id"]) {
+        console.log("found oracle for market app id =", assetDictionary[assetName]["marketAppId"])
         oracleAppIds.push(y.value.uint)
       }
     }
   }
+
+  console.log("oracleAppIds=", oracleAppIds)
 
   // update prices
   // TODO why do we need these extra fees?
