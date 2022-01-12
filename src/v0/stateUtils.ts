@@ -3,7 +3,6 @@ import {
   orderedAssets,
   marketCounterToAssetName,
   assetIdToAssetName,
-  protocolManagerAppId,
   managerAddress,
   assetDictionary,
   SECONDS_PER_YEAR,
@@ -62,9 +61,17 @@ export async function getStorageAddress(accountInfo: any, stakeAsset: string = "
  * @return  {dict<string,int}   prices
  */
 export async function getPriceInfo(algodClient: Algodv2): Promise<{}> {
+  let oracleAppIds = {}
   let prices = {}
   for (const assetName of orderedAssets) {
-    let response = await algodClient.getApplicationByID(assetDictionary[assetName]["oracleAppId"]).do()
+    let marketData = await algodClient.getApplicationByID(assetDictionary[assetName]["marketAppId"]).do()
+    for (const y of marketData.params["global-state"]) {
+      let decodedKey = Base64Encoder.decode(y.key)
+      if (decodedKey === marketStrings["oracle_app_id"]) {
+        oracleAppIds[assetName] = y.value.uint
+      }
+    }
+    let response = await algodClient.getApplicationByID(oracleAppIds[assetName]).do()
     for (const y of response.params["global-state"]) {
       let decodedKey = Base64Encoder.decode(y.key)
       if (decodedKey === assetDictionary[assetName]["oracleFieldName"]) {
@@ -102,16 +109,15 @@ export async function getBalanceInfo(algodClient: Algodv2, address: string): Pro
         balanceInfo["b" + assetName] = Number(asset["amount"])
       }
     }
-    if (asset["asset-id"]== 468634109){
+    if (asset["asset-id"] == 468634109) {
       balanceInfo["STBL-ALGO-LP"] = Number(asset["amount"])
     }
-    if (asset["asset-id"]== 467020179){
+    if (asset["asset-id"] == 467020179) {
       balanceInfo["STBL-USDC-LP"] = Number(asset["amount"])
     }
-    if (asset["asset-id"]== 468695586){
+    if (asset["asset-id"] == 468695586) {
       balanceInfo["STBL-YLDY-LP"] = Number(asset["amount"])
     }
-
   }
 
   return balanceInfo
@@ -145,13 +151,13 @@ export async function getGlobalManagerInfo(algodClient: Algodv2, stakeAsset: str
       results["rewards_asset_balance"] = managerBalances[results["rewards_asset"]]
     } else if (decodedKey === managerStrings.rewards_secondary_asset_id) {
       results[decodedKey] = x.value.uint
-      if (x.value.uint && assetIdToAssetName[x.value.uint]){
+      if (x.value.uint && assetIdToAssetName[x.value.uint]) {
         results["rewards_secondary_asset"] = assetIdToAssetName[x.value.uint]
         results["rewards_secondary_asset_balance"] = managerBalances[results["rewards_secondary_asset"]]
-      } else if (x.value.uint){
+      } else if (x.value.uint) {
         // the ALGOFI protocol will only ever support one unexpected rewards symbol -- BANK
         results["rewards_secondary_asset"] = "BANK"
-        results["rewards_secondary_asset_balance"] = 0;
+        results["rewards_secondary_asset_balance"] = 0
       }
     } else {
       results[decodedKey] = x.value.uint
@@ -167,7 +173,7 @@ export async function getGlobalManagerInfo(algodClient: Algodv2, stakeAsset: str
  *
  * @return  {dict<string,int>}    results       - dictionary of global state for this market
  */
-export async function getUserManagerData(accountInfo: any,  stakeAsset: string = "ALGO"): Promise<{}> {
+export async function getUserManagerData(accountInfo: any, stakeAsset: string = "ALGO"): Promise<{}> {
   let results = {}
   let managerData = accountInfo["apps-local-state"].filter(x => {
     return x.id === assetDictionary[stakeAsset]["managerAppId"] && x["key-value"]
@@ -299,15 +305,16 @@ export async function extrapolateMarketData(globalData: {}, prices: {}, assetNam
     extrapolatedData["underlying_reserves_extrapolated"]
 
   // total_lend_interest_rate_earned = (total interest less reserve factor) / (total supply)
-  const ALGO_STAKING_APY = Number(0.0125*1e9);
-  const borrowUtil = (globalData[marketStrings.underlying_borrowed] / extrapolatedData["underlying_supplied_extrapolated"]);
+  const ALGO_STAKING_APY = Number(0.0125 * 1e9)
+  const borrowUtil =
+    globalData[marketStrings.underlying_borrowed] / extrapolatedData["underlying_supplied_extrapolated"]
   extrapolatedData["total_lend_interest_rate_earned"] =
-        globalData[marketStrings.underlying_borrowed] > 0
-        ? (globalData[marketStrings.total_borrow_interest_rate] *
-            borrowUtil * reserveFreeMultiplier) : 0;
+    globalData[marketStrings.underlying_borrowed] > 0
+      ? globalData[marketStrings.total_borrow_interest_rate] * borrowUtil * reserveFreeMultiplier
+      : 0
   if (assetName == "ALGO") {
-      extrapolatedData["total_lend_interest_rate_earned"] += ALGO_STAKING_APY * (1-borrowUtil);
-  } 
+    extrapolatedData["total_lend_interest_rate_earned"] += ALGO_STAKING_APY * (1 - borrowUtil)
+  }
 
   // bank_to_underlying_exchange_extrapolated
   extrapolatedData["bank_to_underlying_exchange_extrapolated"] =
