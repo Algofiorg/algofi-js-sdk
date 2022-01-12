@@ -71,7 +71,7 @@ export async function getPriceInfo(algodClient: Algodv2): Promise<{}> {
         oracleAppIds[assetName] = y.value.uint
       }
     }
-    let response = await algodClient.getApplicationByID(assetDictionary[assetName]["oracleAppId"]).do()
+    let response = await algodClient.getApplicationByID(oracleAppIds[assetName]).do()
     for (const y of response.params["global-state"]) {
       let decodedKey = Base64Encoder.decode(y.key)
       if (decodedKey === assetDictionary[assetName]["oracleFieldName"]) {
