@@ -1,16 +1,14 @@
 import algosdk, { Algodv2, SuggestedParams, Transaction } from "algosdk"
 import { assetDictionary } from "."
-import { protocolManagerAppId, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config"
-import {
-  managerStrings,
-  marketStrings
-} from "./contractStrings"
+import { protocolManagerAppId, orderedAssets, orderedOracleAppIds, orderedSupportedMarketAppIds } from "./config"
+import { managerStrings, marketStrings } from "./contractStrings"
+import { Base64Encoder } from "./encoder"
 
 /**
  * Function that returns standard transaction parameters
- * 
+ *
  * @param {Algodv2} algodClient
- * 
+ *
  * @return params
  */
 export async function getParams(algodClient: Algodv2): Promise<SuggestedParams> {
@@ -25,10 +23,10 @@ export async function getParams(algodClient: Algodv2): Promise<SuggestedParams> 
  *
  * @param   {Algodv2}   algofClient
  * @param   {string}    txid
- * 
+ *
  * @return  {none}
  */
-export async function waitForConfirmation(algodClient:Algodv2, txId:string):Promise<void> {
+export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
   const response = await algodClient.status().do()
   let lastround = response["last-round"]
   while (true) {
@@ -50,10 +48,15 @@ export async function waitForConfirmation(algodClient:Algodv2, txId:string):Prom
  * @param   {Algodv2}}  algodclient
  * @param   {string}    senderAccount         - user account address
  * @param   {string}    dataAccount           - user storage account address
- * 
+ *
  * @return  {Transaction[]}     preamble transaction array
  */
-export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, dataAccount:string, asset:string = "ALGO"):Promise<Transaction[]> {
+export async function getLeadingTxs(
+  algodClient: Algodv2,
+  senderAccount: string,
+  dataAccount: string,
+  asset: string = "ALGO"
+): Promise<Transaction[]> {
   // get default params
   let params = await getParams(algodClient)
 
@@ -64,164 +67,188 @@ export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, d
   // fetch market variables transaction
   const applTx00 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
-    foreignApps: isStaking? [assetDictionary[asset]["marketAppId"]] : orderedSupportedMarketAppIds,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    foreignApps: isStaking ? [assetDictionary[asset]["marketAppId"]] : orderedSupportedMarketAppIds,
     appArgs: [enc.encode(managerStrings.fetch_market_variables)],
     suggestedParams: params,
     note: enc.encode("Fetch Variables"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
+  let oracleAppIds = {}
+  for (const assetName of orderedAssets) {
+    let marketData = await algodClient.getApplicationByID(assetDictionary[assetName]["marketAppId"]).do()
+    for (const y of marketData.params["global-state"]) {
+      let decodedKey = Base64Encoder.decode(y.key)
+      if (decodedKey === assetDictionary[assetName]["oracle_app_id"]) {
+        oracleAppIds[assetName] = y.value.uint
+      }
+    }
+  }
+
   // update prices
   // TODO why do we need these extra fees?
   params.fee = 2000
   const applTx01 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
-    foreignApps: isStaking? [assetDictionary[asset]["oracleAppId"]] : orderedOracleAppIds,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    foreignApps: isStaking ? [assetDictionary[asset]["oracleAppId"]] : oracleAppIds,
     appArgs: [enc.encode(managerStrings.update_prices)],
     suggestedParams: params,
     note: enc.encode("Update Prices"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // update protocol
   params.fee = 1000
   const applTx02 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
-    foreignApps: isStaking? [assetDictionary[asset]["marketAppId"]] : orderedSupportedMarketAppIds,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    foreignApps: isStaking ? [assetDictionary[asset]["marketAppId"]] : orderedSupportedMarketAppIds,
     appArgs: [enc.encode(managerStrings.update_protocol_data)],
     accounts: [dataAccount],
     suggestedParams: params,
     note: enc.encode("Update Protocol"),
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction one
   const applTx03 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_one")],
     suggestedParams: params,
     note: enc.encode("First Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction two
   const applTx04 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_two")],
     suggestedParams: params,
     note: enc.encode("Second Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction three
   const applTx05 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_three")],
     suggestedParams: params,
     note: enc.encode("Third Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction four
   const applTx06 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_four")],
     suggestedParams: params,
     note: enc.encode("Fourth Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction five
   const applTx07 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_five")],
     suggestedParams: params,
     note: enc.encode("Fifth Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction six
   const applTx08 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_six")],
     suggestedParams: params,
     note: enc.encode("Sixth Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction seven
   const applTx09 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_seven")],
     suggestedParams: params,
     note: enc.encode("Seventh Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction eight
   const applTx10 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_eight")],
     suggestedParams: params,
     note: enc.encode("Eighth Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // dummy transaction nine
   const applTx11 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: isStaking? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
+    appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: undefined,
     appArgs: [enc.encode("dummy_nine")],
     suggestedParams: params,
     note: enc.encode("Nineth Dummy Txn"),
     accounts: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
-  
+
   // send transaction array
-  return [applTx00, applTx01, applTx02, applTx03, applTx04, applTx05, applTx06, applTx07, applTx08, applTx09, applTx10, applTx11]
+  return [
+    applTx00,
+    applTx01,
+    applTx02,
+    applTx03,
+    applTx04,
+    applTx05,
+    applTx06,
+    applTx07,
+    applTx08,
+    applTx09,
+    applTx10,
+    applTx11
+  ]
 }
 
 /**
@@ -234,22 +261,22 @@ export async function getLeadingTxs(algodClient:Algodv2, senderAccount:string, d
  * @param   {int}       foreignAssetId
  * @param   {string}    functionString        - contract psuedo-function string
  * @param   {[]}        extraCallArgs         - additional application arguments for the manager transaction
- * 
+ *
  * @return  {Transaction[]}                   - array of primary pseudo-function stransactions
  */
 async function getStackGroup(
   algodClient: Algodv2,
   senderAccount: string,
   dataAccount: string,
-  marketAppId:number,
-  foreignAssetId:number,
-  functionString:string,
+  marketAppId: number,
+  foreignAssetId: number,
+  functionString: string,
   extraCallArgs = null,
   asset: string = "ALGO"
-):Promise<Transaction[]> {
+): Promise<Transaction[]> {
   // initialize generic params
   const params = await getParams(algodClient)
-  
+
   // initialize encoder
   const enc = new TextEncoder()
 
@@ -259,31 +286,31 @@ async function getStackGroup(
   if (extraCallArgs) {
     managerAppArgs.push(extraCallArgs)
   }
-  
+
   // construct manager pseudo-function transaction
   const applTx0 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
-    appIndex: assetDictionary[asset]['managerAppId'],
+    appIndex: assetDictionary[asset]["managerAppId"],
     appArgs: managerAppArgs,
     suggestedParams: params,
     note: enc.encode("Manager: " + functionString),
     accounts: undefined,
     foreignApps: undefined,
     foreignAssets: undefined,
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
 
   // constructmarket pseudo-function transaction
   const applTx1 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
     appIndex: marketAppId,
-    foreignApps: [assetDictionary[asset]['managerAppId']],
+    foreignApps: [assetDictionary[asset]["managerAppId"]],
     appArgs: [enc.encode(functionString)],
     foreignAssets: [foreignAssetId],
     accounts: [dataAccount],
     suggestedParams: params,
     note: enc.encode("Market: " + functionString),
-    rekeyTo: undefined,
+    rekeyTo: undefined
   })
   return [applTx0, applTx1]
 }
@@ -296,39 +323,39 @@ async function getStackGroup(
  * @param   {string}    marketAddres
  * @param   {int}       assetId
  * @param   {int}       amount
- * 
+ *
  * @return  {Payment Transaction}
  */
 async function getPaymentTxn(
-  algodClient:Algodv2,
-  senderAccount:string,
-  marketAddress:string,
-  assetId:number,
-  amount:number,
+  algodClient: Algodv2,
+  senderAccount: string,
+  marketAddress: string,
+  assetId: number,
+  amount: number,
   asset: string = "ALGO"
-):Promise<Transaction> {
+): Promise<Transaction> {
   // initialize generic params
   const params = await getParams(algodClient)
-  
-  if (assetId == 1) { // send algos
+
+  if (assetId == 1) {
+    // send algos
     const algoPayment = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: senderAccount,
-        to: marketAddress,
-        amount: amount,
-        suggestedParams: params,
-        rekeyTo: undefined,
+      from: senderAccount,
+      to: marketAddress,
+      amount: amount,
+      suggestedParams: params,
+      rekeyTo: undefined
     })
     return algoPayment
-
   } else {
     const asaPayment = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        from: senderAccount,
-        to: marketAddress,
-        amount: amount,
-        assetIndex: assetId,
-        suggestedParams: params,
-        rekeyTo: undefined,
-        revocationTarget: undefined
+      from: senderAccount,
+      to: marketAddress,
+      amount: amount,
+      assetIndex: assetId,
+      suggestedParams: params,
+      rekeyTo: undefined,
+      revocationTarget: undefined
     })
     return asaPayment
   }
@@ -347,22 +374,22 @@ async function getPaymentTxn(
  * @param   {string}      marketAddress
  * @param   {int}         paymentAssetId
  * @param   {int}         paymentAmount
- * 
+ *
  * @return {Transaction[]}
  */
 export async function buildUserTransaction(
-  algodClient:Algodv2,
-  senderAccount:string,
-  dataAccount:string,
-  marketAppId:number,
-  foreignAssetId:number,
-  functionString:string,
+  algodClient: Algodv2,
+  senderAccount: string,
+  dataAccount: string,
+  marketAppId: number,
+  foreignAssetId: number,
+  functionString: string,
   extraCallArgs = null,
   marketAddress = "",
   paymentAssetId = 0,
   paymentAmout = 0,
   asset = "ALGO"
-):Promise<Transaction[]> {
+): Promise<Transaction[]> {
   let txns = []
   // get preamble transactions
   let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount, asset)
@@ -370,7 +397,16 @@ export async function buildUserTransaction(
     txns.push(txn)
   })
   // get function transactions
-  let followingTxs = await getStackGroup(algodClient, senderAccount, dataAccount, marketAppId, foreignAssetId, functionString, extraCallArgs, asset)
+  let followingTxs = await getStackGroup(
+    algodClient,
+    senderAccount,
+    dataAccount,
+    marketAppId,
+    foreignAssetId,
+    functionString,
+    extraCallArgs,
+    asset
+  )
   followingTxs.forEach(txn => {
     txns.push(txn)
   })
