@@ -35,7 +35,7 @@ export const assetDictionary = {
     bankAssetId: 465818547,
     bankAssetDecimals: 6,
     underlyingAssetId: 1,
-    oracleAppId: 451324964,
+    oracleAppId: 531724540,
     oracleFieldName: "latest_twap_price"
   },
   USDC: {
@@ -59,7 +59,7 @@ export const assetDictionary = {
     bankAssetId: 465818554,
     bankAssetDecimals: 8,
     underlyingAssetId: 386192725,
-    oracleAppId: 451325630,
+    oracleAppId: 531725044,
     oracleFieldName: "latest_twap_price"
   },
   goETH: {
@@ -71,7 +71,7 @@ export const assetDictionary = {
     bankAssetId: 465818555,
     bankAssetDecimals: 8,
     underlyingAssetId: 386195940,
-    oracleAppId: 451326395,
+    oracleAppId: 531725449,
     oracleFieldName: "latest_twap_price"
   },
   STBL: {
