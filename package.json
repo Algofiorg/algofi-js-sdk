@@ -18,11 +18,12 @@
   "scripts": {
     "build": "tsdx build",
     "start": "tsdx watch",
-    "test": "tsdx test",
+    "test": "mocha",
     "prepublishOnly": "tsdx build"
   },
   "dependencies": {
-    "algosdk": "github:algorand/js-algorand-sdk"
+    "algosdk": "github:algorand/js-algorand-sdk",
+    "mocha": "^9.1.3"
   },
   "devDependencies": {
     "@types/jest": "^24.0.25",

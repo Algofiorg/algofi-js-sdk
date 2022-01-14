@@ -1,7 +1,8 @@
+import { Algodv2 } from "algosdk"
 import { getGlobalState } from "./utils"
 
 export class Asset {
-  algodClient: any
+  algodClient: Algodv2
   underlyingAssetId: number
   underlyingAssetInfo: any
   bankAssetId: number
@@ -18,7 +19,6 @@ export class Asset {
     oraclePriceField = null,
     oraclePriceScaleFactor = null
   ) {
-    /** @type {any} */
     const asyncReturn: any = async () => {
       this.algodClient = algodClient
 
@@ -75,27 +75,28 @@ export class Asset {
     return this.oraclePriceScaleFactor
   }
 
-  getRawPrice = () => {
+  getRawPrice = async () => {
     if (this.oracleAppId == null) {
       throw Error("no oracle app id for asset")
     }
-    return getGlobalState(this.algodClient, this.oracleAppId)[this.oraclePriceField]
+    const stateDict = await getGlobalState(this.algodClient, this.oracleAppId)
+    return stateDict[this.oraclePriceField]
   }
 
   getUnderlyingDecimals = () => {
     return this.underlyingAssetInfo["decimals"]
   }
 
-  getPrice = () => {
+  getPrice = async () => {
     if (this.oracleAppId == null) {
       throw Error("no oracle app id for asset")
     }
-    const raw_price = this.getRawPrice()
+    const raw_price = await this.getRawPrice()
     return (raw_price * 10 ** this.getUnderlyingDecimals()) / (this.getOraclePriceScaleFactor() * 1e3)
   }
 
-  toUSD = amount => {
-    const price = this.getPrice()
+  toUSD = async amount => {
+    const price = await this.getPrice()
     return (amount * price) / 10 ** this.getUnderlyingDecimals()
   }
 }

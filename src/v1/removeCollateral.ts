@@ -10,10 +10,8 @@ export async function prepareRemoveCollateralTransactions(
   amount: number,
   assetName: string
 ): Promise<Transaction[]> {
-  let marketAppId = assetDictionary[assetName]["marketAppId"]
-  let marketAddress = assetDictionary[assetName]["marketAddress"]
-  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
-  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
+  const marketAppId = assetDictionary[assetName]["marketAppId"]
+  const bankAssetId = assetDictionary[assetName]["bankAssetId"]
 
   let txns = await buildUserTransaction(
     algodClient,

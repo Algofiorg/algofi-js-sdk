@@ -47,6 +47,7 @@ export {
   Base64Encoder
 }
 import { Asset } from "./asset"
+import { Market } from "./market"
 import { prepareAddCollateralTransactions } from "./addCollateral"
 import { prepareBorrowTransactions } from "./borrow"
 import { prepareBurnTransactions } from "./burn"
@@ -59,6 +60,7 @@ import { prepareRepayBorrowTransactions } from "./repayBorrow"
 
 export {
   Asset,
+  Market,
   prepareAddCollateralTransactions,
   prepareBorrowTransactions,
   prepareBurnTransactions,
