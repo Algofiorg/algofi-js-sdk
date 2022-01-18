@@ -207,7 +207,7 @@ describe("asset check two", async function() {
     })
   })
 })
-*/
+
 describe("market check one", async function() {
   // check for ALGO market
   const CHECK_ONE_MARKET_ID = 465814065
