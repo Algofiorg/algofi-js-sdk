@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "algosdk": "github:algorand/js-algorand-sdk",
-    "mocha": "^9.1.4"
+    "mocha": "^9.1.4",
+    "typescript": "^3.9.10"
   },
   "devDependencies": {
     "@types/jest": "^24.0.25",

@@ -24,7 +24,7 @@ const NUMBER_OF_MARKETS_TO_OPT_IN = BigInt(13)
 // assume we are launching with 8 assets
 const NUMBER_OF_ASSETS = BigInt(8)
 // local vars = user_storage_address
-const BYTES_FOR_PRIMARY_MANAGER = BigInt(1)
+const BYTES_FOR_PRIMARY_MANAGER = BigInt(1)      
 // local vars = user_global_max_borrow_in_dollars, user_rewards_asset_id, user_pending_rewards, user_rewards_latest_time + NUMBER_OF_MARKETS (for rewards)
 const UINTS_FOR_PRIMARY_MANAGER = BigInt(15)
 // local uints = user_active_collateral, user_borrowed_amount, user_borrow_index_initial
