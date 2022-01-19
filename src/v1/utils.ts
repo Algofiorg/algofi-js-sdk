@@ -40,3 +40,7 @@ export const searchGlobalState = (globalState, searchKey) => {
   }
   return value
 }
+
+export const readLocalState = () => {
+
+}
