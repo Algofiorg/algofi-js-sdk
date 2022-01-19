@@ -1,5 +1,7 @@
 import { Base64Encoder } from "./extraUtils/encoder"
 
+export const REWARDS_SCALE_FACTOR
+
 export const formatState = state => {
   let formatted = {}
   for (const item of state) {
@@ -41,6 +43,14 @@ export const searchGlobalState = (globalState, searchKey) => {
   return value
 }
 
-export const readLocalState = () => {
-
+export const readLocalState = async (client, address, app_id) => {
+  const results = await client.accountInformation(address).do();
+  for (const local_state in results["apps-local-state"]){
+    if (local_state["id"] === app_id) {
+      if (!(local_state.includes('key-value'))){
+        return {}
+      }
+    }
+  }
+  return {}
 }
