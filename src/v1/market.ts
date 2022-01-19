@@ -140,7 +140,7 @@ export class Market {
   getLiquidationIncentive = () => {
     return
   }
-  getStorageState = () => {
+  getStorageState = (address : string) => {
     return
   }
 }

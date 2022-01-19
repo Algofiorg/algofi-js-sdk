@@ -43,6 +43,7 @@ export const searchGlobalState = (globalState, searchKey) => {
   return value
 }
 
+//Figure out if we are returning the same file as the python sdk
 export const readLocalState = async (client, address, app_id) => {
   const results = await client.accountInformation(address).do();
   for (const local_state in results["apps-local-state"]){

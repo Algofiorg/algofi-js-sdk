@@ -65,7 +65,7 @@ export class RewardsProgram{
         return this.rewardsSecondaryAssetId
     }
 
-    getStorageUnrealizedRewards = (storageAddress: string, manager: Manager, markets: Market[]) => {
+    getStorageUnrealizedRewards = async (storageAddress: string, manager: Manager, markets: Market[]) => {
         let managerState = getGlobalState(this.algod, manager.getManagerAppId()); 
         let managerStorageState = readLocalState(this.algod, storageAddress, manager.getManagerAppId());
         let onCurrentProgram = this.getRewardsProgramNumber === get(managerStorageState, managerStrings.user_rewards_program_number, 0);
@@ -74,7 +74,7 @@ export class RewardsProgram{
 
         // Loop through to get total TVL
         let totalBorrowUsd = 0;
-        for (let market in markets){
+        for (let market of markets){
             totalBorrowUsd += market.getAsset().toUSD(market.getUnderlyingBorrowed())
         }
         // FIGURE OUT TIME
@@ -82,7 +82,7 @@ export class RewardsProgram{
         let rewardsIssued = this.getRewardsAmount() > 0 ? timeElapsed * this.getRewardsPerSecond() : 0;
         let projectedLatestRewardsCoefficient = Number(rewardsIssued * REWARDS_SCALE_FACTOR);
 
-        for (let market in markets){
+        for (let market of markets){
             // Get coefficients
             // Figure out bytes
             let marketCounterPrefix : string; //market.get_market_counter().to_bytes(8, byteorder = "big").decode('utf-8')
@@ -90,7 +90,8 @@ export class RewardsProgram{
 
             // Ask about defuault value for get function here
             let userCoefficient : number = onCurrentProgram ? get(managerStorageState, marketCounterPrefix + managerStrings.counter_to_user_rewards_coefficient_initial, 0): 0;
-            let marketUnderlyingTvl = market.getUnderlyingBorrowed() + (market.getActiveCollateral() * market.getBankToUnderlyingExchange() / SCALE_FACTOR);
+            let underlyingBorrowed = await market.getUnderlyingBorrowed();
+            let marketUnderlyingTvl = underlyingBorrowed + (market.getActiveCollateral() * market.getBankToUnderlyingExchange() / SCALE_FACTOR);
 
             let projectedCoefficient : number = coefficient + Number(rewardsIssued * REWARDS_SCALE_FACTOR * market.getAsset().toUSD(market.getUnderlyingBorrowed()) / (totalBorrowUsd * marketUnderlyingTvl));
 
@@ -102,7 +103,6 @@ export class RewardsProgram{
             totalUnrealizedRewards += unrealizedRewards;
             totalSecondaryUnrealizedRewards += secondaryUnrealizedRewards;
         }
- 
         return [totalUnrealizedRewards, totalSecondaryUnrealizedRewards];
     }
 }
