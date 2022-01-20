@@ -405,6 +405,7 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
     userResults[bAssetName] = {}
     userResults["STBL-ALGO-LP"] = balances[""]
     userResults["STBL-USDC-LP"] = balances[""]
+    userResults["STBL-USDC-LP-V2"] = balances[""]
     userResults["STBL-YLDY-LP"] = balances[""]
     // set balances
     userResults[assetName]["balance"] = balances[assetName]

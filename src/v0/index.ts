@@ -754,15 +754,21 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
       globalResults["manager"][key] = value
     }
   }
+
+  const lpAssets = ["STBL-ALGO-LP", "STBL-USDC-LP", "STBL-USDC-LP-V2", "STBL-YLDY-LP"];
+  for (var lpAsset of lpAssets) {
+    if (lpAsset in balances) {
+      userResults[lpAsset] = balances[lpAsset]
+    } else {
+      userResults[lpAsset] = 0;
+    }
+  }
   // get and set data for each market
   for (const assetName of orderedAssets) {
     let bAssetName = "b" + assetName
     // initialize user market results
     userResults[assetName] = {}
     userResults[bAssetName] = {}
-    userResults["STBL-ALGO-LP"] = balances[""]
-    userResults["STBL-USDC-LP"] = balances[""]
-    userResults["STBL-YLDY-LP"] = balances[""]
     // set balances
     userResults[assetName]["balance"] = balances[assetName]
     userResults[bAssetName]["balance"] = balances[bAssetName]
