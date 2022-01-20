@@ -1,6 +1,51 @@
 import { Base64Encoder } from "./extraUtils/encoder"
+import { Transaction, Algodv2, waitForConfirmation } from "algosdk" 
 
-export const REWARDS_SCALE_FACTOR
+
+let toAscii = (word: string) => {
+  let temp = [];
+  for (let i = 0; i < word.length; i ++){
+    temp.push(word.charCodeAt(i)):
+  }
+  return temp;
+}
+
+export const getProgram = (definition, variables = undefined) => {
+  /**
+   * Return a byte array to be used in LogicSig
+   * 
+   * TODO: finish implementation of this function after convertin lambda functions
+   * to js
+  */
+ let template = definition['bytecode'];
+ let templateBytes = toAscii(template);
+ let offset = 0;
+}
+
+export const encodeValue = (value, type) => {
+  if (type === "int"){
+    return encodeVarint(value)
+  }
+  throw new Error(`Unsoported value type ${type}`);
+}
+
+export const encodeVarint = (number: number) => {
+  /**
+   * TOOD: figure out byte logic in javascript
+   */
+  let buf;
+}
+
+export const signAndSubmitTransaction = async (client : Algodv2, transactions, signedTransactions, sender, senderSk) => {
+  for (const [i, txn] of transactions.entries()){
+    if (txn.sender === sender){
+      signedTransactions[i] = txn.signTxn(senderSk);
+    }
+  }
+  let txid = await client.sendRawTransaction(signedTransactions).do();
+  return waitForConfirmation(client, txid, 5);
+}
+
 
 export const formatState = state => {
   let formatted = {}
