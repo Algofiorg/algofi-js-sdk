@@ -46,7 +46,7 @@ export class Manager {
     }
     // Need to figure out b64 decode and raw_storage_address.strip()
     // return encodeAddress(base64.b)
-    return;
+    return "placeholder";
   }
 
   getUserState = (address: string) => {

@@ -1,32 +1,39 @@
 import { Base64Encoder } from "./extraUtils/encoder"
-import { Transaction, Algodv2, waitForConfirmation } from "algosdk" 
+import { Transaction, Algodv2, generateAccount, secretKeyToMnemonic } from "algosdk"
+import { contracts } from "./contracts" 
+import algosdk from "algosdk"
+import { Account } from "algosdk/dist/types/src/client/v2/algod/models/types"
 
+export function get(object: any, key:any, default_value:any) {
+  var result = object[key];
+  return (typeof result !== "undefined") ? result : default_value;
+}
 
 let toAscii = (word: string) => {
   let temp = [];
   for (let i = 0; i < word.length; i ++){
-    temp.push(word.charCodeAt(i)):
+    temp.push(word.charCodeAt(i));
   }
   return temp;
 }
 
-export const getProgram = (definition, variables = undefined) => {
-  /**
-   * Return a byte array to be used in LogicSig
-   * 
-   * TODO: finish implementation of this function after convertin lambda functions
-   * to js
-  */
- let template = definition['bytecode'];
- let templateBytes = toAscii(template);
- let offset = 0;
-}
+// export const getProgram = (definition, variables = undefined) => {
+//   /**
+//    * Return a byte array to be used in LogicSig
+//    * 
+//    * TODO: finish implementation of this function after convertin lambda functions
+//    * to js
+//   */
+//  let template = definition['bytecode'];
+//  let templateBytes = toAscii(template);
+//  let offset = 0;
+// }
 
 export const encodeValue = (value, type) => {
   if (type === "int"){
     return encodeVarint(value)
   }
-  throw new Error(`Unsoported value type ${type}`);
+  throw new Error(`Unsupported value type ${type}`);
 }
 
 export const encodeVarint = (number: number) => {
@@ -43,7 +50,7 @@ export const signAndSubmitTransaction = async (client : Algodv2, transactions, s
     }
   }
   let txid = await client.sendRawTransaction(signedTransactions).do();
-  return waitForConfirmation(client, txid, 5);
+  return waitForConfirmation(client, txid);
 }
 
 
@@ -99,4 +106,87 @@ export const readLocalState = async (client, address, app_id) => {
     }
   }
   return {}
+}
+
+export const getManagerAppId = (chain: string) => {
+  return contracts[chain]["managerAppId"]
+}
+
+const waitForConfirmation = async function (client, txId) {
+  const response = await client.status().do();
+  let lastround = response["last-round"];
+  while (true) {
+    const pendingInfo = await client.pendingTransactionInformation(txId).do();
+    if (
+      pendingInfo["confirmed-round"] !== null &&
+      pendingInfo["confirmed-round"] > 0
+    ) {
+      console.log(
+        "Transaction " +
+          txId +
+          " confirmed in round " +
+          pendingInfo["confirmed-round"]
+      );
+      break;
+    }
+    lastround++;
+    await client.statusAfterBlock(lastround).do();
+  }
+};
+
+export const getStakingContracts = (chain : string) => {
+  return contracts[chain]["STAKING_CONTRACTS"]
+}
+
+export const getMarketAppId = (chain : string, symbol : string) => {
+  return contracts[chain]["SYMBOL_INFO"][symbol]["marketAppId"];
+}
+
+export const getInitRound = (chain : string) => {
+  return contracts[chain]["initRound"]
+}
+
+export const readGlobalState = async (client : Algodv2, address : string, appId : number) => {
+  const results = await client.accountInformation(address).do();
+  const appsCreated = results["created-apps"];
+  for (let app of appsCreated){
+    if (app["id"] === appId) {
+      return formatState(app["params"]["global-state"])
+    }
+  }
+  return {};
+}
+
+export const getOrderedSymbols = (chain : string, max : boolean = false, maxAtomicOptIn : boolean = false) => {
+  let supportedMarketCount : string[];
+  if (max) {
+    supportedMarketCount = contracts["maxMarketCount"];
+  }
+  else if (maxAtomicOptIn){
+    supportedMarketCount = contracts["maxAtomicOptInMarketCount"];
+  }
+  else {
+    supportedMarketCount = contracts["supportedMarketCount"]
+  }
+  return contracts["SYMBOLS"].slice(0,supportedMarketCount);
+}
+
+// //Do we not need client to get the reccomended parameters?
+// export const preparePaymentTransaction = async (sender : string, suggestedParams, receiver : string, amount : number, rekeyTo = undefined) => {
+//   let params = await client.getTransactionParams().do();
+//   let txn = algosdk.makePaymentTxnWithSuggestedParams(sender, receiver, amount, undefined, undefined, params);
+//   return;
+// }
+
+export const getNewAccount = () => {
+  let newAccount = generateAccount();
+  let key = newAccount.sk;
+  let address = newAccount.addr;
+  let passphrase = secretKeyToMnemonic(key);
+
+  return [key, address, passphrase];
+}
+
+export class TransactionGroup {
+  
 }

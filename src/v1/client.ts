@@ -1,8 +1,31 @@
+import { Algodv2, Indexer } from "algosdk"
+import { getInitRound, getOrderedSymbols, getManagerAppId, getMarketAppId, getStakingContracts, get } from "./utils"
+import { Manager } from "./manager"
+import { Market } from "./market"
+import { StakingContract } from "./stakingContract"
+
+
+export interface Markets {
+  [key: string] : Market;
+}
+
+export interface StringToNum {
+  [key : string]: number;
+}
+
+export interface StakingContractInfo {
+  [key : string]: StringToNum;
+}
+
+export interface StakingContracts {
+  [key : string]: StakingContract;
+}
+
 export class Client {
   SCALE_FACTOR: number
   BORROW_SHARES_INIT: number
   PARAMETER_SCALE_FACTOR: number
-  algodClient: any
+  algodClient: Algodv2
   indexerClient: any
   historicalIndexerClient: any
   chain: string
@@ -11,37 +34,293 @@ export class Client {
   activeOrderedSymbols: string[]
   maxOrderedSymbols: string[]
   maxAtomicOptInOrderedSymbols: string[]
-  manager: any
-  markets: any
+  manager: Manager
+  markets: Markets
+  stakingContractInfo: StakingContractInfo
+  stakingContracts: StakingContracts
 
-  constructor(algodClient, indexerClient, historicalIndexerClient, userAddress, chain) {
+  constructor(algodClient : Algodv2, indexerClient : Indexer, historicalIndexerClient : Indexer, userAddress : string, chain : string) {
     // constants
-    this.SCALE_FACTOR = 1e9
-    this.BORROW_SHARES_INIT = 1e3
-    this.PARAMETER_SCALE_FACTOR = 1e3
+    this.SCALE_FACTOR = 1e9;
+    this.BORROW_SHARES_INIT = 1e3;
+    this.PARAMETER_SCALE_FACTOR = 1e3;
 
     // clients info
-    this.algodClient = algodClient
-    this.indexerClient = indexerClient
-    this.historicalIndexerClient = historicalIndexerClient
-    this.chain = chain
+    this.algodClient = algodClient;
+    this.indexerClient = indexerClient;
+    this.historicalIndexerClient = historicalIndexerClient;
+    this.chain = chain;
 
     // user info
-    this.userAddress = userAddress
+    this.userAddress = userAddress;
 
-    this.initRound = 0 //get_init_round(this.chain)
-    this.activeOrderedSymbols = ["0"] //get_ordered_symbols(this.chain)
-    this.maxOrderedSymbols = ["0"] //get_ordered_symbols(this.chain, max=True)
-    this.maxAtomicOptInOrderedSymbols = ["0"] //get_ordered_symbols(this.chain, maxAtomicOptIn=True)
+    this.initRound = getInitRound(this.chain);
+    this.activeOrderedSymbols = getOrderedSymbols(this.chain);
+    this.maxOrderedSymbols = getOrderedSymbols(this.chain, true);
+    this.maxAtomicOptInOrderedSymbols = getOrderedSymbols(this.chain, _, true);
 
     // manager info
-    this.manager = 0 //Manager(this.algodClient, get_manager_app_id(this.chain))
+    this.manager = new Manager(this.algodClient, getManagerAppId(this.chain)); 
 
     // market info
-    this.markets = 0 //{symbol : Market(this.algodClient, this.historicalIndexerClient, get_market_app_id(this.chain, symbol)) for symbol in this.max_ordered_symbols}
+    this.markets = {};
+    for (let symbol of this.maxOrderedSymbols) {
+      this.markets[symbol] = new Market(this.algodClient, this.historicalIndexerClient, getMarketAppId(this.chain, symbol));
+    }
 
     // staking contract info
-    //this.staking_contract_info = get_staking_contracts(this.chain)
-    //this.staking_contracts = {name : StakingContract(this.algodClient, this.historicalIndexerClient, this.staking_contract_info[name]) for name in this.staking_contract_info.keys()}
+    this.stakingContractInfo = getStakingContracts(this.chain);
+    this.stakingContracts = {};
+    for (let [nam, _] of Object.entries(this.stakingContractInfo)) {
+      //Need to figure out what stakingcontractinfo is really supposed to look like
+      //this.stakingContracts[nam] = new StakingContract(this.algodClient, this.historicalIndexerClient, this.stakingContractInfo["mainnet"][nam]);
+    }
+
+    // this.staking_contracts = {name : StakingContract(this.algodClient, this.historicalIndexerClient, this.staking_contract_info[name]) for name in this.staking_contract_info.keys()}
   }
+
+  // It seems as though this function may be unecessary, usualy for suggest parameters we have to pass them in but for the 
+  // js sdk it seems like there are built in transactions that use suggest parameters, for example: makeAssetConfigTxnWithSuggestedParams, etc.
+  getDefaultParams = () => {
+    let params;
+  }
+
+  getUserInfo = async (address : string = undefined) => {
+    if (!address){ 
+      address = this.userAddress;
+    }
+    if (address){
+      return await this.algodClient.accountInformation(address).do();
+    }
+    else{
+      throw new Error("user_address has not been specified");
+    }
+  }
+
+  isOptedIntoApp = async (appId : number, address : string = undefined) => {
+    if (!address) {
+      address = this.userAddress;
+    }
+    let userInfo = await this.getUserInfo(address);
+    let appsLocalState = [];
+    for (let x of userInfo["apps-local-state"]){
+      appsLocalState.push(x["id"])
+    }
+    return appsLocalState.includes(appId)
+  }
+
+  isOptedIntoAsset = async (assetId : number, address : string = undefined) => {
+    if (!address){
+      address = this.userAddress;
+    }
+    let userInfo = await this.getUserInfo(address);
+    let assets = [];
+    for (let x of userInfo["assets"]){
+      assets.push(x["asset-id"]);
+    }
+    return assets.includes(assetId);
+  }
+
+  getUserBalances = async (address : string = undefined) {
+    if (!address) {
+      address  = this.userAddress;
+    }
+    let userInfo = await this.getUserInfo(address);
+    let balances = {};
+    for (let asset of userInfo["assets"]){
+      balances[asset["asset-id"]] = asset["amount"];
+    }
+    balances[1] = userInfo["amount"];
+    return balances;
+  }
+
+  getUserBalance = async (assetId : number = 1, address : string = undefined) => {
+    if (!address) {
+      address = this.userAddress
+    }
+    let userBalances = await this.getUserBalances(address)
+    return get(userBalances, assetId, 0);
+  }
+
+  getUserState = (address : string = undefined) => {
+    let result = {};
+    if (!address) {
+      address = this.userAddress;
+    }
+    result["manager"] = this.manager.getUserState(address);
+    let storageAddress = this.manager.getStorageAddress(address);
+
+    for (let symbol in this.activeOrderedSymbols){
+      result[symbol] = this.markets[symbol].getStorageState(storageAddress);
+    }
+    return result;
+  }
+
+  getStorageState = async (storageAddress : string = undefined) => {
+    let result = {};
+    if (!storageAddress){
+      storageAddress = this.manager.getStorageAddress(this.userAddress);
+    }
+    result["manager"] = this.manager.getStorageState(storageAddress);
+    for (let symbol of this.activeOrderedSymbols){
+      result[symbol] = this.markets[symbol].getStorageState(storageAddress);
+    }
+    return result;
+  }
+
+  getUserStakingContractState = async (stakingContractName : string, address : string = undefined) => {
+    let result = {};
+    if (!address) {
+      address = this.userAddress
+    }
+    return this.stakingContracts[stakingContractName].getUserState(address);
+  }
+
+  // GETTERS
+
+  getManager = () => {
+    return this.manager;
+  }
+
+  getMarket = (symbol : string) => {
+    return this.markets[symbol];
+  }
+
+  //TODO come back to this after refreshing on labmda notation in python
+  getActiveMarkets = () => {
+    return;
+  }
+
+  getStakingContract = (nam : string) => {
+    return this.stakingContracts[nam];
+  }
+
+  getStakingContracts = () => {
+    return this.stakingContracts;
+  }
+
+  getAsset = (symbol : string) => {
+    if (! this.activeOrderedSymbols.includes(symbol)) {
+      throw new Error("Unsupported asset")
+    }
+    return this.markets[symbol].getAsset();
+  }
+
+  getMaxAtomicOptInMarketAppIds = () => {
+    let temp = [];
+    for (let symbol of this.maxAtomicOptInOrderedSymbols) {
+      temp.push(this.markets[symbol].getMarketAppId());
+    }
+    return temp;
+  }
+
+  getActiveAssets = () => {
+    let temp = {};
+    // Errors will be fixed once we figure out getActiveMarkets lambad notation
+    for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
+      temp[symbol] = market.getAsset();
+    }
+    return temp;
+  }
+
+  getActiveAssetIds = () => {
+    let temp = [];
+    // Errors will be fixed once we figure out getActiveMarkets
+    for (let [_, asset] of Object.entries(this.getActiveAssets())) {
+      temp.push(asset.getUnderlyingAssetId());
+    }
+    return temp;
+  }
+
+  getActiveBankAssetIds = () => {
+    let temp = [];
+    for (let [_, asset] of Object.entries(this.getActiveAssets())){
+      temp.push(asset.getBankAssetId());
+    }
+    return temp;
+  }
+
+  getActiveOrderedSymbols = () => {
+    return this.activeOrderedSymbols;
+  }
+
+  getRawPrices = () => {
+    //Errors will be fixed once we figure out getActiveMarkets
+    let temp = {};
+    for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
+      temp[symbol] = market.getAsset().getRawPrices();
+    }
+  }
+
+  getPrices = () => {
+    let temp = {};
+    //Errors will be fixed once we figure out getActiveMarkets
+    for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
+      temp[symbol] = market.getAsset().getPrice();
+    }
+  }
+
+  // INDEXER HELPERS
+  getStorageAccounts = async (stakingContractName : string = undefined) => {
+    let nextPage = "";
+    let accounts = [];
+    let appId;
+    if (stakingContractName === undefined) {
+      // This error will be fixed when we figure out getActiveMarkets
+      appId = Object.values(this.getActiveMarkets())[0];
+    }
+    else {
+      appId = this.getStakingContract(stakingContractName).getManagerAppId()
+    }
+    while (nextPage !== undefined) {
+      console.log(nextPage);
+      //make sure this is the js analog to indexer.accounts, we are just assuming at this point
+      let accountData = await this.indexerClient.searchAccounts().do();
+      for (let account of accountData["accounts"]){
+        accounts.push(account);
+      }
+      if (accountData.includes("next-token")){
+        nextPage = accountData["next-token"];
+      }
+      else {
+        nextPage = undefined;
+      }
+    }
+    return accounts;
+  }
+
+  getActiveOracleAppIds = () => {
+    let temp = [];
+    // Error will be fixed when we figure out getActiveMarkets
+    for (let market of Object.values(this.getActiveMarkets())){
+      temp.push(market.getAsset().getOracleAppId())
+    }
+    return temp;
+  }
+
+  getActiveMarketAppIds = () => {
+    let temp = [];
+    for (let market in Object.values(this.getActiveMarkets())){
+      temp.push(market.getmarketAppId())
+    }
+    return temp;
+  }
+
+  getActiveMarketAddresses = () => {
+    let temp = [];
+    for (let market in Object.values(this.getActiveMarkets())){
+      temp.push(market.getMarketAddress())
+    }
+    return temp;
+  }
+
+  prepareOptInTransactions = (storageAddress : string, address : string = undefined) => {
+    if (!address){
+      address = this.userAddress;
+    }
+    
+  }
+
+
+ 
 }

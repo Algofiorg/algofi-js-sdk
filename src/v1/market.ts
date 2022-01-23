@@ -3,11 +3,7 @@ import { Asset } from "./asset"
 import { getGlobalState, readLocalState, searchGlobalState } from "./utils"
 import { marketStrings } from "./contractStrings"
 import { getStorageAddress, PARAMETER_SCALE_FACTOR, SCALE_FACTOR } from "../v0"
-
-function get(object: any, key:any, default_value:any) {
-  var result = object[key];
-  return (typeof result !== "undefined") ? result : default_value;
-}
+import { get } from "./utils"
 
 export class Market {
   algodClient: Algodv2
@@ -89,6 +85,42 @@ export class Market {
       return this
     }
     return asyncReturn()
+  }
+
+  updateGlobalState = () => {
+    let marketState = getGlobalState(this.algodClient, this.marketAppId);
+
+    this.marketCounter = marketState[marketStrings.manager_market_counter_var];
+
+    // market asset info
+    this.underlyingAssetId = get(marketState, marketStrings.asset_id, undefined);
+    this.bankAssetId = get(marketState, marketStrings.bank_asset_id, undefined);
+
+    // market parameters
+    this.oracleAppId = get(marketState, marketStrings.oracle_app_id, undefined);
+    this.oraclePriceField = get(marketState, marketStrings.oracle_price_field, undefined);
+    this.oraclePriceScaleFactor = get(marketState, marketStrings.oracle_price_scale_factor, undefined);
+    this.collateralFactor = get(marketState, marketStrings.collateral_factor, undefined);
+    this.liquidationIncentive = get(marketState, marketStrings.liquidation_incentive, undefined);
+    this.reserveFactor = get(marketState, marketStrings.reserve_factor, undefined);
+    this.baseInterestRate = get(marketState, marketStrings.base_interest_rate, undefined);
+    this.slope1 = get(marketState, marketStrings.slope_1, undefined);
+    this.slope2 = get(marketState, marketStrings.slope_2, undefined);
+    this.utilizationOptimal = get(marketState, marketStrings.utilization_optimal, undefined);
+    this.marketSupplyCapInDollars = get(marketState, marketStrings.market_supply_cap_in_dollars, undefined);
+    this.marketBorrowCapInDollars = get(marketState, marketStrings.market_borrow_cap_in_dollars, undefined);
+    
+    // balance info
+    this.activeCollateral = get(marketState, marketStrings.active_collateral, 0);
+    this.bankCirculation = get(marketState, marketStrings.bank_circulation, 0);
+    this.bankToUnderlyingExchange = get(marketState, marketStrings.bank_to_underlying_exchange, 0);
+    this.underlyingBorrowed = get(marketState, marketStrings.underlying_borrowed, 0);
+    this.outstandingBorrowShares = get(marketState, marketStrings.outstanding_borrow_shares, 0);
+    this.underlyingCash = get(marketState, marketStrings.underlying_cash, 0);
+    this.underlyingReserves = get(marketState, marketStrings.underlying_reserves, 0);
+    this.totalBorrowInterestRate = get(marketState, marketStrings.total_borrow_interest_rate, 0);
+
+    this.asset = new Asset(this.algodClient, this.underlyingAssetId, this.bankAssetId, this.oracleAppId, this.oraclePriceField, this.oraclePriceScaleFactor);
   }
 
   getMarketAppId = () => {
