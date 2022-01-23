@@ -3,7 +3,10 @@ import { getInitRound, getOrderedSymbols, getManagerAppId, getMarketAppId, getSt
 import { Manager } from "./manager"
 import { Market } from "./market"
 import { StakingContract } from "./stakingContract"
+import { prepareManagerAppOptinTransactions } from "./optin"
+import { prepareAddCollateralTransactions } from "./addCollateral"
 
+const a = 2;
 
 export interface Markets {
   [key: string] : Market;
@@ -81,8 +84,11 @@ export class Client {
 
   // It seems as though this function may be unecessary, usualy for suggest parameters we have to pass them in but for the 
   // js sdk it seems like there are built in transactions that use suggest parameters, for example: makeAssetConfigTxnWithSuggestedParams, etc.
-  getDefaultParams = () => {
-    let params;
+  getDefaultParams = async () => {
+    let params = await this.algodClient.getTransactionParams().do();
+    params.fee = 1000;
+    params.flatFee = true;
+    return params
   }
 
   getUserInfo = async (address : string = undefined) => {
@@ -318,7 +324,36 @@ export class Client {
     if (!address){
       address = this.userAddress;
     }
-    
+
+  }
+
+  prepareOptinTransactions = (storageAddress : string, address : string = undefined) => {
+    if (!address) {
+      address = this.userAddress;
+    }
+    return prepareManagerAppOptinTransactions(this.manager.getManagerAppId(), this.getMaxAtomicOptInMarketAppIds(), address, storageAddress, await this.getDefaultParams());
+  }
+
+  prepareAddCollateralTransactions = (symbol: string, amount: number, address : string = undefined) => {
+    if (!address){
+      address = this.userAddress;
+    }
+    let market = this.getMarket(symbol);
+    //Need to look back at this, it seems like prepareAddCollateralTransaction was implemented idfferently in addCollateral.ts and addCollateral.py
+    //return prepareAddCollateralTransactions(this.algodClient, address, this.manager.getStorageAddress(address), amount, )
+  }
+
+  prepareBorrowTransactions = (symbol : string, amount : number, address : string = undefined) => {
+    //again there seems to be a difference we have to look closer at regarding this and python sdk 
+    return;
+  }
+
+  prepareBurnTransactions = (symbol : string, amount : number, address : string = undefined) => {
+    //again there is an issue between number of parameters passed into this and prepareBurnTransactions in burn.py vs burn.ts
+  }
+
+  prepareClaimRewardsTransactions = (address : string = undefined) => {
+    //same issue above, it seems like some of the functions that were ported do not reflect exactly the specification in the python sdk 
   }
 
 

@@ -4,6 +4,19 @@ import { contracts } from "./contracts"
 import algosdk from "algosdk"
 import { Account } from "algosdk/dist/types/src/client/v2/algod/models/types"
 
+export enum Transactions {
+  MINT = 1,
+  MINT_TO_COLLATERAL = 2,
+  ADD_COLLATERAL = 3,
+  REMOVE_COLLATERAL = 4,
+  BURN = 5,
+  REMOVE_COLLATERAL_UNDERLYING = 6,
+  BORROW = 7,
+  REPAY_BORROW = 8,
+  LIQUIDATE = 9,
+  CLAIM_REWARDS = 10,
+}
+
 export function get(object: any, key:any, default_value:any) {
   var result = object[key];
   return (typeof result !== "undefined") ? result : default_value;
