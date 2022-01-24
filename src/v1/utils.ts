@@ -42,7 +42,7 @@ let toAscii = (word: string) => {
 //  let offset = 0;
 // }
 
-export const encodeValue = (value, type) => {
+export function encodeValue (value, type) => {
   if (type === "int") {
     return encodeVarint(value)
   }

@@ -1,5 +1,5 @@
 import { Algodv2, Indexer, Transaction } from "algosdk"
-import { getInitRound, getOrderedSymbols, getManagerAppId, getMarketAppId, getStakingContracts, get } from "./utils"
+import { getInitRound, getOrderedSymbols, getManagerAppId, getMarketAppId, getStakingContracts, get, TransactionGroup } from "./utils"
 import { Manager } from "./manager"
 import { Market } from "./market"
 import { StakingContract } from "./stakingContract"
@@ -7,6 +7,14 @@ import { prepareManagerAppOptinTransactions } from "./optin"
 import { prepareAddCollateralTransactions } from "./addCollateral"
 import { prepareLiquidateTransactions } from "./liquidate"
 import { prepareClaimStakingRewardsTransactions, prepareStakeTransactions, prepareStakingContractOptinTransactions, prepareUnstakeTransactions } from "./staking"
+import { prepareBorrowTransactions } from "./borrow"
+import { prepareBurnTransactions } from "./burn"
+import { prepareClaimRewardsTransactions } from "./claimRewards"
+import { prepareMintTransactions } from "./mint"
+import { prepareMintToCollateralTransactions } from "./mintToCollateral"
+import { prepareRemoveCollateralUnderlyingTransactions } from "./removeCollateralUnderlying"
+import { prepareRemoveCollateralTransactions } from "./removeCollateral"
+import { prepareRepayBorrowTransactions } from "./repayBorrow"
 
 const a = 2;
 
@@ -84,16 +92,14 @@ export class Client {
     // this.staking_contracts = {name : StakingContract(this.algodClient, this.historicalIndexerClient, this.staking_contract_info[name]) for name in this.staking_contract_info.keys()}
   }
 
-  // It seems as though this function may be unecessary, usualy for suggest parameters we have to pass them in but for the 
-  // js sdk it seems like there are built in transactions that use suggest parameters, for example: makeAssetConfigTxnWithSuggestedParams, etc.
-  getDefaultParams = async () => {
+  async getDefaultParams (){
     let params = await this.algodClient.getTransactionParams().do();
     params.fee = 1000;
     params.flatFee = true;
     return params
   }
 
-  getUserInfo = async (address : string = undefined) => {
+  async getUserInfo (address : string = undefined) {
     if (!address){ 
       address = this.userAddress;
     }
@@ -105,7 +111,7 @@ export class Client {
     }
   }
 
-  isOptedIntoApp = async (appId : number, address : string = undefined) => {
+  async isOptedIntoApp (appId : number, address : string = undefined) {
     if (!address) {
       address = this.userAddress;
     }
@@ -117,7 +123,7 @@ export class Client {
     return appsLocalState.includes(appId)
   }
 
-  isOptedIntoAsset = async (assetId : number, address : string = undefined) => {
+  async isOptedIntoAsset (assetId : number, address : string = undefined) {
     if (!address){
       address = this.userAddress;
     }
@@ -129,7 +135,7 @@ export class Client {
     return assets.includes(assetId);
   }
 
-  getUserBalances = async (address : string = undefined) {
+  async getUserBalances (address : string = undefined) {
     if (!address) {
       address  = this.userAddress;
     }
@@ -142,7 +148,7 @@ export class Client {
     return balances;
   }
 
-  getUserBalance = async (assetId : number = 1, address : string = undefined) => {
+  async getUserBalance (assetId : number = 1, address : string = undefined) {
     if (!address) {
       address = this.userAddress
     }
@@ -150,7 +156,7 @@ export class Client {
     return get(userBalances, assetId, 0);
   }
 
-  getUserState = (address : string = undefined) => {
+  getUserState (address : string = undefined)  {
     let result = {};
     if (!address) {
       address = this.userAddress;
@@ -164,7 +170,7 @@ export class Client {
     return result;
   }
 
-  getStorageState = async (storageAddress : string = undefined) => {
+  async getStorageState (storageAddress : string = undefined) {
     let result = {};
     if (!storageAddress){
       storageAddress = this.manager.getStorageAddress(this.userAddress);
@@ -176,7 +182,7 @@ export class Client {
     return result;
   }
 
-  getUserStakingContractState = async (stakingContractName : string, address : string = undefined) => {
+  async getUserStakingContractState (stakingContractName : string, address : string = undefined) {
     let result = {};
     if (!address) {
       address = this.userAddress
@@ -186,35 +192,40 @@ export class Client {
 
   // GETTERS
 
-  getManager = () => {
+  getManager () {
     return this.manager;
   }
 
-  getMarket = (symbol : string) => {
+  getMarket (symbol : string) {
     return this.markets[symbol];
   }
 
-  //TODO come back to this after refreshing on labmda notation in python
-  getActiveMarkets = () => {
-    return;
+  getActiveMarkets() {
+    let temp = {}
+    for (let [key, value] of Object.entries(this.markets)){
+      if (this.activeOrderedSymbols.includes(key)){
+        temp[key] = value
+      }
+    }
+    return temp
   }
 
-  getStakingContract = (nam : string) => {
+  getStakingContract (nam : string) {
     return this.stakingContracts[nam];
   }
 
-  getStakingContracts = () => {
+  getStakingContracts () {
     return this.stakingContracts;
   }
 
-  getAsset = (symbol : string) => {
+  getAsset (symbol : string) {
     if (! this.activeOrderedSymbols.includes(symbol)) {
       throw new Error("Unsupported asset")
     }
     return this.markets[symbol].getAsset();
   }
 
-  getMaxAtomicOptInMarketAppIds = () => {
+  getMaxAtomicOptInMarketAppIds () {
     let temp = [];
     for (let symbol of this.maxAtomicOptInOrderedSymbols) {
       temp.push(this.markets[symbol].getMarketAppId());
@@ -222,16 +233,15 @@ export class Client {
     return temp;
   }
 
-  getActiveAssets = () => {
+  getActiveAssets () {
     let temp = {};
-    // Errors will be fixed once we figure out getActiveMarkets lambad notation
     for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
       temp[symbol] = market.getAsset();
     }
     return temp;
   }
 
-  getActiveAssetIds = () => {
+  getActiveAssetIds () {
     let temp = [];
     // Errors will be fixed once we figure out getActiveMarkets
     for (let [_, asset] of Object.entries(this.getActiveAssets())) {
@@ -240,7 +250,7 @@ export class Client {
     return temp;
   }
 
-  getActiveBankAssetIds = () => {
+  getActiveBankAssetIds () {
     let temp = [];
     for (let [_, asset] of Object.entries(this.getActiveAssets())){
       temp.push(asset.getBankAssetId());
@@ -248,11 +258,11 @@ export class Client {
     return temp;
   }
 
-  getActiveOrderedSymbols = () => {
+  getActiveOrderedSymbols () {
     return this.activeOrderedSymbols;
   }
 
-  getRawPrices = () => {
+  getRawPrices () {
     //Errors will be fixed once we figure out getActiveMarkets
     let temp = {};
     for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
@@ -260,7 +270,7 @@ export class Client {
     }
   }
 
-  getPrices = () => {
+  getPrices () {
     let temp = {};
     //Errors will be fixed once we figure out getActiveMarkets
     for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
@@ -269,7 +279,7 @@ export class Client {
   }
 
   // INDEXER HELPERS
-  getStorageAccounts = async (stakingContractName : string = undefined) => {
+  async getStorageAccounts (stakingContractName : string = undefined) {
     let nextPage = "";
     let accounts = [];
     let appId;
@@ -297,7 +307,7 @@ export class Client {
     return accounts;
   }
 
-  getActiveOracleAppIds = () => {
+  getActiveOracleAppIds () {
     let temp = [];
     // Error will be fixed when we figure out getActiveMarkets
     for (let market of Object.values(this.getActiveMarkets())){
@@ -306,7 +316,7 @@ export class Client {
     return temp;
   }
 
-  getActiveMarketAppIds = () => {
+  getActiveMarketAppIds () {
     let temp = [];
     for (let market in Object.values(this.getActiveMarkets())){
       temp.push(market.getmarketAppId())
@@ -314,7 +324,7 @@ export class Client {
     return temp;
   }
 
-  getActiveMarketAddresses = () => {
+  getActiveMarketAddresses () {
     let temp = [];
     for (let market in Object.values(this.getActiveMarkets())){
       temp.push(market.getMarketAddress())
@@ -322,43 +332,88 @@ export class Client {
     return temp;
   }
 
-  prepareOptInTransactions = (storageAddress : string, address : string = undefined) => {
-    if (!address){
-      address = this.userAddress;
-    }
-
-  }
-
-  prepareOptinTransactions = (storageAddress : string, address : string = undefined) => {
+  //TRANSACTION BUILDERS
+  prepareOptinTransactions (storageAddress : string, address : string = undefined) {
     if (!address) {
       address = this.userAddress;
     }
     return prepareManagerAppOptinTransactions(this.manager.getManagerAppId(), this.getMaxAtomicOptInMarketAppIds(), address, storageAddress, await this.getDefaultParams());
   }
 
-  prepareAddCollateralTransactions = (symbol: string, amount: number, address : string = undefined) => {
+  async prepareAddCollateralTransactions (symbol: string, amount: number, address : string = undefined) {
     if (!address){
       address = this.userAddress;
     }
     let market = this.getMarket(symbol);
-    //Need to look back at this, it seems like prepareAddCollateralTransaction was implemented idfferently in addCollateral.ts and addCollateral.py
-    //return prepareAddCollateralTransactions(this.algodClient, address, this.manager.getStorageAddress(address), amount, )
+    return prepareAddCollateralTransactions(
+      address, 
+      await this.getDefaultParams(), 
+      this.manager.getStorageAddress(address),
+      amount,
+      market.getAsset().getBankAssetId(),
+      this.manager.getManagerAppId(),
+      market.getMarketAppId(),
+      market.getMarketAddress(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds()
+    )
   }
 
-  prepareBorrowTransactions = (symbol : string, amount : number, address : string = undefined) => {
-    //again there seems to be a difference we have to look closer at regarding this and python sdk 
-    return;
+  async prepareBorrowTransactions (symbol : string, amount : number, address : string = undefined) {
+    if (!address){
+      address = this.userAddress
+    }
+    let market = this.getMarket(symbol)
+    return prepareBorrowTransactions(
+      address,
+      await this.getDefaultParams(),
+      this.manager.getStorageAddress(address),
+      amount,
+      market.getAsset().getUnderlyingAssetId(),
+      this.manager.getManagerAppId(),
+      market.getMarketAppId(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds()
+    )
   }
 
-  prepareBurnTransactions = (symbol : string, amount : number, address : string = undefined) => {
-    //again there is an issue between number of parameters passed into this and prepareBurnTransactions in burn.py vs burn.ts
+  async prepareBurnTransactions (symbol : string, amount : number, address : string = undefined) {
+    if (!address) {
+      address = this.userAddress
+    }
+    let market = this.getMarket(symbol)
+    return prepareBurnTransactions(
+      address,
+      await this.getDefaultParams(),
+      this.manager.getStorageAddress(address),
+      amount,
+      market.getAsset().getUnderlyingAssetId(),
+      market.getAsset().getBankAssetId(),
+      this.manager.getManagerAppId(),
+      market.getMarketAppId(),
+      market.getMarketAddress(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds()
+    )
   }
 
-  prepareClaimRewardsTransactions = (address : string = undefined) => {
-    //same issue above, it seems like some of the functions that were ported do not reflect exactly the specification in the python sdk 
+  async prepareClaimRewardsTransactions (address : string = undefined) {
+    if (!address) {
+      address = this.userAddress
+    }  
+    return prepareClaimRewardsTransactions(
+      address,
+      await this.getDefaultParams(),
+      this.manager.getStorageAddress(address),
+      this.manager.getManagerAppId(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds(),
+      this.manager.getRewardsProgram().getRewardsAssetIds()
+    )
+  
   }
 
-  prepareLiquidateTransaction = async (targetStorageAddress: string, borrowSymbol: string, amount: number, collateralSymbol: string, address: string = undefined) => {
+  async prepareLiquidateTransaction (targetStorageAddress: string, borrowSymbol: string, amount: number, collateralSymbol: string, address: string = undefined) {
     if (!address) {
       address = this.userAddress
     }
@@ -380,30 +435,103 @@ export class Client {
       borrowSymbol !== "ALGO" ? borrowMarket.getAsset().getUnderlyingAssetId() : undefined)
   }
 
-  prepareMintTransactions = async (something) => {
-    //again we have a similar issue as above, need to fix mint.ts to reflect mint.py
-    return;
+  async prepareMintTransactions (symbol: string, amount: number, address: string = undefined) {
+    if (!address) {
+      address = this.userAddress
+    }
+    let market = this.getMarket(symbol)
+    return prepareMintTransactions(
+      address,
+      await this.getDefaultParams(),
+      this.manager.getStorageAddress(address),
+      amount,
+      market.getAsset().getBankAssetId(),
+      this.manager.getManagerAppId(),
+      market.getMarketAppId(),
+      market.getMarketAddress(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds(),
+      symbol !== "ALGO" ? market.getAsset().getUnderlyingAssetId() : undefined
+    )
+
   }
 
-  prepareMintToCollateralTransacdtions = async (something) => {
-    //same as above
+  async prepareMintToCollateralTransacdtions (symbol: string, amount: number, address: string = undefined) {
+    if (!address){
+      address = this.userAddress
+    }
+    let market = this.getMarket(symbol)
+    return prepareMintToCollateralTransactions(
+      address, 
+      await this.getDefaultParams(),
+      this.manager.getStorageAddress(address),
+      amount,
+      this.manager.getManagerAppId(),
+      market.getMarketAppId(),
+      market.getMarketAddress(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds(),
+      symbol !== "ALGO" ? market.getAsset().getUnderlyingAssetId() : undefined
+    )
   }
 
-  prepareRemoveCollateralTransactions = async (something) => {
-    //same as above
+  async prepareRemoveCollateralTransactions (symbol: string, amount: number, address: string = undefined) {
+    if (!address) {
+      address = this.userAddress
+    }
+    let market = this.getMarket(symbol)
+    return prepareRemoveCollateralTransactions(
+      address, 
+      await this.getDefaultParams(),
+      this.manager.getStorageAddress(address),
+      amount,
+      market.getAsset().bankAssetId(),
+      this.manager.getManagerAppId(),
+      market.getMarketAppId(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds()
+    )
   }
 
-  prepareRemoveCollateralUnderlyingTransactions = async (something) => {
-    //same as above
+  async prepareRemoveCollateralUnderlyingTransactions (symbol: string, amount: number, address: string = undefined) {
+    if (!address) {
+      address = this.userAddress
+    }
+    let market = this.getMarket(symbol)
+    return prepareRemoveCollateralUnderlyingTransactions(
+      address, 
+      await this.getDefaultParams(),
+      this.manager.getStorageAddress(address),
+      amount,
+      market.getAsset().getUnderlyingAssetId(),
+      this.manager.getManagerAppId(),
+      market.getMarketAppId(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds()
+    )
   }
 
-  prepareRepayBorrowTransactions = async (something) => {
-    //same as above
+  async prepareRepayBorrowTransactions (symbol: string, amount: number, address: string = undefined) {
+    if (!address) {
+      address = this.userAddress
+    }
+    let market = this.getMarket(symbol)
+    return prepareRepayBorrowTransactions(
+      address, 
+      await this.getDefaultParams(),
+      amount,
+      this.manager.getManagerAppId(),
+      market.getMarketAppId(),
+      market.getMarketAddress(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds(),
+      symbol !== "ALGO" ? market.getAsset().getUnderlyingAssetId() : undefined
+    )
   }
 
   //Staking transactions builders
 
-  prepareStakingContractOptinTransactions = async (stakingContractName : string, storageAddress : string, address : string = undefined) => {
+  async prepareStakingContractOptinTransactions (stakingContractName : string, storageAddress : string, address : string = undefined) {
     if (!address){
       address = this.userAddress
     }
@@ -417,7 +545,7 @@ export class Client {
     )
   }
 
-  prepareStakeTransactions = async (stakingContractName: string, amount: number, address: string = undefined) => {
+  async prepareStakeTransactions (stakingContractName: string, amount: number, address: string = undefined) {
     if (!address) {
       address = this.userAddress
     }
@@ -436,56 +564,45 @@ export class Client {
     )
   }
 
-    prepareUnstakeTransactions = async (stakingContractName: string, amount: number, address: string = undefined) => {
-      if (!address) {
-        address = this.userAddress
-      }
-      let stakingContract = this.getStakingContract(stakingContractName)
-      let assetId = stakingContract.getAsset().getUnderlyingAssetId()
-      return prepareUnstakeTransactions(
-        address, 
-        await this.getDefaultParams(),
-        stakingContract.getStorageAddress(address),
-        amount, 
-        stakingContract.getManagerAppId(),
-        stakingContract.getMarketAppId(),
-        stakingContract.getOracleAppId(),
-        assetId > 1 ? assetId: undefined
-      )
+  async prepareUnstakeTransactions (stakingContractName: string, amount: number, address: string = undefined) {
+    if (!address) {
+      address = this.userAddress
     }
-
-    prepareClaimStakingRewardsTransactions = async (stakingContractName: string, address: string = undefined) => {
-      if (!address) {
-        address = this.userAddress
-      }
-      let stakingContract = this.getStakingContract(stakingContractName)
-      let assetId = stakingContract.getAsset().getUnderlyingAssetId()
-      return prepareClaimStakingRewardsTransactions(
-        address, 
-        await this.getDefaultParams(),
-        stakingContract.getStorageAddress(address),
-        stakingContract.getManagerAppId(),
-        stakingContract.getMarketAppId(),
-        stakingContract.getOracleAppId(),
-        stakingContract.getRewardsProgram().getRewardsAssetIds()
-      )
-    }
-
-    submit = async (transactionGroup: Transaction[], wait: boolean = false) => {
-      try {
-        //I think we have to sign these first no?
-        let txid = await this.algodClient.sendRawTransaction(transactionGroup).do()
-      }
-    }
-
-
-
+    let stakingContract = this.getStakingContract(stakingContractName)
+    let assetId = stakingContract.getAsset().getUnderlyingAssetId()
+    return prepareUnstakeTransactions(
+      address, 
+      await this.getDefaultParams(),
+      stakingContract.getStorageAddress(address),
+      amount, 
+      stakingContract.getManagerAppId(),
+      stakingContract.getMarketAppId(),
+      stakingContract.getOracleAppId(),
+      assetId > 1 ? assetId: undefined
+    )
   }
-  
 
+  async prepareClaimStakingRewardsTransactions (stakingContractName: string, address: string = undefined) {
+    if (!address) {
+      address = this.userAddress
+    }
+    let stakingContract = this.getStakingContract(stakingContractName)
+    let assetId = stakingContract.getAsset().getUnderlyingAssetId()
+    return prepareClaimStakingRewardsTransactions(
+      address, 
+      await this.getDefaultParams(),
+      stakingContract.getStorageAddress(address),
+      stakingContract.getManagerAppId(),
+      stakingContract.getMarketAppId(),
+      stakingContract.getOracleAppId(),
+      stakingContract.getRewardsProgram().getRewardsAssetIds()
+    )
+  }
 
-
-
-
- 
+  async submit (transactionGroup: TransactionGroup, wait: boolean = false) {
+    try {
+      //I think we have to sign these first no?
+      let txid = await this.algodClient.sendRawTransaction(transactionGroup).do()
+    }
+  }
 }
