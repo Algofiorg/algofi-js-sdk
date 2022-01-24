@@ -1,34 +1,63 @@
-import algosdk, { Algodv2, Transaction } from "algosdk"
-import { buildUserTransaction } from "./extraUtils/submissionUtils"
+import { Transactions, TransactionGroup } from "./utils"
+import algosdk, { SuggestedParams } from "algosdk"
 import { managerStrings } from "./contractStrings"
-import { assetDictionary } from "./config"
+import { getInitTxns } from "./prepend"
+
+let enc = new TextEncoder()
 
 export async function prepareAddCollateralTransactions(
-  algodClient: Algodv2,
-  address: string,
-  storageAddress: string,
+  sender: string,
+  suggestedParams: SuggestedParams,
+  storageAccount: string,
   amount: number,
-  assetName: string
-): Promise<Transaction[]> {
-  const marketAppId = assetDictionary[assetName]["marketAppId"]
-  const marketAddress = assetDictionary[assetName]["marketAddress"]
-  const bankAssetId = assetDictionary[assetName]["bankAssetId"]
-  const underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  const NO_EXTRA_ARGS = null
-
-  let txns = await buildUserTransaction(
-    algodClient,
-    address,
-    storageAddress,
-    marketAppId,
-    underlyingAssetId,
-    managerStrings.add_collateral,
-    NO_EXTRA_ARGS,
-    marketAddress,
-    bankAssetId,
-    amount,
-    assetName
+  bankAssetId: number,
+  managerAppId: number,
+  marketAppId: number,
+  marketAddress: string,
+  supportedMarketAppIds: number[],
+  supportedOracleAppIds: number[]
+): Promise<TransactionGroup> {
+  let prefixTransactions = getInitTxns(
+    Transactions.ADD_COLLATERAL,
+    sender,
+    suggestedParams,
+    managerAppId,
+    supportedMarketAppIds,
+    supportedOracleAppIds,
+    storageAccount
   )
-  algosdk.assignGroupID(txns)
-  return txns
+
+  let txn0 = algosdk.makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
+    enc.encode(managerStrings.add_collateral)
+  ])
+
+  let txn1 = algosdk.makeApplicationNoOpTxn(
+    sender,
+    suggestedParams,
+    marketAppId,
+    [enc.encode(managerStrings.add_collateral)],
+    [storageAccount],
+    [managerAppId]
+  )
+
+  let txn2 = algosdk.makeAssetTransferTxnWithSuggestedParams(
+    sender,
+    marketAddress,
+    undefined,
+    undefined,
+    amount,
+    undefined,
+    bankAssetId,
+    suggestedParams
+  )
+  let temp = []
+  for (let txn of prefixTransactions) {
+    temp.push(txn)
+  }
+  temp.push(txn0)
+  temp.push(txn1)
+  temp.push(txn2)
+
+  let txnGroup = new TransactionGroup(temp)
+  return txnGroup
 }

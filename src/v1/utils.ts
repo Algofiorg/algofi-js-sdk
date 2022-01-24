@@ -1,5 +1,5 @@
 import { Base64Encoder } from "./extraUtils/encoder"
-import { Transaction, Algodv2, generateAccount, secretKeyToMnemonic } from "algosdk"
+import { Transaction, generateAccount, secretKeyToMnemonic } from "algosdk"
 import { contracts } from "./contracts"
 import algosdk from "algosdk"
 import { Account } from "algosdk/dist/types/src/client/v2/algod/models/types"
@@ -124,7 +124,7 @@ export const getManagerAppId = (chain: string) => {
   return contracts[chain]["managerAppId"]
 }
 
-const waitForConfirmation = async function(client, txId) {
+const waitForConfirmation = async function(client: algosdk.Algodv2, txId: number) {
   const response = await client.status().do()
   let lastround = response["last-round"]
   while (true) {
@@ -191,4 +191,50 @@ export const getNewAccount = () => {
 
 export function intToBytes(int: number) {
   return
+}
+
+export class TransactionGroup {
+  transactions: Transaction[]
+  //figure out type for signedTransactions
+  signedTransactions: any
+  constructor(transactions: Transaction[]) {
+    this.transactions = algosdk.assignGroupID(transactions)
+    let signedTransactions = []
+    for (let _ of this.transactions) {
+      signedTransactions.push(undefined)
+    }
+    this.signedTransactions = signedTransactions
+  }
+
+  //figure out how to notate types of privateKey
+  //Also address is not used so I took it out of the parameters
+  signWithPrivateKey = (privateKey: any) => {
+    for (let [i, txn] of Object.entries(this.transactions)) {
+      this.signedTransactions[i] = txn.signTxn(privateKey)
+    }
+  }
+
+  signWithPrivateKeys = (privateKeys: any) => {
+    //do assertion assert(len(private_keys) == len(self.transactions))
+    for (let [i, txn] of Object.entries(this.transactions)) {
+      this.signedTransactions[i] = txn.signTxn(privateKeys[i])
+    }
+  }
+
+  submit = async (algod: algosdk.Algodv2, wait: boolean = false) => {
+    let txid: number
+    try {
+      txid = await algod.sendRawTransaction(this.signedTransactions).do()
+      //Figure out catching and throwing errors as other aliases
+    } catch (e) {
+      throw new Error(e)
+    }
+    if (wait) {
+      return waitForConfirmation(algod, txid)
+    }
+    //formatter is saving this as txid:txid instead of "txid":txid
+    return {
+      txid: txid
+    }
+  }
 }
