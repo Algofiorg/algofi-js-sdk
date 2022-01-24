@@ -6,7 +6,7 @@ import { managerStrings } from "./contractStrings"
 
 let enc = new TextEncoder()
 
-export async function prepareBorrowTransactions(
+export function prepareBorrowTransactions(
   sender: string,
   suggestedParams: SuggestedParams,
   storageAccount: string,
@@ -16,8 +16,8 @@ export async function prepareBorrowTransactions(
   marketAppId: number,
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
-): Promise<TransactionGroup> {
-  let prefixTransactions = await getInitTxns(
+): TransactionGroup {
+  let prefixTransactions = getInitTxns(
     Transactions.BORROW,
     sender,
     suggestedParams,

@@ -5,7 +5,7 @@ import { getInitTxns } from "./prepend"
 
 let enc = new TextEncoder()
 
-export async function prepareAddCollateralTransactions(
+export function prepareAddCollateralTransactions(
   sender: string,
   suggestedParams: SuggestedParams,
   storageAccount: string,
@@ -16,7 +16,7 @@ export async function prepareAddCollateralTransactions(
   marketAddress: string,
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
-): Promise<TransactionGroup> {
+): TransactionGroup {
   let prefixTransactions = getInitTxns(
     Transactions.ADD_COLLATERAL,
     sender,
@@ -48,10 +48,7 @@ export async function prepareAddCollateralTransactions(
     bankAssetId,
     suggestedParams
   )
-  let temp = []
-  for (let txn of prefixTransactions) {
-    temp.push(txn)
-  }
+  let temp = [...prefixTransactions]
   temp.push(txn0)
   temp.push(txn1)
   temp.push(txn2)
