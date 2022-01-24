@@ -1,31 +1,50 @@
-import algosdk, { Algodv2, Transaction } from "algosdk"
-import { buildUserTransaction } from "./extraUtils/submissionUtils"
+import { SuggestedParams, makeApplicationNoOpTxn } from "algosdk"
+import { TransactionGroup } from "./utils"
+import { getInitTxns } from "./prepend"
+import { Transactions } from "./utils"
 import { managerStrings } from "./contractStrings"
-import { assetDictionary } from "./config"
+
+let enc = new TextEncoder()
 
 export async function prepareBorrowTransactions(
-  algodClient: Algodv2,
-  address: string,
-  storageAddress: string,
+  sender: string,
+  suggestedParams: SuggestedParams,
+  storageAccount: string,
   amount: number,
-  assetName: string
-): Promise<Transaction[]> {
-  let marketAppId = assetDictionary[assetName]["marketAppId"]
-  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-
-  let txns = await buildUserTransaction(
-    algodClient,
-    address,
-    storageAddress,
-    marketAppId,
-    underlyingAssetId,
-    managerStrings.borrow,
-    algosdk.encodeUint64(amount),
-    "",
-    0,
-    0,
-    assetName
+  assetId: number,
+  managerAppId: number,
+  marketAppId: number,
+  supportedMarketAppIds: number[],
+  supportedOracleAppIds: number[]
+): Promise<TransactionGroup> {
+  let prefixTransactions = await getInitTxns(
+    Transactions.BORROW,
+    sender,
+    suggestedParams,
+    managerAppId,
+    supportedMarketAppIds,
+    supportedOracleAppIds,
+    storageAccount
   )
-  algosdk.assignGroupID(txns)
-  return txns
+  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
+    enc.encode(managerStrings.borrow),
+    //figure out intToBytes
+    intToBytes(amount)
+  ])
+
+  let txn1 = makeApplicationNoOpTxn(
+    sender,
+    suggestedParams,
+    marketAppId,
+    [enc.encode(managerStrings.borrow)],
+    [storageAccount],
+    [managerAppId],
+    [assetId]
+  )
+  let temp = [...prefixTransactions]
+  temp.push(txn0)
+  temp.push(txn1)
+
+  let txnGroup = new TransactionGroup(temp)
+  return txnGroup
 }
