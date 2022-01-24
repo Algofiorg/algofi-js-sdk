@@ -1,34 +1,69 @@
-import algosdk, { Algodv2, Transaction } from "algosdk"
-import { buildUserTransaction } from "./extraUtils/submissionUtils"
+import {
+  makeApplicationNoOpTxn,
+  makeAssetTransferTxnWithSuggestedParams,
+  makePaymentTxnWithSuggestedParams,
+  SuggestedParams,
+  Transaction
+} from "algosdk"
+import { getInitTxns } from "./prepend"
+import { TransactionGroup, Transactions } from "./utils"
 import { managerStrings } from "./contractStrings"
-import { assetDictionary } from "./config"
+
+let enc = new TextEncoder()
 
 export async function prepareMintTransactions(
-  algodClient: Algodv2,
-  address: string,
-  storageAddress: string,
+  sender: string,
+  suggestedParams: SuggestedParams,
+  storageAccount: string,
   amount: number,
-  assetName: string
-): Promise<Transaction[]> {
-  const marketAppId = assetDictionary[assetName]["marketAppId"]
-  const marketAddress = assetDictionary[assetName]["marketAddress"]
-  const bankAssetId = assetDictionary[assetName]["bankAssetId"]
-  const underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
-  const NO_EXTRA_ARGS = null
-
-  let txns = await buildUserTransaction(
-    algodClient,
-    address,
-    storageAddress,
-    marketAppId,
-    bankAssetId,
-    managerStrings.mint,
-    NO_EXTRA_ARGS,
-    marketAddress,
-    underlyingAssetId,
-    amount,
-    assetName
+  bankAssetId: number,
+  managerAppId: number,
+  marketAppId: number,
+  marketAddress: string,
+  supportedMarketAppIds: number[],
+  supportedOracleAppIds: number[],
+  assetId: number = undefined
+): Promise<TransactionGroup> {
+  let prefixTransactions = getInitTxns(
+    Transactions.MINT,
+    sender,
+    suggestedParams,
+    managerAppId,
+    supportedMarketAppIds,
+    supportedOracleAppIds,
+    storageAccount
   )
-  algosdk.assignGroupID(txns)
-  return txns
+
+  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [enc.encode(managerStrings.mint)])
+
+  let txn1 = makeApplicationNoOpTxn(
+    sender,
+    suggestedParams,
+    marketAppId,
+    [enc.encode(managerStrings.mint)],
+    [storageAccount],
+    [managerAppId],
+    [bankAssetId]
+  )
+
+  let txn2: Transaction
+  if (assetId) {
+    txn2 = makeAssetTransferTxnWithSuggestedParams(
+      sender,
+      marketAddress,
+      undefined,
+      undefined,
+      amount,
+      undefined,
+      assetId,
+      suggestedParams
+    )
+  } else {
+    txn2 = makePaymentTxnWithSuggestedParams(sender, marketAddress, amount, undefined, undefined, suggestedParams)
+  }
+  let temp = [...prefixTransactions]
+  temp.push(txn0)
+  temp.push(txn1)
+  temp.push(txn2)
+  return new TransactionGroup(temp)
 }
