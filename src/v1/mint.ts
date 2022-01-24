@@ -11,7 +11,7 @@ import { managerStrings } from "./contractStrings"
 
 let enc = new TextEncoder()
 
-export async function prepareMintTransactions(
+export function prepareMintTransactions(
   sender: string,
   suggestedParams: SuggestedParams,
   storageAccount: string,
@@ -23,7 +23,7 @@ export async function prepareMintTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[],
   assetId: number = undefined
-): Promise<TransactionGroup> {
+): TransactionGroup {
   let prefixTransactions = getInitTxns(
     Transactions.MINT,
     sender,
