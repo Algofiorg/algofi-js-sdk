@@ -87,7 +87,7 @@ export class Market {
     return asyncReturn()
   }
 
-  updateGlobalState = () => {
+  updateGlobalState() {
     let marketState = getGlobalState(this.algod, this.marketAppId)
 
     this.marketCounter = marketState[marketStrings.manager_market_counter_var]

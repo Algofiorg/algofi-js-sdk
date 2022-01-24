@@ -30,19 +30,13 @@ let toAscii = (word: string) => {
   return temp
 }
 
-// export const getProgram = (definition, variables = undefined) => {
-//   /**
-//    * Return a byte array to be used in LogicSig
-//    *
-//    * TODO: finish implementation of this function after convertin lambda functions
-//    * to js
-//   */
-//  let template = definition['bytecode'];
-//  let templateBytes = toAscii(template);
-//  let offset = 0;
-// }
+export function getProgram = (definition, variables = undefined) {
+  let template = definition["bytecode"]
+  let templateBytes = toAscii(template)
+  let offset = 0
+}
 
-export function encodeValue (value, type) => {
+export function encodeValue(value: number, type: string) {
   if (type === "int") {
     return encodeVarint(value)
   }
