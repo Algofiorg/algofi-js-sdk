@@ -1,7 +1,7 @@
 import { Algodv2, encodeAddress, getApplicationAddress } from "algosdk"
 import { getGlobalState, readLocalState, get } from "./utils"
-import { RewardsProgram } from "./rewardsProgram"
 import { managerStrings } from "./contractStrings"
+import { RewardsProgram } from "./rewardsProgram"
 import { Market } from "./market"
 
 export class Manager {

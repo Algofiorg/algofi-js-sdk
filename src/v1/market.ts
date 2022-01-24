@@ -6,7 +6,7 @@ import { getStorageAddress, PARAMETER_SCALE_FACTOR, SCALE_FACTOR } from "../v0"
 import { get } from "./utils"
 
 export class Market {
-  algodClient: Algodv2
+  algod: Algodv2
   marketAppId: number
   marketAddress: string
   marketCounter: number
@@ -37,12 +37,12 @@ export class Market {
 
   constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number) {
     const asyncReturn: any = async () => {
-      this.algodClient = algodClient
+      this.algod = algodClient
 
       this.marketAppId = marketAppId
       this.marketAddress = algosdk.getApplicationAddress(this.marketAppId)
 
-      const marketState = await getGlobalState(this.algodClient, this.marketAppId)
+      const marketState = await getGlobalState(this.algod, this.marketAppId)
 
       this.marketCounter = marketState[marketStrings.manager_market_counter_var]
 
@@ -74,7 +74,7 @@ export class Market {
 
       this.asset = this.underlyingAssetId
         ? new Asset(
-            this.algodClient,
+            this.algod,
             this.underlyingAssetId,
             this.bankAssetId,
             this.oracleAppId,
@@ -88,7 +88,7 @@ export class Market {
   }
 
   updateGlobalState = () => {
-    let marketState = getGlobalState(this.algodClient, this.marketAppId)
+    let marketState = getGlobalState(this.algod, this.marketAppId)
 
     this.marketCounter = marketState[marketStrings.manager_market_counter_var]
 
@@ -120,59 +120,69 @@ export class Market {
     this.underlyingReserves = get(marketState, marketStrings.underlying_reserves, 0)
     this.totalBorrowInterestRate = get(marketState, marketStrings.total_borrow_interest_rate, 0)
 
-    this.asset = new Asset(
-      this.algodClient,
-      this.underlyingAssetId,
-      this.bankAssetId,
-      this.oracleAppId,
-      this.oraclePriceField,
-      this.oraclePriceScaleFactor
-    )
+    this.asset = this.underlyingAssetId
+      ? new Asset(
+          this.algod,
+          this.underlyingAssetId,
+          this.bankAssetId,
+          this.oracleAppId,
+          this.oraclePriceField,
+          this.oraclePriceScaleFactor
+        )
+      : undefined
   }
 
-  getMarketAppId = () => {
+  getMarketAppId() {
     return this.marketAppId
   }
 
-  getMarketAddress = () => {
+  getMarketAddress() {
     return this.marketAddress
   }
 
-  getMarketCounter = () => {
+  getMarketCounter() {
     return this.marketCounter
   }
 
-  getAsset = () => {
+  getAsset() {
     return this.asset
   }
 
-  getActiveCollateral = () => {
+  getActiveCollateral() {
     return this.activeCollateral
   }
 
-  getBankCirculation = () => {
+  getBankCirculation() {
     return this.bankCirculation
   }
 
-  getBankToUnderlyingExchange = () => {
+  getBankToUnderlyingExchange() {
     return this.bankToUnderlyingExchange
   }
 
-  getUnderlyingBorrowed = async () => {
-    try {
-      let data = await this.algodClient.getApplicationByID(this.marketAppId).do()
-      console.log("raw data =", data)
-      data = data["params"]["global-state"]
-      console.log("data =", data)
-      return searchGlobalState(data, marketStrings.underlying_borrowed)
-    } catch (err) {
-      throw Error("Issue getting data")
-    }
+  //need to figure out the js equivalent of historical_indexer.applications
+  async getUnderlyingBorrowed(block: number = undefined) {
+    // if (block) {
+    //   try {
+    //     let data = this.historicalIndexer.()
+    //   }
+    // }
+
+    // try {
+    //   let data = await this.algod.getApplicationByID(this.marketAppId).do()
+    //   console.log("raw data =", data)
+    //   data = data["params"]["global-state"]
+    //   console.log("data =", data)
+    //   return searchGlobalState(data, marketStrings.underlying_borrowed)
+    // } catch (err) {
+    //   throw Error("Issue getting data")
+    // }
+    return
   }
-  getOutstandingBorrowShares = () => {
+  getOutstandingBorrowShares() {
     return this.outstandingBorrowShares
   }
-  getUnderlyingCash = (block = undefined) => {
+  getUnderlyingCash(block = undefined) {
     // figure out what application call to make here
     if (block) {
       try {
@@ -182,7 +192,7 @@ export class Market {
       }
     }
   }
-  getUnderlyingReserves = (block = undefined) => {
+  getUnderlyingReserves(block = undefined) {
     // still need to figure out what historical_indexer.applications translates to in js
     if (block) {
       try {
@@ -192,19 +202,19 @@ export class Market {
       }
     }
   }
-  getTotalBorrowInterestRate = () => {
+  getTotalBorrowInterestRate() {
     // same thing as above
     return
   }
-  getCollateralFactor = () => {
+  getCollateralFactor() {
     return this.collateralFactor
   }
-  getLiquidationIncentive = () => {
+  getLiquidationIncentive() {
     return this.liquidationIncentive
   }
-  getStorageState = (storageAddress: string) => {
+  getStorageState(storageAddress: string) {
     let result = {}
-    let userState = readLocalState(this.algodClient, storageAddress, this.marketAppId)
+    let userState = readLocalState(this.algod, storageAddress, this.marketAppId)
     let asset = this.getAsset()
     result["active_collateral_bank"] = get(userState, marketStrings.user_active_collateral, 0)
     result["active_collateral_underlying"] = Number(
