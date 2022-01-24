@@ -1,56 +1,70 @@
+import {
+  SuggestedParams,
+  makeApplicationOptInTxn,
+  makePaymentTxnWithSuggestedParams,
+  getApplicationAddress,
+  makeAssetTransferTxnWithSuggestedParams
+} from "algosdk"
+import { TransactionGroup } from "./utils"
 const OPT_IN_MIN_BALANCE = 3.5695
-import algosdk, { SuggestedParams } from "algosdk"
 
-//Not sure whether to keep suggested params or not
-export const prepareManagerAppOptinTransactions = (
+export function prepareManagerAppOptinTransactions(
   managerAppId: number,
   getMaxAtomicOptInMarketAppIds: number[],
   sender: string,
   storageAddress: string,
   suggestedParams: SuggestedParams
-) => {
-  //need to figure out how to get OPT_INT... * 1000000 to work without getting typescript error for using parseInt
-  let txns = []
-  //payment txn
-  txns.push(
-    algosdk.makePaymentTxnWithSuggestedParams(
-      sender,
-      storageAddress,
-      OPT_IN_MIN_BALANCE * 1000000,
-      _,
-      _,
-      suggestedParams
-    )
+): TransactionGroup {
+  let txnPayment = makePaymentTxnWithSuggestedParams(
+    sender,
+    storageAddress,
+    OPT_IN_MIN_BALANCE * 1e6,
+    undefined,
+    undefined,
+    suggestedParams
   )
-  //opt in market app ids transaction
+
+  let marketOptinTransactions = []
   for (let marketAppId of getMaxAtomicOptInMarketAppIds) {
-    let txn = algosdk.makeApplicationOptInTxn(storageAddress, suggestedParams, marketAppId)
-    txns.push(txn)
+    marketOptinTransactions.push(makeApplicationOptInTxn(sender, suggestedParams, marketAppId))
   }
-  //manager op in transaction
-  txns.push(algosdk.makeApplicationOptInTxn(sender, suggestedParams, managerAppId))
-  let appAddress = algosdk.getApplicationAddress(managerAppId)
-  //storage opt in manager transaction
-  txns.push(
-    algosdk.makeApplicationOptInTxn(storageAddress, suggestedParams, managerAppId, _, _, _, _, _, _, appAddress)
+
+  let txnUserOptinManager = makeApplicationOptInTxn(sender, suggestedParams, managerAppId)
+  let appAddress = getApplicationAddress(managerAppId)
+  let txnStorageOptinManager = makeApplicationOptInTxn(
+    storageAddress,
+    suggestedParams,
+    managerAppId,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    appAddress
   )
-
-  //Do we have to make this into a transaction group object like in the python sdk? It seems like in the javascript sdk the type of a transaction group is just an
-  //array of transactions.
-  return txns
+  let temp = [txnPayment]
+  for (let txn of marketOptinTransactions) {
+    temp.push(txn)
+  }
+  temp.push(txnUserOptinManager)
+  temp.push(txnStorageOptinManager)
+  return new TransactionGroup(temp)
 }
 
-export const prepareMarketAppOptinTransactions = (
+//Do I really have to add a random note here?
+export function prepareMarketAppOptinTransactions(
   marketAppId: number,
-  sender: string,
   suggestedParams: SuggestedParams
-) => {
-  //in the python sdk they put  a random note, i'm not sure why but i'm also not sure if i have to implement this as well
-  let txn = algosdk.makeApplicationOptInTxn(sender, suggestedParams, marketAppId)
-  return [txn]
+): TransactionGroup {
+  return new TransactionGroup([makeApplicationOptInTxn(sender, suggestedParams, marketAppId)])
 }
 
-export const prepareAssetOptinTransactions = (assetId: number, sender: string, suggestedParams: SuggestedParams) => {
-  //not sure if there is a built in asset opt in function for the js sdk
-  ///let txn = algosdk.makeAssetTransferTxnWithSuggestedParams(sender, _+);;;
-}
+//not sure if there is a built in asset opt in transaction for js
+// export function prepareAssetOptinTransactions(
+//   assetId: number,
+//   sender: string,
+//   suggestedParams: SuggestedParams
+// ): TransactionGroup {
+//   return new TransactionGroup([makeAssetTransferTxnWithSuggestedParams(sender)])
+// }

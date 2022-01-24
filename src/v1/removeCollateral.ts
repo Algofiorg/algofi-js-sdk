@@ -1,31 +1,46 @@
-import algosdk, { Algodv2, Transaction } from "algosdk"
-import { buildUserTransaction } from "./extraUtils/submissionUtils"
+import { makeApplicationNoOpTxn, SuggestedParams } from "algosdk"
+import { TransactionGroup, Transactions } from "./utils"
 import { managerStrings } from "./contractStrings"
-import { assetDictionary } from "./config"
+import { getInitTxns } from "./prepend"
 
-export async function prepareRemoveCollateralTransactions(
-  algodClient: Algodv2,
-  address: string,
-  storageAddress: string,
+let enc = new TextEncoder()
+
+export function prepareRemoveCollateralTransactions(
+  sender: string,
+  suggestedParams: SuggestedParams,
+  storageAccount: string,
   amount: number,
-  assetName: string
-): Promise<Transaction[]> {
-  const marketAppId = assetDictionary[assetName]["marketAppId"]
-  const bankAssetId = assetDictionary[assetName]["bankAssetId"]
-
-  let txns = await buildUserTransaction(
-    algodClient,
-    address,
-    storageAddress,
-    marketAppId,
-    bankAssetId,
-    managerStrings.remove_collateral,
-    algosdk.encodeUint64(amount),
-    "",
-    0,
-    0,
-    assetName
+  bankAssetId: number,
+  managerAppId: number,
+  marketAppId: number,
+  supportedMarketAppIds: number[],
+  supportedOracleAppIds: number[]
+): TransactionGroup {
+  let prefixTransactions = getInitTxns(
+    Transactions.REMOVE_COLLATERAL,
+    sender,
+    suggestedParams,
+    managerAppId,
+    supportedMarketAppIds,
+    supportedOracleAppIds,
+    storageAccount
   )
-  algosdk.assignGroupID(txns)
-  return txns
+  //figure out int_to_bytes
+  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
+    enc.encode(managerStrings.remove_collateral),
+    inToBytes(amount)
+  ])
+  let txn1 = makeApplicationNoOpTxn(
+    sender,
+    suggestedParams,
+    marketAppId,
+    [enc.encode(managerStrings.remove_collateral)],
+    [storageAccount],
+    [managerAppId],
+    [bankAssetId]
+  )
+  let temp = [...prefixTransactions]
+  temp.push(txn0)
+  temp.push(txn1)
+  return new TransactionGroup(temp)
 }
