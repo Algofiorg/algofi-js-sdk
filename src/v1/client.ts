@@ -5,6 +5,7 @@ import { Market } from "./market"
 import { StakingContract } from "./stakingContract"
 import { prepareManagerAppOptinTransactions } from "./optin"
 import { prepareAddCollateralTransactions } from "./addCollateral"
+import { prepareLiquidateTransactions } from "./liquidate"
 
 const a = 2;
 
@@ -355,6 +356,70 @@ export class Client {
   prepareClaimRewardsTransactions = (address : string = undefined) => {
     //same issue above, it seems like some of the functions that were ported do not reflect exactly the specification in the python sdk 
   }
+
+  prepareLiquidateTransaction = async (targetStorageAddress: string, borrowSymbol: string, amount: number, collateralSymbol: string, address: string = undefined) => {
+    if (!address) {
+      address = this.userAddress
+    }
+    let borrowMarket = this.getMarket(borrowSymbol)
+    let collateralMarket = this.getMarket(collateralSymbol)
+    return prepareLiquidateTransactions(
+      address, 
+      await this.getDefaultParams(), 
+      this.manager.getStorageAddress(address),
+      targetStorageAddress, 
+      amount, 
+      this.manager.getManagerAppId(),
+      borrowMarket.getMarketAppId(),
+      borrowMarket.getMarketAddress(),
+      collateralMarket.getMarketAppId(),
+      this.getActiveMarketAppIds(),
+      this.getActiveOracleAppIds(),
+      collateralMarket.getAsset().getBankAssetId(),
+      borrowSymbol !== "ALGO" ? borrowMarket.getAsset().getUnderlyingAssetId() : undefined)
+  }
+
+  prepareMintTransactions = async (something) => {
+    //again we have a similar issue as above, need to fix mint.ts to reflect mint.py
+    return;
+  }
+
+  prepareMintToCollateralTransacdtions = async (something) => {
+    //same as above
+  }
+
+  prepareRemoveCollateralTransactions = async (something) => {
+    //same as above
+  }
+
+  prepareRemoveCollateralUnderlyingTransactions = async (something) => {
+    //same as above
+  }
+
+  prepareRepayBorrowTransactions = async (something) => {
+    //same as above
+  }
+
+  //Staking transactions builders
+
+  prepareStakingContractOptinTransactions = async (stakingContractName : string, storageAddress : string, address : string = undefined) => {
+    if (!address){
+      address = this.userAddress
+    }
+    let stakingContract = this.getStakingContract(stakingContractName)
+    return prepareManagerAppOptinTransactions(
+      stakingContract.getManagerAppId(),
+      [stakingContract.getMarketAppId()],
+      address,
+      storageAddress,
+      await this.getDefaultParams()
+    )
+  }
+
+  
+
+
+
 
 
  

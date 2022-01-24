@@ -1,6 +1,6 @@
 import { Base64Encoder } from "./extraUtils/encoder"
 import { Transaction, Algodv2, generateAccount, secretKeyToMnemonic } from "algosdk"
-import { contracts } from "./contracts" 
+import { contracts } from "./contracts"
 import algosdk from "algosdk"
 import { Account } from "algosdk/dist/types/src/client/v2/algod/models/types"
 
@@ -14,26 +14,26 @@ export enum Transactions {
   BORROW = 7,
   REPAY_BORROW = 8,
   LIQUIDATE = 9,
-  CLAIM_REWARDS = 10,
+  CLAIM_REWARDS = 10
 }
 
-export function get(object: any, key:any, default_value:any) {
-  var result = object[key];
-  return (typeof result !== "undefined") ? result : default_value;
+export function get(object: any, key: any, default_value: any) {
+  var result = object[key]
+  return typeof result !== "undefined" ? result : default_value
 }
 
 let toAscii = (word: string) => {
-  let temp = [];
-  for (let i = 0; i < word.length; i ++){
-    temp.push(word.charCodeAt(i));
+  let temp = []
+  for (let i = 0; i < word.length; i++) {
+    temp.push(word.charCodeAt(i))
   }
-  return temp;
+  return temp
 }
 
 // export const getProgram = (definition, variables = undefined) => {
 //   /**
 //    * Return a byte array to be used in LogicSig
-//    * 
+//    *
 //    * TODO: finish implementation of this function after convertin lambda functions
 //    * to js
 //   */
@@ -43,29 +43,28 @@ let toAscii = (word: string) => {
 // }
 
 export const encodeValue = (value, type) => {
-  if (type === "int"){
+  if (type === "int") {
     return encodeVarint(value)
   }
-  throw new Error(`Unsupported value type ${type}`);
+  throw new Error(`Unsupported value type ${type}`)
 }
 
 export const encodeVarint = (number: number) => {
   /**
    * TOOD: figure out byte logic in javascript
    */
-  let buf;
+  let buf
 }
 
-export const signAndSubmitTransaction = async (client : Algodv2, transactions, signedTransactions, sender, senderSk) => {
-  for (const [i, txn] of transactions.entries()){
-    if (txn.sender === sender){
-      signedTransactions[i] = txn.signTxn(senderSk);
+export const signAndSubmitTransaction = async (client: Algodv2, transactions, signedTransactions, sender, senderSk) => {
+  for (const [i, txn] of transactions.entries()) {
+    if (txn.sender === sender) {
+      signedTransactions[i] = txn.signTxn(senderSk)
     }
   }
-  let txid = await client.sendRawTransaction(signedTransactions).do();
-  return waitForConfirmation(client, txid);
+  let txid = await client.sendRawTransaction(signedTransactions).do()
+  return waitForConfirmation(client, txid)
 }
-
 
 export const formatState = state => {
   let formatted = {}
@@ -110,10 +109,10 @@ export const searchGlobalState = (globalState, searchKey) => {
 
 //Figure out if we are returning the same file as the python sdk
 export const readLocalState = async (client, address, app_id) => {
-  const results = await client.accountInformation(address).do();
-  for (const local_state in results["apps-local-state"]){
+  const results = await client.accountInformation(address).do()
+  for (const local_state in results["apps-local-state"]) {
     if (local_state["id"] === app_id) {
-      if (!(local_state.includes('key-value'))){
+      if (!local_state.includes("key-value")) {
         return {}
       }
     }
@@ -125,63 +124,53 @@ export const getManagerAppId = (chain: string) => {
   return contracts[chain]["managerAppId"]
 }
 
-const waitForConfirmation = async function (client, txId) {
-  const response = await client.status().do();
-  let lastround = response["last-round"];
+const waitForConfirmation = async function(client, txId) {
+  const response = await client.status().do()
+  let lastround = response["last-round"]
   while (true) {
-    const pendingInfo = await client.pendingTransactionInformation(txId).do();
-    if (
-      pendingInfo["confirmed-round"] !== null &&
-      pendingInfo["confirmed-round"] > 0
-    ) {
-      console.log(
-        "Transaction " +
-          txId +
-          " confirmed in round " +
-          pendingInfo["confirmed-round"]
-      );
-      break;
+    const pendingInfo = await client.pendingTransactionInformation(txId).do()
+    if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
+      console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"])
+      break
     }
-    lastround++;
-    await client.statusAfterBlock(lastround).do();
+    lastround++
+    await client.statusAfterBlock(lastround).do()
   }
-};
+}
 
-export const getStakingContracts = (chain : string) => {
+export const getStakingContracts = (chain: string) => {
   return contracts[chain]["STAKING_CONTRACTS"]
 }
 
-export const getMarketAppId = (chain : string, symbol : string) => {
-  return contracts[chain]["SYMBOL_INFO"][symbol]["marketAppId"];
+export const getMarketAppId = (chain: string, symbol: string) => {
+  return contracts[chain]["SYMBOL_INFO"][symbol]["marketAppId"]
 }
 
-export const getInitRound = (chain : string) => {
+export const getInitRound = (chain: string) => {
   return contracts[chain]["initRound"]
 }
 
-export const readGlobalState = async (client : Algodv2, address : string, appId : number) => {
-  const results = await client.accountInformation(address).do();
-  const appsCreated = results["created-apps"];
-  for (let app of appsCreated){
+export const readGlobalState = async (client: Algodv2, address: string, appId: number) => {
+  const results = await client.accountInformation(address).do()
+  const appsCreated = results["created-apps"]
+  for (let app of appsCreated) {
     if (app["id"] === appId) {
       return formatState(app["params"]["global-state"])
     }
   }
-  return {};
+  return {}
 }
 
-export const getOrderedSymbols = (chain : string, max : boolean = false, maxAtomicOptIn : boolean = false) => {
-  let supportedMarketCount : string[];
+export const getOrderedSymbols = (chain: string, max: boolean = false, maxAtomicOptIn: boolean = false) => {
+  let supportedMarketCount: string[]
   if (max) {
-    supportedMarketCount = contracts["maxMarketCount"];
-  }
-  else if (maxAtomicOptIn){
-    supportedMarketCount = contracts["maxAtomicOptInMarketCount"];
-  }
-  else {
+    supportedMarketCount = contracts["maxMarketCount"]
+  } else if (maxAtomicOptIn) {
+    supportedMarketCount = contracts["maxAtomicOptInMarketCount"]
+  } else {
     supportedMarketCount = contracts["supportedMarketCount"]
   }
-  return contracts["SYMBOLS"].slice(0,supportedMarketCount);
+  return contracts["SYMBOLS"].slice(0, supportedMarketCount)
 }
 
 // //Do we not need client to get the reccomended parameters?
@@ -192,14 +181,14 @@ export const getOrderedSymbols = (chain : string, max : boolean = false, maxAtom
 // }
 
 export const getNewAccount = () => {
-  let newAccount = generateAccount();
-  let key = newAccount.sk;
-  let address = newAccount.addr;
-  let passphrase = secretKeyToMnemonic(key);
+  let newAccount = generateAccount()
+  let key = newAccount.sk
+  let address = newAccount.addr
+  let passphrase = secretKeyToMnemonic(key)
 
-  return [key, address, passphrase];
+  return [key, address, passphrase]
 }
 
-export class TransactionGroup {
-  
+export function intToBytes(int: number) {
+  return
 }

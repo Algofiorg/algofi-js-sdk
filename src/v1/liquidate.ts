@@ -48,10 +48,9 @@ export function prepareLiquidateTransactions(
   )
 
   let txn2: Transaction
-  //I think I may be doing something wrong here, they don't even give an option for suggested params
-  //Also is there an easier way to ignore parameters?
+  //Ok I fixed it, I just have to pass in the right parameters now i think
   if (borrowAssetId) {
-    txn2 = algosdk.makeAssetTransferTxn(
+    txn2 = algosdk.makeAssetTransferTxnWithSuggestedParams(
       sender,
       borrowMarketAddress,
       undefined,
@@ -60,14 +59,11 @@ export function prepareLiquidateTransactions(
       amount,
       undefined,
       undefined,
-      undefined,
-      undefined,
-      undefined,
-      borrowAssetId
+      undefined
     )
     //Not exactly sure what this function is trying to implement
   } else {
-    txn2 = algosdk.makeAssetTransferTxn(
+    txn2 = algosdk.makeAssetTransferTxnWithSuggestedParams(
       sender,
       borrowMarketAddress,
       undefined,
@@ -76,10 +72,7 @@ export function prepareLiquidateTransactions(
       amount,
       undefined,
       undefined,
-      undefined,
-      undefined,
-      undefined,
-      borrowAssetId
+      undefined
     )
   }
 
