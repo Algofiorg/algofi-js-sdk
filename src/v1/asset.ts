@@ -45,46 +45,46 @@ export class Asset {
     return asyncReturn()
   }
 
-  getUnderlyingAssetId = () => {
+  getUnderlyingAssetId() {
     return this.underlyingAssetId
   }
 
-  getUnderlyingAssetInfo = () => {
+  getUnderlyingAssetInfo() {
     return this.underlyingAssetInfo
   }
 
-  getBankAssetId = () => {
+  getBankAssetId() {
     return this.bankAssetId
   }
 
-  getBankAssetInfo = () => {
+  getBankAssetInfo() {
     return this.bankAssetInfo
   }
 
-  getOracleAppId = () => {
+  getOracleAppId() {
     return this.oracleAppId
   }
 
-  getOraclePriceField = () => {
+  getOraclePriceField() {
     return this.oraclePriceField
   }
 
-  getOraclePriceScaleFactor = () => {
+  getOraclePriceScaleFactor() {
     return this.oraclePriceScaleFactor
   }
 
-  getRawPrice = async () => {
+  async getRawPrice() {
     if (this.oracleAppId == undefined) {
       throw Error("no oracle app id for asset")
     }
     return (await getGlobalState(this.algod, this.oracleAppId))[this.oraclePriceField]
   }
 
-  getUnderlyingDecimals = () => {
+  getUnderlyingDecimals() {
     return this.underlyingAssetInfo["decimals"]
   }
 
-  getPrice = async () => {
+  async getPrice() {
     if (this.oracleAppId == undefined) {
       throw Error("no oracle app id for asset")
     }
@@ -92,7 +92,7 @@ export class Asset {
     return (raw_price * 10 ** this.getUnderlyingDecimals()) / (this.getOraclePriceScaleFactor() * 1e3)
   }
 
-  toUSD = async amount => {
+  async toUSD(amount: number) {
     const price = await this.getPrice()
     return (amount * price) / 10 ** this.getUnderlyingDecimals()
   }

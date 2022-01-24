@@ -48,7 +48,6 @@ export function prepareLiquidateTransactions(
   )
 
   let txn2: Transaction
-  //Ok I fixed it, I just have to pass in the right parameters now i think
   if (borrowAssetId) {
     txn2 = makeAssetTransferTxnWithSuggestedParams(
       sender,
