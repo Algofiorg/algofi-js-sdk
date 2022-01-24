@@ -1,4 +1,4 @@
-import { Algodv2, Indexer } from "algosdk"
+import { Algodv2, Indexer, Transaction } from "algosdk"
 import { getInitRound, getOrderedSymbols, getManagerAppId, getMarketAppId, getStakingContracts, get } from "./utils"
 import { Manager } from "./manager"
 import { Market } from "./market"
@@ -6,6 +6,7 @@ import { StakingContract } from "./stakingContract"
 import { prepareManagerAppOptinTransactions } from "./optin"
 import { prepareAddCollateralTransactions } from "./addCollateral"
 import { prepareLiquidateTransactions } from "./liquidate"
+import { prepareClaimStakingRewardsTransactions, prepareStakeTransactions, prepareStakingContractOptinTransactions, prepareUnstakeTransactions } from "./staking"
 
 const a = 2;
 
@@ -416,6 +417,70 @@ export class Client {
     )
   }
 
+  prepareStakeTransactions = async (stakingContractName: string, amount: number, address: string = undefined) => {
+    if (!address) {
+      address = this.userAddress
+    }
+    let stakingContract = this.getStakingContract(stakingContractName)
+    let assetId = stakingContract.getAsset().getUnderlyingAssetId()
+    return prepareStakeTransactions(
+      address, 
+      await this.getDefaultParams(), 
+      stakingContract.getStorageAddress(address),
+      amount, 
+      stakingContract.getManagerAppId(),
+      stakingContract.getMarketAppId(),
+      stakingContract.getMarketAddress(),
+      stakingContract.getOracleAppId(),
+      assetId > 1 ? assetId : undefined
+    )
+  }
+
+    prepareUnstakeTransactions = async (stakingContractName: string, amount: number, address: string = undefined) => {
+      if (!address) {
+        address = this.userAddress
+      }
+      let stakingContract = this.getStakingContract(stakingContractName)
+      let assetId = stakingContract.getAsset().getUnderlyingAssetId()
+      return prepareUnstakeTransactions(
+        address, 
+        await this.getDefaultParams(),
+        stakingContract.getStorageAddress(address),
+        amount, 
+        stakingContract.getManagerAppId(),
+        stakingContract.getMarketAppId(),
+        stakingContract.getOracleAppId(),
+        assetId > 1 ? assetId: undefined
+      )
+    }
+
+    prepareClaimStakingRewardsTransactions = async (stakingContractName: string, address: string = undefined) => {
+      if (!address) {
+        address = this.userAddress
+      }
+      let stakingContract = this.getStakingContract(stakingContractName)
+      let assetId = stakingContract.getAsset().getUnderlyingAssetId()
+      return prepareClaimStakingRewardsTransactions(
+        address, 
+        await this.getDefaultParams(),
+        stakingContract.getStorageAddress(address),
+        stakingContract.getManagerAppId(),
+        stakingContract.getMarketAppId(),
+        stakingContract.getOracleAppId(),
+        stakingContract.getRewardsProgram().getRewardsAssetIds()
+      )
+    }
+
+    submit = async (transactionGroup: Transaction[], wait: boolean = false) => {
+      try {
+        //I think we have to sign these first no?
+        let txid = await this.algodClient.sendRawTransaction(transactionGroup).do()
+      }
+    }
+
+
+
+  }
   
 
 
