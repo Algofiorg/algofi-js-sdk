@@ -36,13 +36,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.TransactionGroup = exports.getNewAccount = exports.getOrderedSymbols = exports.readGlobalState = exports.getInitRound = exports.getMarketAppId = exports.getStakingContracts = exports.getManagerAppId = exports.readLocalState = exports.searchGlobalState = exports.getGlobalState = exports.formatState = exports.signAndSubmitTransaction = exports.encodeVarint = exports.encodeValue = exports.get = void 0;
+exports.TransactionGroup = exports.intToBytes = exports.getNewAccount = exports.getOrderedSymbols = exports.readGlobalState = exports.getInitRound = exports.getMarketAppId = exports.getStakingContracts = exports.getManagerAppId = exports.readLocalState = exports.searchGlobalState = exports.getGlobalState = exports.formatState = exports.signAndSubmitTransaction = exports.encodeVarint = exports.encodeValue = exports.get = exports.Transactions = void 0;
 var encoder_1 = require("./extraUtils/encoder");
 var algosdk_1 = require("algosdk");
 var contracts_1 = require("./contracts");
+var algosdk_2 = require("algosdk");
+var Transactions;
+(function (Transactions) {
+    Transactions[Transactions["MINT"] = 1] = "MINT";
+    Transactions[Transactions["MINT_TO_COLLATERAL"] = 2] = "MINT_TO_COLLATERAL";
+    Transactions[Transactions["ADD_COLLATERAL"] = 3] = "ADD_COLLATERAL";
+    Transactions[Transactions["REMOVE_COLLATERAL"] = 4] = "REMOVE_COLLATERAL";
+    Transactions[Transactions["BURN"] = 5] = "BURN";
+    Transactions[Transactions["REMOVE_COLLATERAL_UNDERLYING"] = 6] = "REMOVE_COLLATERAL_UNDERLYING";
+    Transactions[Transactions["BORROW"] = 7] = "BORROW";
+    Transactions[Transactions["REPAY_BORROW"] = 8] = "REPAY_BORROW";
+    Transactions[Transactions["LIQUIDATE"] = 9] = "LIQUIDATE";
+    Transactions[Transactions["CLAIM_REWARDS"] = 10] = "CLAIM_REWARDS";
+})(Transactions = exports.Transactions || (exports.Transactions = {}));
 function get(object, key, default_value) {
     var result = object[key];
-    return (typeof result !== "undefined") ? result : default_value;
+    return typeof result !== "undefined" ? result : default_value;
 }
 exports.get = get;
 var toAscii = function (word) {
@@ -55,7 +69,7 @@ var toAscii = function (word) {
 // export const getProgram = (definition, variables = undefined) => {
 //   /**
 //    * Return a byte array to be used in LogicSig
-//    * 
+//    *
 //    * TODO: finish implementation of this function after convertin lambda functions
 //    * to js
 //   */
@@ -162,7 +176,7 @@ var readLocalState = function (client, address, app_id) { return __awaiter(void 
                 results = _a.sent();
                 for (local_state in results["apps-local-state"]) {
                     if (local_state["id"] === app_id) {
-                        if (!(local_state.includes('key-value'))) {
+                        if (!local_state.includes("key-value")) {
                             return [2 /*return*/, {}];
                         }
                     }
@@ -191,12 +205,8 @@ var waitForConfirmation = function (client, txId) {
                     return [4 /*yield*/, client.pendingTransactionInformation(txId)["do"]()];
                 case 3:
                     pendingInfo = _a.sent();
-                    if (pendingInfo["confirmed-round"] !== null &&
-                        pendingInfo["confirmed-round"] > 0) {
-                        console.log("Transaction " +
-                            txId +
-                            " confirmed in round " +
-                            pendingInfo["confirmed-round"]);
+                    if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
+                        console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"]);
                         return [3 /*break*/, 5];
                     }
                     lastround++;
@@ -270,8 +280,64 @@ var getNewAccount = function () {
     return [key, address, passphrase];
 };
 exports.getNewAccount = getNewAccount;
+function intToBytes(int) {
+    return;
+}
+exports.intToBytes = intToBytes;
 var TransactionGroup = /** @class */ (function () {
-    function TransactionGroup() {
+    function TransactionGroup(transactions) {
+        var _this = this;
+        //figure out how to notate types of privateKey
+        //Also address is not used so I took it out of the parameters
+        this.signWithPrivateKey = function (privateKey) {
+            for (var _i = 0, _a = Object.entries(_this.transactions); _i < _a.length; _i++) {
+                var _b = _a[_i], i = _b[0], txn = _b[1];
+                _this.signedTransactions[i] = txn.signTxn(privateKey);
+            }
+        };
+        this.signWithPrivateKeys = function (privateKeys) {
+            //do assertion assert(len(private_keys) == len(self.transactions))
+            for (var _i = 0, _a = Object.entries(_this.transactions); _i < _a.length; _i++) {
+                var _b = _a[_i], i = _b[0], txn = _b[1];
+                _this.signedTransactions[i] = txn.signTxn(privateKeys[i]);
+            }
+        };
+        this.submit = function (algod, wait) {
+            if (wait === void 0) { wait = false; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var txid, e_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, algod.sendRawTransaction(this.signedTransactions)["do"]()
+                                //Figure out catching and throwing errors as other aliases
+                            ];
+                        case 1:
+                            txid = _a.sent();
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_1 = _a.sent();
+                            throw new Error(e_1);
+                        case 3:
+                            if (wait) {
+                                return [2 /*return*/, waitForConfirmation(algod, txid)];
+                            }
+                            //formatter is saving this as txid:txid instead of "txid":txid
+                            return [2 /*return*/, {
+                                    txid: txid
+                                }];
+                    }
+                });
+            });
+        };
+        this.transactions = algosdk_2["default"].assignGroupID(transactions);
+        var signedTransactions = [];
+        for (var _i = 0, _a = this.transactions; _i < _a.length; _i++) {
+            var _ = _a[_i];
+            signedTransactions.push(undefined);
+        }
+        this.signedTransactions = signedTransactions;
     }
     return TransactionGroup;
 }());

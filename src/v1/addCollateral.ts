@@ -1,5 +1,5 @@
 import { Transactions, TransactionGroup } from "./utils"
-import algosdk, { SuggestedParams } from "algosdk"
+import { SuggestedParams, makeApplicationNoOpTxn, makeAssetTransferTxnWithSuggestedParams } from "algosdk"
 import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
@@ -27,11 +27,9 @@ export async function prepareAddCollateralTransactions(
     storageAccount
   )
 
-  let txn0 = algosdk.makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
-    enc.encode(managerStrings.add_collateral)
-  ])
+  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [enc.encode(managerStrings.add_collateral)])
 
-  let txn1 = algosdk.makeApplicationNoOpTxn(
+  let txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     marketAppId,
@@ -40,7 +38,7 @@ export async function prepareAddCollateralTransactions(
     [managerAppId]
   )
 
-  let txn2 = algosdk.makeAssetTransferTxnWithSuggestedParams(
+  let txn2 = makeAssetTransferTxnWithSuggestedParams(
     sender,
     marketAddress,
     undefined,

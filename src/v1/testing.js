@@ -41,11 +41,16 @@ var token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 var server = "http://localhost";
 var port = 4001;
 var client = new algosdk_1.Algodv2(token, server, port);
-var foo = function (address) { return __awaiter(void 0, void 0, void 0, function () {
+// const foo = async (address: string) => {
+//   const a = await client.accountInformation(address).do()
+//   console.log(a)
+// }
+// foo("HLTOSATJWLJSBPICJZPR5KBYNDNJ7S47SQCSRNNOBEEH7JGWUEQPZAIS44")
+var foo = function () { return __awaiter(void 0, void 0, void 0, function () {
     var a;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, client.accountInformation(address)["do"]()];
+            case 0: return [4 /*yield*/, client.getAssetByID(408947)["do"]()];
             case 1:
                 a = _a.sent();
                 console.log(a);
@@ -53,4 +58,4 @@ var foo = function (address) { return __awaiter(void 0, void 0, void 0, function
         }
     });
 }); };
-foo("HLTOSATJWLJSBPICJZPR5KBYNDNJ7S47SQCSRNNOBEEH7JGWUEQPZAIS44");
+foo();
