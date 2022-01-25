@@ -609,6 +609,46 @@ export class Client {
   }
 }
 
+
+/*
+************JAVASCRIPT************
+
+INDEXER
+
+const indexer_token = "";
+const indexer_server = "http://localhost";
+const indexer_port = 8980;
+
+const indexerClient = new algosdk.Indexer(indexer_token, indexer_server, indexer_port);
+
+
+CLIENT
+
+const algodToken = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+        const algodServer = 'http://localhost';
+        const algodPort = 4001;
+        let algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
+
+************PYTHON************
+
+INDEXER
+
+import json
+# requires Python SDK version 1.3 or higher
+from algosdk.v2client import indexer
+
+# instantiate indexer client
+myindexer = indexer.IndexerClient(indexer_token="", indexer_address="http://localhost:8980")
+
+
+CLIENT
+
+algod_address = "http://localhost:4001"
+    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    algod_client = algod.AlgodClient(algod_token, algod_address)
+
+*/
+
 export class AlgofiTestnetClient extends Client{
   constructor(algodClient : Algodv2, indexerClient : Indexer,  userAddress : string){
     let historicalIndexerClient = new Indexer("", "https://indexer.testnet.algoexplorerapi.io/", 8980, {"User-Agent":"algosdk"})
