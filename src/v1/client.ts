@@ -15,6 +15,8 @@ import { prepareMintToCollateralTransactions } from "./mintToCollateral"
 import { prepareRemoveCollateralUnderlyingTransactions } from "./removeCollateralUnderlying"
 import { prepareRemoveCollateralTransactions } from "./removeCollateral"
 import { prepareRepayBorrowTransactions } from "./repayBorrow"
+import IndexerClient from "algosdk/dist/types/src/client/v2/indexer/indexer"
+import AlgodClient from "algosdk/dist/types/src/client/v2/algod/algod"
 
 const a = 2;
 
@@ -606,3 +608,30 @@ export class Client {
     }
   }
 }
+
+export class AlgofiTestnetClient extends Client{
+  constructor(algodClient : Algodv2, indexerClient : Indexer,  userAddress : string){
+    let historicalIndexerClient = new Indexer("", "https://indexer.testnet.algoexplorerapi.io/", 8980, {"User-Agent":"algosdk"})
+    if (algodClient === undefined) {
+      let algodClient = new Algodv2("", "https://api.testnet.algoexplorer.io", 4001, {"User-Agent": "algosdk"})
+    }
+    if (indexerClient == undefined) {
+      let indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", 8980, {"User-Agent": "algosdk"})
+    }
+    super(algodClient, indexerClient, historicalIndexerClient, userAddress, "testnet")
+    }
+}
+
+export class AlgofiMainnetClient extends Client{
+  constructor(algodClient : Algodv2, indexerClient : Indexer,  userAddress : string){
+    let historicalIndexerClient = new Indexer("",  "https://indexer.algoexplorerapi.io/", 8980, {"User-Agent":"algosdk"})
+    if (algodClient === undefined) {
+      let algodClient = new Algodv2("", 'https://algoexplorerapi.io', 4001, {"User-Agent": "algosdk"})
+    }
+    if (indexerClient == undefined) {
+      let indexerClient = new Indexer("", "https://algoindexer.algoexplorerapi.io", 8980, {"User-Agent": "algosdk"})
+    }
+    super(algodClient, indexerClient, historicalIndexerClient, userAddress, "mainnet")
+    }
+}
+
