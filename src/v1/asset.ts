@@ -19,30 +19,38 @@ export class Asset {
     oraclePriceField: string = undefined,
     oraclePriceScaleFactor: number = undefined
   ) {
-    const asyncReturn: any = async () => {
-      this.algod = algodClient
+    this.algod = algodClient
 
-      // asset info
-      this.underlyingAssetId = underlyingAssetId
-      this.underlyingAssetInfo =
-        underlyingAssetId != 1 ? (await this.algod.getAssetByID(underlyingAssetId).do())["params"] : { decimals: 6 }
-      this.bankAssetId = bankAssetId
-      this.bankAssetInfo = (await this.algod.getAssetByID(bankAssetId).do())["params"]
+    // asset info
+    this.underlyingAssetId = underlyingAssetId
+    this.bankAssetId = bankAssetId
 
-      // oracle info
-      if (oracleAppId != undefined) {
-        if (oraclePriceField == undefined) {
-          throw Error("oracle price field must be specified")
-        } else if (oraclePriceScaleFactor == undefined) {
-          throw Error("oracle price scale factor must be specified")
-        }
+    // oracle info
+    if (oracleAppId != undefined) {
+      if (oraclePriceField == undefined) {
+        throw Error("oracle price field must be specified")
+      } else if (oraclePriceScaleFactor == undefined) {
+        throw Error("oracle price scale factor must be specified")
       }
-      this.oracleAppId = oracleAppId
-      this.oraclePriceField = oraclePriceField
-      this.oraclePriceScaleFactor = oraclePriceScaleFactor
-      return this
     }
-    return asyncReturn()
+    this.oracleAppId = oracleAppId
+    this.oraclePriceField = oraclePriceField
+    this.oraclePriceScaleFactor = oraclePriceScaleFactor
+  }
+  static async init(
+    algodClient: Algodv2,
+    underlyingAssetId: number,
+    bankAssetId: number,
+    oracleAppId: number = undefined,
+    oraclePriceField: string = undefined
+  ) {
+    console.log("INIT IN ASSET.TS")
+    let asset = new Asset(algodClient, underlyingAssetId, bankAssetId, oracleAppId, oraclePriceField)
+    asset.underlyingAssetInfo =
+      underlyingAssetId != 1 ? (await asset.algod.getAssetByID(underlyingAssetId).do())["params"] : { decimals: 6 }
+    asset.bankAssetId = bankAssetId
+    asset.bankAssetInfo = (await asset.algod.getAssetByID(bankAssetId).do())["params"]
+    return asset
   }
 
   getUnderlyingAssetId() {

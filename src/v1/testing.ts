@@ -1,4 +1,4 @@
-import algosdk, { Algodv2 } from "algosdk"
+import { Algodv2 } from "algosdk"
 // const token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 // const server = "http://localhost"
 // const port = 4001
@@ -18,9 +18,20 @@ import algosdk, { Algodv2 } from "algosdk"
 
 // foo()
 
-const token = ""
-const server = "http://localhost"
-const port = 8980
-const indexerClient = new algosdk.Indexer(token, server, port)
+// const token = ""
+// const server = "http://localhost"
+// const port = 8980
+// const indexerClient = new algosdk.Indexer(token, server, port)
 
-indexerClient.lookupApplications()
+// indexerClient.lookupApplications()
+
+// async function foo() {
+//   let algodClient = new Algodv2(
+//     "ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff",
+//     "https://node.chainvault.io/test",
+//     ""
+//   )
+//   console.log(await algodClient.status().do())
+// }
+
+// foo()

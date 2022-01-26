@@ -14,6 +14,7 @@ export function prepareClaimRewardsTransactions(
   supportedOracleAppIds: number[],
   foreignAssets: number[]
 ) {
+  console.log("PREPARE CLAIM REWARDS TRANSACTIONS IN CLAIMREWARDS.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.CLAIM_REWARDS,
     sender,

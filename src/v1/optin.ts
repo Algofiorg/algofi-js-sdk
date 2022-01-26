@@ -15,6 +15,7 @@ export function prepareManagerAppOptinTransactions(
   storageAddress: string,
   suggestedParams: SuggestedParams
 ): TransactionGroup {
+  console.log("PREPARE MANAGER APP OPTIN TRANSACTIONS IN OPTIN.TS\n")
   let txnPayment = makePaymentTxnWithSuggestedParams(
     sender,
     storageAddress,
@@ -55,6 +56,7 @@ export function prepareManagerAppOptinTransactions(
 //Do I really have to add a random note here?
 export function prepareMarketAppOptinTransactions(
   marketAppId: number,
+  sender: string,
   suggestedParams: SuggestedParams
 ): TransactionGroup {
   return new TransactionGroup([makeApplicationOptInTxn(sender, suggestedParams, marketAppId)])

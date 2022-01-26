@@ -23,6 +23,7 @@ export function prepareMintToCollateralTransactions(
   supportedOracleAppIds: number[],
   assetId: number = undefined
 ): TransactionGroup {
+  console.log("PREPARE MINT TO COLLATERAL TRANSACTIONS IN MINTTOCOLLATERAL.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.MINT_TO_COLLATERAL,
     sender,
@@ -43,8 +44,7 @@ export function prepareMintToCollateralTransactions(
     marketAppId,
     [enc.encode(managerStrings.mint_to_collateral)],
     [storageAccount],
-    [managerAppId],
-    [bankAssetId]
+    [managerAppId]
   )
 
   let txn2: Transaction

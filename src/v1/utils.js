@@ -36,8 +36,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.TransactionGroup = exports.intToBytes = exports.getNewAccount = exports.getOrderedSymbols = exports.readGlobalState = exports.getInitRound = exports.getMarketAppId = exports.getStakingContracts = exports.getManagerAppId = exports.readLocalState = exports.searchGlobalState = exports.getGlobalState = exports.formatState = exports.signAndSubmitTransaction = exports.encodeVarint = exports.encodeValue = exports.get = exports.Transactions = void 0;
-var encoder_1 = require("./extraUtils/encoder");
+exports.TransactionGroup = exports.intToBytes = exports.getNewAccount = exports.getOrderedSymbols = exports.readGlobalState = exports.getInitRound = exports.getMarketAppId = exports.getStakingContracts = exports.getManagerAppId = exports.readLocalState = exports.searchGlobalState = exports.getGlobalState = exports.formatState = exports.signAndSubmitTransaction = exports.encodeVarint = exports.encodeValue = exports.getProgram = exports.toAscii = exports.get = exports.Transactions = void 0;
+var encode_1 = require("./encode");
 var algosdk_1 = require("algosdk");
 var contracts_1 = require("./contracts");
 var algosdk_2 = require("algosdk");
@@ -55,36 +55,38 @@ var Transactions;
     Transactions[Transactions["CLAIM_REWARDS"] = 10] = "CLAIM_REWARDS";
 })(Transactions = exports.Transactions || (exports.Transactions = {}));
 function get(object, key, default_value) {
+    console.log("GET IN UTILS.TS\n");
     var result = object[key];
     return typeof result !== "undefined" ? result : default_value;
 }
 exports.get = get;
-var toAscii = function (word) {
+function toAscii(word) {
+    console.log("TO ASCII IN UTILS.TS\n");
     var temp = [];
     for (var i = 0; i < word.length; i++) {
         temp.push(word.charCodeAt(i));
     }
     return temp;
-};
-// export const getProgram = (definition, variables = undefined) => {
-//   /**
-//    * Return a byte array to be used in LogicSig
-//    *
-//    * TODO: finish implementation of this function after convertin lambda functions
-//    * to js
-//   */
-//  let template = definition['bytecode'];
-//  let templateBytes = toAscii(template);
-//  let offset = 0;
-// }
-var encodeValue = function (value, type) {
+}
+exports.toAscii = toAscii;
+function getProgram(definition, variables) {
+    if (variables === void 0) { variables = undefined; }
+    console.log("GET PROGRAM IN UTILS.TS\n");
+    var template = definition["bytecode"];
+    var templateBytes = toAscii(template);
+    var offset = 0;
+}
+exports.getProgram = getProgram;
+function encodeValue(value, type) {
+    console.log("ENCODE VALUE IN UTILS.TS\n");
     if (type === "int") {
         return (0, exports.encodeVarint)(value);
     }
     throw new Error("Unsupported value type ".concat(type));
-};
+}
 exports.encodeValue = encodeValue;
 var encodeVarint = function (number) {
+    console.log("ENCODE VARINT IN UTILS.TS\n");
     /**
      * TOOD: figure out byte logic in javascript
      */
@@ -96,6 +98,7 @@ var signAndSubmitTransaction = function (client, transactions, signedTransaction
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
+                console.log("SIGN AND SUBMIT TRANSACTION IN UTILS.TS");
                 for (_i = 0, _a = transactions.entries(); _i < _a.length; _i++) {
                     _b = _a[_i], i = _b[0], txn = _b[1];
                     if (txn.sender === sender) {
@@ -110,7 +113,9 @@ var signAndSubmitTransaction = function (client, transactions, signedTransaction
     });
 }); };
 exports.signAndSubmitTransaction = signAndSubmitTransaction;
-var formatState = function (state) {
+function formatState(state) {
+    console.log("FORMAT STATE IN UTILS.TS\n");
+    // console.log("FORMAT STATE IN UTILS.TS")
     var formatted = {};
     for (var _i = 0, state_1 = state; _i < state_1.length; _i++) {
         var item = state_1[_i];
@@ -119,10 +124,10 @@ var formatState = function (state) {
         var formattedKey = void 0;
         var formattedValue = void 0;
         try {
-            formattedKey = encoder_1.Base64Encoder.decode(key);
+            formattedKey = encode_1.Base64Encoder.decode(key);
             if (value["type"] == 1) {
                 // note -- this doesn't exactly match functionality of the python impl.
-                formattedValue = encoder_1.Base64Encoder.decode(value["bytes"]);
+                formattedValue = encode_1.Base64Encoder.decode(value["bytes"]);
             }
             else {
                 formattedValue = value["uint"];
@@ -131,29 +136,31 @@ var formatState = function (state) {
         }
         catch (err) { }
     }
+    // console.log(formatted)
     return formatted;
-};
+}
 exports.formatState = formatState;
 var getGlobalState = function (algodClient, appId) { return __awaiter(void 0, void 0, void 0, function () {
-    var stateDict, _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var application, stateDict;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
             case 0:
-                _a = exports.formatState;
+                console.log("GET GLOBAL STATE IN UTILS.TS\n");
                 return [4 /*yield*/, algodClient.getApplicationByID(appId)["do"]()];
-            case 1: return [4 /*yield*/, _a.apply(void 0, [(_b.sent())["params"]["global-state"]])];
-            case 2:
-                stateDict = _b.sent();
+            case 1:
+                application = _a.sent();
+                stateDict = formatState(application["params"]["global-state"]);
                 return [2 /*return*/, stateDict];
         }
     });
 }); };
 exports.getGlobalState = getGlobalState;
 var searchGlobalState = function (globalState, searchKey) {
+    console.log("SEARCH GLOBAL STATE IN UTILS.TS");
     var value;
     for (var _i = 0, globalState_1 = globalState; _i < globalState_1.length; _i++) {
         var entry = globalState_1[_i];
-        var decodedKey = encoder_1.Base64Encoder.decode(entry.key);
+        var decodedKey = encode_1.Base64Encoder.decode(entry.key);
         if (decodedKey === searchKey) {
             if (entry.value.type == 2) {
                 value = entry.value.uint;
@@ -167,18 +174,22 @@ var searchGlobalState = function (globalState, searchKey) {
 };
 exports.searchGlobalState = searchGlobalState;
 //Figure out if we are returning the same file as the python sdk
-var readLocalState = function (client, address, app_id) { return __awaiter(void 0, void 0, void 0, function () {
-    var results, local_state;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, client.accountInformation(address)["do"]()];
+var readLocalState = function (client, address, appId) { return __awaiter(void 0, void 0, void 0, function () {
+    var results, _i, _a, localState;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                console.log("READ LOCAL STATE IN UTILS.TS");
+                return [4 /*yield*/, client.accountInformation(address)["do"]()];
             case 1:
-                results = _a.sent();
-                for (local_state in results["apps-local-state"]) {
-                    if (local_state["id"] === app_id) {
-                        if (!local_state.includes("key-value")) {
+                results = _b.sent();
+                for (_i = 0, _a = results["apps-local-state"]; _i < _a.length; _i++) {
+                    localState = _a[_i];
+                    if (localState["id"] === appId) {
+                        if (!Object.keys(localState).includes("key-value")) {
                             return [2 /*return*/, {}];
                         }
+                        return [2 /*return*/, formatState(localState["key-value"])];
                     }
                 }
                 return [2 /*return*/, {}];
@@ -187,6 +198,7 @@ var readLocalState = function (client, address, app_id) { return __awaiter(void 
 }); };
 exports.readLocalState = readLocalState;
 var getManagerAppId = function (chain) {
+    console.log("GET MANAGER APP ID IN UTILS.TS\n");
     return contracts_1.contracts[chain]["managerAppId"];
 };
 exports.getManagerAppId = getManagerAppId;
@@ -195,7 +207,9 @@ var waitForConfirmation = function (client, txId) {
         var response, lastround, pendingInfo;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, client.status()["do"]()];
+                case 0:
+                    console.log("WAIT FOR CONFIRMATION IN UTILS.TS");
+                    return [4 /*yield*/, client.status()["do"]()];
                 case 1:
                     response = _a.sent();
                     lastround = response["last-round"];
@@ -220,14 +234,17 @@ var waitForConfirmation = function (client, txId) {
     });
 };
 var getStakingContracts = function (chain) {
+    console.log("GET STAKING CONTRACTS IN UTILS.TS\n");
     return contracts_1.contracts[chain]["STAKING_CONTRACTS"];
 };
 exports.getStakingContracts = getStakingContracts;
 var getMarketAppId = function (chain, symbol) {
+    console.log("GET MARKET APP ID IN UTILS.TS\n");
     return contracts_1.contracts[chain]["SYMBOL_INFO"][symbol]["marketAppId"];
 };
 exports.getMarketAppId = getMarketAppId;
 var getInitRound = function (chain) {
+    console.log("GET INIT ROUND IN UTILS.TS\n");
     return contracts_1.contracts[chain]["initRound"];
 };
 exports.getInitRound = getInitRound;
@@ -235,14 +252,16 @@ var readGlobalState = function (client, address, appId) { return __awaiter(void 
     var results, appsCreated, _i, appsCreated_1, app;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, client.accountInformation(address)["do"]()];
+            case 0:
+                console.log("READ GLOBAL STATE IN UTILS.TS");
+                return [4 /*yield*/, client.accountInformation(address)["do"]()];
             case 1:
                 results = _a.sent();
                 appsCreated = results["created-apps"];
                 for (_i = 0, appsCreated_1 = appsCreated; _i < appsCreated_1.length; _i++) {
                     app = appsCreated_1[_i];
                     if (app["id"] === appId) {
-                        return [2 /*return*/, (0, exports.formatState)(app["params"]["global-state"])];
+                        return [2 /*return*/, formatState(app["params"]["global-state"])];
                     }
                 }
                 return [2 /*return*/, {}];
@@ -253,6 +272,7 @@ exports.readGlobalState = readGlobalState;
 var getOrderedSymbols = function (chain, max, maxAtomicOptIn) {
     if (max === void 0) { max = false; }
     if (maxAtomicOptIn === void 0) { maxAtomicOptIn = false; }
+    console.log("GET ORDERED SYMBOLS IN UTILS.TS\n");
     var supportedMarketCount;
     if (max) {
         supportedMarketCount = contracts_1.contracts["maxMarketCount"];
@@ -263,16 +283,18 @@ var getOrderedSymbols = function (chain, max, maxAtomicOptIn) {
     else {
         supportedMarketCount = contracts_1.contracts["supportedMarketCount"];
     }
-    return contracts_1.contracts["SYMBOLS"].slice(0, supportedMarketCount);
+    // console.log(supportedMarketCount)
+    return contracts_1.contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount);
 };
 exports.getOrderedSymbols = getOrderedSymbols;
 // //Do we not need client to get the reccomended parameters?
 // export const preparePaymentTransaction = async (sender : string, suggestedParams, receiver : string, amount : number, rekeyTo = undefined) => {
 //   let params = await client.getTransactionParams().do();
-//   let txn = algosdk.makePaymentTxnWithSuggestedParams(sender, receiver, amount, undefined, undefined, params);
+//   let txn = makePaymentTxnWithSuggestedParams(sender, receiver, amount, undefined, undefined, params);
 //   return;
 // }
 var getNewAccount = function () {
+    console.log("GET NEW ACCOUNT IN UTILS.TS");
     var newAccount = (0, algosdk_1.generateAccount)();
     var key = newAccount.sk;
     var address = newAccount.addr;
@@ -281,7 +303,8 @@ var getNewAccount = function () {
 };
 exports.getNewAccount = getNewAccount;
 function intToBytes(int) {
-    return;
+    console.log("INT TO BYTES IN UTILS.TS");
+    return (0, algosdk_1.encodeUint64)(int);
 }
 exports.intToBytes = intToBytes;
 var TransactionGroup = /** @class */ (function () {
@@ -290,12 +313,14 @@ var TransactionGroup = /** @class */ (function () {
         //figure out how to notate types of privateKey
         //Also address is not used so I took it out of the parameters
         this.signWithPrivateKey = function (privateKey) {
+            console.log("SIGN WITH PRIVATE KEY IN UTILS.TS");
             for (var _i = 0, _a = Object.entries(_this.transactions); _i < _a.length; _i++) {
                 var _b = _a[_i], i = _b[0], txn = _b[1];
                 _this.signedTransactions[i] = txn.signTxn(privateKey);
             }
         };
         this.signWithPrivateKeys = function (privateKeys) {
+            console.log("SIGN WITH PRIVATE KEYS IN UTILS.TS");
             //do assertion assert(len(private_keys) == len(self.transactions))
             for (var _i = 0, _a = Object.entries(_this.transactions); _i < _a.length; _i++) {
                 var _b = _a[_i], i = _b[0], txn = _b[1];
@@ -309,17 +334,20 @@ var TransactionGroup = /** @class */ (function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            _a.trys.push([0, 2, , 3]);
+                            console.log("SUBMIT IN UTILS.TS");
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 3, , 4]);
                             return [4 /*yield*/, algod.sendRawTransaction(this.signedTransactions)["do"]()
                                 //Figure out catching and throwing errors as other aliases
                             ];
-                        case 1:
-                            txid = _a.sent();
-                            return [3 /*break*/, 3];
                         case 2:
+                            txid = _a.sent();
+                            return [3 /*break*/, 4];
+                        case 3:
                             e_1 = _a.sent();
                             throw new Error(e_1);
-                        case 3:
+                        case 4:
                             if (wait) {
                                 return [2 /*return*/, waitForConfirmation(algod, txid)];
                             }
@@ -331,7 +359,8 @@ var TransactionGroup = /** @class */ (function () {
                 });
             });
         };
-        this.transactions = algosdk_2["default"].assignGroupID(transactions);
+        console.log("CONSTRUCTOR TRANSACTION GROUP IN UTILS.TS");
+        this.transactions = (0, algosdk_2.assignGroupID)(transactions);
         var signedTransactions = [];
         for (var _i = 0, _a = this.transactions; _i < _a.length; _i++) {
             var _ = _a[_i];

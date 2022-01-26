@@ -24,6 +24,7 @@ export function prepareMintTransactions(
   supportedOracleAppIds: number[],
   assetId: number = undefined
 ): TransactionGroup {
+  console.log("PREPARE MINT TRANSACTIONS IN MINT.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.MINT,
     sender,

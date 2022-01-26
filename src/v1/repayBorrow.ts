@@ -23,6 +23,7 @@ export function prepareRepayBorrowTransactions(
   supportedOracleAppIds: number[],
   assetId: number = undefined
 ): TransactionGroup {
+  console.log("PREPARE REPAY BORROW TRANSACTIONS IN REPAYBORROW.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.REPAY_BORROW,
     sender,

@@ -3,7 +3,7 @@ import { SuggestedParams, makeApplicationNoOpTxn, makeAssetTransferTxnWithSugges
 import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
-let enc = new TextEncoder()
+const enc = new TextEncoder()
 
 export function prepareAddCollateralTransactions(
   sender: string,
@@ -17,6 +17,7 @@ export function prepareAddCollateralTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
+  console.log("PREPARE ADD COLLATERAL TRANSACTIONS IN ADDCOLLATERAL.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.ADD_COLLATERAL,
     sender,

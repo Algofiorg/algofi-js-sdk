@@ -18,6 +18,7 @@ export function prepareBurnTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
+  console.log("PREPARE BURN TRANSACTIONS IN BURN.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.BURN,
     sender,

@@ -27,6 +27,7 @@ export function getInitTxns(
   supportedOracleAppIds: number[],
   storageAccount: string
 ) {
+  console.log("GET INIT TXNS IN PREPEND.TS\n")
   //We need to do a deep copy here, here it is just a shallow copy
   let suggestedParamsModified = suggestedParams
   let listTxnTypes = [

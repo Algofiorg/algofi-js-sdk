@@ -17,6 +17,7 @@ export class RewardsProgram {
   rewardsSecondaryAssetId: any
 
   constructor(algodClient: algosdk.Algodv2, managerState: any) {
+    console.log("CONSTRUCTOR IN REWARDSPROGRAM.TS\n")
     this.algod = algodClient
     this.latestRewardsTime = get(managerState, managerStrings.latest_rewards_time, 0)
     this.rewardsProgramNumber = get(managerState, managerStrings.n_rewards_programs, 0)
@@ -30,6 +31,7 @@ export class RewardsProgram {
   //Getters
 
   getRewardsAssetIds() {
+    console.log("GET REWARDS ASSET IDS IN REWARDSPROGRAM.TS\n")
     const result = []
     if (this.rewardsAssetId > 1) {
       result.push(this.rewardsAssetId)
@@ -40,28 +42,36 @@ export class RewardsProgram {
     return result
   }
   getLatestRewardsTime() {
+    console.log("GET LATEST REWARDS TIME IN REWARDSPROGRAM.TS\n")
     return this.latestRewardsTime
   }
   getRewardsProgramNumber() {
+    console.log("GET REWARDS PROGRAM NUMBER IN REWARDSPROGRAM.TS\n")
     return this.rewardsProgramNumber
   }
   getRewardsAmount() {
+    console.log("GET REWARDS AMOUNT IN REWARDSPROGRAM.TS\n")
     return this.rewardsAmount
   }
   getRewardsPerSecond() {
+    console.log("GET REWARDS PER SECOND IN REWARDSPROGRAM.TS\n")
     return this.rewardsPerSecond
   }
   getRewardsAssetId() {
+    console.log("GET REWARDS ASSET ID IN REWARDSPROGRAM.TS\n")
     return this.rewardsAssetId
   }
   getRewardsSecondaryRatio() {
+    console.log("GET REWARDS SECONDARY RATIO IN REWARDSPROGRAM.TS\n")
     return this.rewardsSecondaryRatio
   }
   getRewardsSecondaryAssetId() {
+    console.log("GET REWARDS SECONDARY ASSET ID IN REWARDSPROGRAM.TS\n")
     return this.rewardsSecondaryAssetId
   }
 
   async getStorageUnrealizedRewards(storageAddress: string, manager: Manager, markets: Market[]) {
+    console.log("GET STORAGE UNREALIZED REWARDS IN REWARDSPROGRAM.TS\n")
     let managerState = getGlobalState(this.algod, manager.getManagerAppId())
     let managerStorageState = readLocalState(this.algod, storageAddress, manager.getManagerAppId())
     let onCurrentProgram =

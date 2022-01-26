@@ -1,5 +1,5 @@
 import { makeApplicationNoOpTxn, SuggestedParams } from "algosdk"
-import { TransactionGroup, Transactions } from "./utils"
+import { TransactionGroup, Transactions, intToBytes } from "./utils"
 import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
@@ -16,6 +16,7 @@ export function prepareRemoveCollateralTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
+  console.log("PREPARE REMOVE COLLATERAL TRANSACTIONS IN REMOVECOLLATERAL.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.REMOVE_COLLATERAL,
     sender,
@@ -28,7 +29,7 @@ export function prepareRemoveCollateralTransactions(
   //figure out int_to_bytes
   let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
     enc.encode(managerStrings.remove_collateral),
-    inToBytes(amount)
+    intToBytes(amount)
   ])
   let txn1 = makeApplicationNoOpTxn(
     sender,

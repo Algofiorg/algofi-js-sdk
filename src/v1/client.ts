@@ -1,12 +1,21 @@
-import { Algodv2, Indexer, Transaction } from "algosdk"
-import { getInitRound, getOrderedSymbols, getManagerAppId, getMarketAppId, getStakingContracts, get, TransactionGroup } from "./utils"
+import { Algodv2, Indexer, waitForConfirmation } from "algosdk"
+import {
+  getInitRound,
+  getOrderedSymbols,
+  getManagerAppId,
+  getMarketAppId,
+  getStakingContracts,
+  get,
+  TransactionGroup
+} from "./utils"
 import { Manager } from "./manager"
 import { Market } from "./market"
 import { StakingContract } from "./stakingContract"
 import { prepareManagerAppOptinTransactions } from "./optin"
 import { prepareAddCollateralTransactions } from "./addCollateral"
 import { prepareLiquidateTransactions } from "./liquidate"
-import { prepareClaimStakingRewardsTransactions, prepareStakeTransactions, prepareStakingContractOptinTransactions, prepareUnstakeTransactions } from "./staking"
+import { Asset } from "./asset"
+import { prepareClaimStakingRewardsTransactions, prepareStakeTransactions, prepareUnstakeTransactions } from "./staking"
 import { prepareBorrowTransactions } from "./borrow"
 import { prepareBurnTransactions } from "./burn"
 import { prepareClaimRewardsTransactions } from "./claimRewards"
@@ -15,25 +24,21 @@ import { prepareMintToCollateralTransactions } from "./mintToCollateral"
 import { prepareRemoveCollateralUnderlyingTransactions } from "./removeCollateralUnderlying"
 import { prepareRemoveCollateralTransactions } from "./removeCollateral"
 import { prepareRepayBorrowTransactions } from "./repayBorrow"
-import IndexerClient from "algosdk/dist/types/src/client/v2/indexer/indexer"
-import AlgodClient from "algosdk/dist/types/src/client/v2/algod/algod"
-
-const a = 2;
 
 export interface Markets {
-  [key: string] : Market;
+  [key: string]: Market
 }
 
 export interface StringToNum {
-  [key : string]: number;
+  [key: string]: number
 }
 
 export interface StakingContractInfo {
-  [key : string]: StringToNum;
+  [key: string]: StringToNum
 }
 
 export interface StakingContracts {
-  [key : string]: StakingContract;
+  [key: string]: StakingContract
 }
 
 export class Client {
@@ -54,39 +59,40 @@ export class Client {
   stakingContractInfo: StakingContractInfo
   stakingContracts: StakingContracts
 
-  constructor(algodClient : Algodv2, indexerClient : Indexer, historicalIndexerClient : Indexer, userAddress : string, chain : string) {
+  constructor(
+    algodClient: Algodv2,
+    indexerClient: Indexer,
+    historicalIndexerClient: Indexer,
+    userAddress: string,
+    chain: string
+  ) {
+    console.log("CONSTRUCTOR IN CLIENT.TS\n")
     // constants
-    this.SCALE_FACTOR = 1e9;
-    this.BORROW_SHARES_INIT = 1e3;
-    this.PARAMETER_SCALE_FACTOR = 1e3;
+    this.SCALE_FACTOR = 1e9
+    this.BORROW_SHARES_INIT = 1e3
+    this.PARAMETER_SCALE_FACTOR = 1e3
 
     // clients info
-    this.algodClient = algodClient;
-    this.indexerClient = indexerClient;
-    this.historicalIndexerClient = historicalIndexerClient;
-    this.chain = chain;
+    this.algodClient = algodClient
+    this.indexerClient = indexerClient
+    this.historicalIndexerClient = historicalIndexerClient
+    this.chain = chain
 
     // user info
-    this.userAddress = userAddress;
+    this.userAddress = userAddress
 
-    this.initRound = getInitRound(this.chain);
-    this.activeOrderedSymbols = getOrderedSymbols(this.chain);
-    this.maxOrderedSymbols = getOrderedSymbols(this.chain, true);
-    this.maxAtomicOptInOrderedSymbols = getOrderedSymbols(this.chain, _, true);
+    this.initRound = getInitRound(this.chain)
+    this.activeOrderedSymbols = getOrderedSymbols(this.chain)
+    this.maxOrderedSymbols = getOrderedSymbols(this.chain, true)
+    this.maxAtomicOptInOrderedSymbols = getOrderedSymbols(this.chain, undefined, true)
 
     // manager info
-    this.manager = new Manager(this.algodClient, getManagerAppId(this.chain)); 
-
-    // market info
-    this.markets = {};
-    for (let symbol of this.maxOrderedSymbols) {
-      this.markets[symbol] = new Market(this.algodClient, this.historicalIndexerClient, getMarketAppId(this.chain, symbol));
-    }
+    this.manager = new Manager(this.algodClient, getManagerAppId(this.chain))
 
     // staking contract info
-    this.stakingContractInfo = getStakingContracts(this.chain);
-    this.stakingContracts = {};
-    for (let [nam, _] of Object.entries(this.stakingContractInfo)) {
+    this.stakingContractInfo = getStakingContracts(this.chain)
+    this.stakingContracts = {}
+    for (let nam of Object.keys(this.stakingContractInfo)) {
       //Need to figure out what stakingcontractinfo is really supposed to look like
       //this.stakingContracts[nam] = new StakingContract(this.algodClient, this.historicalIndexerClient, this.stakingContractInfo["mainnet"][nam]);
     }
@@ -94,263 +100,312 @@ export class Client {
     // this.staking_contracts = {name : StakingContract(this.algodClient, this.historicalIndexerClient, this.staking_contract_info[name]) for name in this.staking_contract_info.keys()}
   }
 
-  async getDefaultParams (){
-    let params = await this.algodClient.getTransactionParams().do();
-    params.fee = 1000;
-    params.flatFee = true;
+  static async init(
+    algodClient: Algodv2,
+    indexerClient: Indexer,
+    historicalIndexerClient: Indexer,
+    userAddress: string,
+    chain: string
+  ) {
+    console.log("INIT IN CLIENT.TS\n")
+    let client = new Client(algodClient, indexerClient, historicalIndexerClient, userAddress, chain)
+    client.markets = {}
+    for (let symbol of client.maxOrderedSymbols) {
+      client.markets[symbol] = await Market.init(
+        algodClient,
+        historicalIndexerClient,
+        getMarketAppId(client.chain, symbol)
+      )
+    }
+    return client
+  }
+
+  async getDefaultParams() {
+    console.log("GET DEFAULT PARAMS IN CLIENT.TS\n")
+    let params = await this.algodClient.getTransactionParams().do()
+    params.fee = 1000
+    params.flatFee = true
     return params
   }
 
-  async getUserInfo (address : string = undefined) {
-    if (!address){ 
-      address = this.userAddress;
+  async getUserInfo(address: string = undefined) {
+    console.log("GET USER INFO IN CLIENT.TS\n")
+    if (!address) {
+      address = this.userAddress
     }
-    if (address){
-      return await this.algodClient.accountInformation(address).do();
-    }
-    else{
-      throw new Error("user_address has not been specified");
+    if (address) {
+      return await this.algodClient.accountInformation(address).do()
+    } else {
+      throw new Error("user_address has not been specified")
     }
   }
 
-  async isOptedIntoApp (appId : number, address : string = undefined) {
+  async isOptedIntoApp(appId: number, address: string = undefined) {
+    console.log("IS OPTED INTO APP IN CLIENT.TS\n")
     if (!address) {
-      address = this.userAddress;
+      address = this.userAddress
     }
-    let userInfo = await this.getUserInfo(address);
-    let appsLocalState = [];
-    for (let x of userInfo["apps-local-state"]){
+    let userInfo = await this.getUserInfo(address)
+    let appsLocalState = []
+    for (let x of userInfo["apps-local-state"]) {
       appsLocalState.push(x["id"])
     }
     return appsLocalState.includes(appId)
   }
 
-  async isOptedIntoAsset (assetId : number, address : string = undefined) {
-    if (!address){
-      address = this.userAddress;
-    }
-    let userInfo = await this.getUserInfo(address);
-    let assets = [];
-    for (let x of userInfo["assets"]){
-      assets.push(x["asset-id"]);
-    }
-    return assets.includes(assetId);
-  }
-
-  async getUserBalances (address : string = undefined) {
+  async isOptedIntoAsset(assetId: number, address: string = undefined) {
+    console.log("IS OPTED INTO ASSET IN CLIENT.TS\n")
     if (!address) {
-      address  = this.userAddress;
+      address = this.userAddress
     }
-    let userInfo = await this.getUserInfo(address);
-    let balances = {};
-    for (let asset of userInfo["assets"]){
-      balances[asset["asset-id"]] = asset["amount"];
+    let userInfo = await this.getUserInfo(address)
+    let assets = []
+    for (let x of userInfo["assets"]) {
+      assets.push(x["asset-id"])
     }
-    balances[1] = userInfo["amount"];
-    return balances;
+    return assets.includes(assetId)
   }
 
-  async getUserBalance (assetId : number = 1, address : string = undefined) {
+  async getUserBalances(address: string = undefined) {
+    console.log("GET USER BALANCES IN CLIENT.TS\n")
+    if (!address) {
+      address = this.userAddress
+    }
+    let userInfo = await this.getUserInfo(address)
+    let balances = {}
+    for (let asset of userInfo["assets"]) {
+      balances[asset["asset-id"]] = asset["amount"]
+    }
+    balances[1] = userInfo["amount"]
+    return balances
+  }
+
+  async getUserBalance(assetId: number = 1, address: string = undefined) {
+    console.log("GET USER BALANCE IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let userBalances = await this.getUserBalances(address)
-    return get(userBalances, assetId, 0);
+    return get(userBalances, assetId, 0)
   }
 
-  getUserState (address : string = undefined)  {
-    let result = {};
-    if (!address) {
-      address = this.userAddress;
-    }
-    result["manager"] = this.manager.getUserState(address);
-    let storageAddress = this.manager.getStorageAddress(address);
-
-    for (let symbol in this.activeOrderedSymbols){
-      result[symbol] = this.markets[symbol].getStorageState(storageAddress);
-    }
-    return result;
-  }
-
-  async getStorageState (storageAddress : string = undefined) {
-    let result = {};
-    if (!storageAddress){
-      storageAddress = this.manager.getStorageAddress(this.userAddress);
-    }
-    result["manager"] = this.manager.getStorageState(storageAddress);
-    for (let symbol of this.activeOrderedSymbols){
-      result[symbol] = this.markets[symbol].getStorageState(storageAddress);
-    }
-    return result;
-  }
-
-  async getUserStakingContractState (stakingContractName : string, address : string = undefined) {
-    let result = {};
+  async getUserState(address: string = undefined) {
+    console.log("GET USER STATE IN CLIENT.TS\n")
+    let result = {}
     if (!address) {
       address = this.userAddress
     }
-    return this.stakingContracts[stakingContractName].getUserState(address);
+    result["manager"] = await this.manager.getUserState(address)
+    let storageAddress = await this.manager.getStorageAddress(address)
+
+    for (let symbol in this.activeOrderedSymbols) {
+      result[symbol] = this.markets[symbol].getStorageState(storageAddress)
+    }
+    return result
+  }
+
+  async getStorageState(storageAddress: string = undefined) {
+    console.log("GET STORAGE STATE IN CLIENT.TS\n")
+    let result = {}
+    if (!storageAddress) {
+      storageAddress = await this.manager.getStorageAddress(this.userAddress)
+    }
+    result["manager"] = this.manager.getStorageState(storageAddress)
+    for (let symbol of this.activeOrderedSymbols) {
+      result[symbol] = this.markets[symbol].getStorageState(storageAddress)
+    }
+    return result
+  }
+
+  async getUserStakingContractState(stakingContractName: string, address: string = undefined) {
+    console.log("GET USER STAKING CONTRACT STATE IN CLIENT.TS\n")
+    let result = {}
+    if (!address) {
+      address = this.userAddress
+    }
+    return this.stakingContracts[stakingContractName].getUserState(address)
   }
 
   // GETTERS
 
-  getManager () {
-    return this.manager;
+  getManager() {
+    console.log("GET MANAGER IN CLIENT.TS\n")
+    return this.manager
   }
 
-  getMarket (symbol : string) {
-    return this.markets[symbol];
+  getMarket(symbol: string): Market {
+    console.log("GET MARKET IN CLIENT.TS\n")
+    return this.markets[symbol]
   }
 
-  getActiveMarkets() {
+  getActiveMarkets(): Markets {
+    console.log("GET ACTIVE MARKETS IN CLIENT.TS\n")
     let temp = {}
-    for (let [key, value] of Object.entries(this.markets)){
-      if (this.activeOrderedSymbols.includes(key)){
+    for (let [key, value] of Object.entries(this.markets)) {
+      if (this.activeOrderedSymbols.includes(key)) {
         temp[key] = value
       }
     }
     return temp
   }
 
-  getStakingContract (nam : string) {
-    return this.stakingContracts[nam];
+  getStakingContract(nam: string) {
+    console.log("GET STAKING CONTRACT IN CLIENT.TS\n")
+    return this.stakingContracts[nam]
   }
 
-  getStakingContracts () {
-    return this.stakingContracts;
+  getStakingContracts() {
+    console.log("GET STAKING CONTRACTS IN CLIENT.TS\n")
+    return this.stakingContracts
   }
 
-  getAsset (symbol : string) {
-    if (! this.activeOrderedSymbols.includes(symbol)) {
+  getAsset(symbol: string) {
+    console.log("GET ASSET IN CLIENT.TS\n")
+    if (!this.activeOrderedSymbols.includes(symbol)) {
       throw new Error("Unsupported asset")
     }
-    return this.markets[symbol].getAsset();
+    return this.markets[symbol].getAsset()
   }
 
-  getMaxAtomicOptInMarketAppIds () {
-    let temp = [];
+  getMaxAtomicOptInMarketAppIds() {
+    console.log("GET MAX ATOMIC OPT IN MARKET APP IDS IN CLIENT.TS\n")
+    let temp = []
     for (let symbol of this.maxAtomicOptInOrderedSymbols) {
-      temp.push(this.markets[symbol].getMarketAppId());
+      temp.push(this.markets[symbol].getMarketAppId())
     }
-    return temp;
+    return temp
   }
 
-  getActiveAssets () {
-    let temp = {};
-    for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
-      temp[symbol] = market.getAsset();
+  getActiveAssets(): { [key: string]: Asset } {
+    console.log("GET ACTIVE ASSETS IN CLIENT.TS\n")
+    let temp = {}
+    for (let [symbol, market] of Object.entries(this.getActiveMarkets())) {
+      temp[symbol] = market.getAsset()
     }
-    return temp;
+    return temp
   }
 
-  getActiveAssetIds () {
-    let temp = [];
-    // Errors will be fixed once we figure out getActiveMarkets
-    for (let [_, asset] of Object.entries(this.getActiveAssets())) {
-      temp.push(asset.getUnderlyingAssetId());
+  getActiveAssetIds() {
+    console.log("GET ACTIVE ASSET IDS IN CLIENT.TS\n")
+    let temp = []
+    for (let asset of Object.values(this.getActiveAssets())) {
+      temp.push(asset.getUnderlyingAssetId())
     }
-    return temp;
+    return temp
   }
 
-  getActiveBankAssetIds () {
-    let temp = [];
-    for (let [_, asset] of Object.entries(this.getActiveAssets())){
-      temp.push(asset.getBankAssetId());
+  getActiveBankAssetIds() {
+    console.log("GET ACTIVE BANK ASSET IDS IN CLIENT.TS\n")
+    let temp = []
+    for (let asset of Object.values(this.getActiveAssets())) {
+      temp.push(asset.getBankAssetId())
     }
-    return temp;
+    return temp
   }
 
-  getActiveOrderedSymbols () {
-    return this.activeOrderedSymbols;
+  getActiveOrderedSymbols() {
+    console.log("GET ACTIVE ORDERED SYMBOLS IN CLIENT.TS\n")
+    return this.activeOrderedSymbols
   }
 
-  getRawPrices () {
+  getRawPrices() {
+    console.log("GET RAW PRICES IN CLIENT.TS\n")
     //Errors will be fixed once we figure out getActiveMarkets
-    let temp = {};
-    for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
-      temp[symbol] = market.getAsset().getRawPrices();
+    let temp = {}
+    for (let [symbol, market] of Object.entries(this.getActiveMarkets())) {
+      temp[symbol] = market.getAsset().getRawPrices()
     }
   }
 
-  getPrices () {
-    let temp = {};
+  getPrices() {
+    console.log("GET PRICES IN CLIENT.TS\n")
+    let temp = {}
     //Errors will be fixed once we figure out getActiveMarkets
-    for (let [symbol, market] of Object.entries(this.getActiveMarkets())){
-      temp[symbol] = market.getAsset().getPrice();
+    for (let [symbol, market] of Object.entries(this.getActiveMarkets())) {
+      temp[symbol] = market.getAsset().getPrice()
     }
   }
 
   // INDEXER HELPERS
-  async getStorageAccounts (stakingContractName : string = undefined) {
-    let nextPage = "";
-    let accounts = [];
-    let appId;
+  async getStorageAccounts(stakingContractName: string = undefined) {
+    console.log("GET STORAGE ACCOUNTS IN CLIENT.TS\n")
+    let nextPage = ""
+    let accounts = []
+    let appId
     if (stakingContractName === undefined) {
       // This error will be fixed when we figure out getActiveMarkets
-      appId = Object.values(this.getActiveMarkets())[0];
-    }
-    else {
+      appId = Object.values(this.getActiveMarkets())[0]
+    } else {
       appId = this.getStakingContract(stakingContractName).getManagerAppId()
     }
     while (nextPage !== undefined) {
-      console.log(nextPage);
+      // console.log(nextPage)
       //make sure this is the js analog to indexer.accounts, we are just assuming at this point
-      let accountData = await this.indexerClient.searchAccounts().do();
-      for (let account of accountData["accounts"]){
-        accounts.push(account);
+      let accountData = await this.indexerClient.searchAccounts().do()
+      for (let account of accountData["accounts"]) {
+        accounts.push(account)
       }
-      if (accountData.includes("next-token")){
-        nextPage = accountData["next-token"];
-      }
-      else {
-        nextPage = undefined;
+      if (accountData.includes("next-token")) {
+        nextPage = accountData["next-token"]
+      } else {
+        nextPage = undefined
       }
     }
-    return accounts;
+    return accounts
   }
 
-  getActiveOracleAppIds () {
-    let temp = [];
-    // Error will be fixed when we figure out getActiveMarkets
-    for (let market of Object.values(this.getActiveMarkets())){
+  getActiveOracleAppIds() {
+    console.log("GET ACTIVE ORACLE APP IDS IN CLIENT.TS\n")
+    let temp = []
+    for (let market of Object.values(this.getActiveMarkets())) {
       temp.push(market.getAsset().getOracleAppId())
     }
-    return temp;
+    return temp
   }
 
-  getActiveMarketAppIds () {
-    let temp = [];
-    for (let market in Object.values(this.getActiveMarkets())){
-      temp.push(market.getmarketAppId())
+  getActiveMarketAppIds() {
+    console.log("GET ACTIVE MARKET IDS IN CLIENT.TS\n")
+    let temp = []
+    for (let market of Object.values(this.getActiveMarkets())) {
+      temp.push(market.getMarketAppId())
     }
-    return temp;
+    return temp
   }
 
-  getActiveMarketAddresses () {
-    let temp = [];
-    for (let market in Object.values(this.getActiveMarkets())){
+  getActiveMarketAddresses() {
+    console.log("GET ACTIVE MARKET ADDRESSES IN CLIENT.TS\n")
+    let temp = []
+    for (let market of Object.values(this.getActiveMarkets())) {
       temp.push(market.getMarketAddress())
     }
-    return temp;
+    return temp
   }
 
   //TRANSACTION BUILDERS
-  prepareOptinTransactions (storageAddress : string, address : string = undefined) {
+  async prepareOptinTransactions(storageAddress: string, address: string = undefined) {
+    console.log("PREPARE OPT IN TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
-      address = this.userAddress;
+      address = this.userAddress
     }
-    return prepareManagerAppOptinTransactions(this.manager.getManagerAppId(), this.getMaxAtomicOptInMarketAppIds(), address, storageAddress, await this.getDefaultParams());
+    return prepareManagerAppOptinTransactions(
+      this.manager.getManagerAppId(),
+      this.getMaxAtomicOptInMarketAppIds(),
+      address,
+      storageAddress,
+      await this.getDefaultParams()
+    )
   }
 
-  async prepareAddCollateralTransactions (symbol: string, amount: number, address : string = undefined) {
-    if (!address){
-      address = this.userAddress;
+  async prepareAddCollateralTransactions(symbol: string, amount: number, address: string = undefined) {
+    console.log("PREPARE ADD COLLATERAL TRANSACTIONS IN CLIENT.TS\n")
+    if (!address) {
+      address = this.userAddress
     }
-    let market = this.getMarket(symbol);
+    let market = this.getMarket(symbol)
     return prepareAddCollateralTransactions(
-      address, 
-      await this.getDefaultParams(), 
-      this.manager.getStorageAddress(address),
+      address,
+      await this.getDefaultParams(),
+      await this.manager.getStorageAddress(address),
       amount,
       market.getAsset().getBankAssetId(),
       this.manager.getManagerAppId(),
@@ -361,15 +416,16 @@ export class Client {
     )
   }
 
-  async prepareBorrowTransactions (symbol : string, amount : number, address : string = undefined) {
-    if (!address){
+  async prepareBorrowTransactions(symbol: string, amount: number, address: string = undefined) {
+    console.log("PREPARE BORROW TRANSACTIONS IN CLIENT.TS\n")
+    if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
     return prepareBorrowTransactions(
       address,
       await this.getDefaultParams(),
-      this.manager.getStorageAddress(address),
+      await this.manager.getStorageAddress(address),
       amount,
       market.getAsset().getUnderlyingAssetId(),
       this.manager.getManagerAppId(),
@@ -379,7 +435,8 @@ export class Client {
     )
   }
 
-  async prepareBurnTransactions (symbol : string, amount : number, address : string = undefined) {
+  async prepareBurnTransactions(symbol: string, amount: number, address: string = undefined) {
+    console.log("PREPARE BURN TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
@@ -387,7 +444,7 @@ export class Client {
     return prepareBurnTransactions(
       address,
       await this.getDefaultParams(),
-      this.manager.getStorageAddress(address),
+      await this.manager.getStorageAddress(address),
       amount,
       market.getAsset().getUnderlyingAssetId(),
       market.getAsset().getBankAssetId(),
@@ -399,34 +456,41 @@ export class Client {
     )
   }
 
-  async prepareClaimRewardsTransactions (address : string = undefined) {
+  async prepareClaimRewardsTransactions(address: string = undefined) {
+    console.log("PREPARE CLAIM REWARDS TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
-    }  
+    }
     return prepareClaimRewardsTransactions(
       address,
       await this.getDefaultParams(),
-      this.manager.getStorageAddress(address),
+      await this.manager.getStorageAddress(address),
       this.manager.getManagerAppId(),
       this.getActiveMarketAppIds(),
       this.getActiveOracleAppIds(),
       this.manager.getRewardsProgram().getRewardsAssetIds()
     )
-  
   }
 
-  async prepareLiquidateTransaction (targetStorageAddress: string, borrowSymbol: string, amount: number, collateralSymbol: string, address: string = undefined) {
+  async prepareLiquidateTransactions(
+    targetStorageAddress: string,
+    borrowSymbol: string,
+    amount: number,
+    collateralSymbol: string,
+    address: string = undefined
+  ) {
+    console.log("PREPARE LIQUIDATE TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let borrowMarket = this.getMarket(borrowSymbol)
     let collateralMarket = this.getMarket(collateralSymbol)
     return prepareLiquidateTransactions(
-      address, 
-      await this.getDefaultParams(), 
-      this.manager.getStorageAddress(address),
-      targetStorageAddress, 
-      amount, 
+      address,
+      await this.getDefaultParams(),
+      await this.manager.getStorageAddress(address),
+      targetStorageAddress,
+      amount,
       this.manager.getManagerAppId(),
       borrowMarket.getMarketAppId(),
       borrowMarket.getMarketAddress(),
@@ -434,10 +498,12 @@ export class Client {
       this.getActiveMarketAppIds(),
       this.getActiveOracleAppIds(),
       collateralMarket.getAsset().getBankAssetId(),
-      borrowSymbol !== "ALGO" ? borrowMarket.getAsset().getUnderlyingAssetId() : undefined)
+      borrowSymbol !== "ALGO" ? borrowMarket.getAsset().getUnderlyingAssetId() : undefined
+    )
   }
 
-  async prepareMintTransactions (symbol: string, amount: number, address: string = undefined) {
+  async prepareMintTransactions(symbol: string, amount: number, address: string = undefined) {
+    console.log("PREPARE MINT TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
@@ -445,7 +511,7 @@ export class Client {
     return prepareMintTransactions(
       address,
       await this.getDefaultParams(),
-      this.manager.getStorageAddress(address),
+      await this.manager.getStorageAddress(address),
       amount,
       market.getAsset().getBankAssetId(),
       this.manager.getManagerAppId(),
@@ -455,18 +521,18 @@ export class Client {
       this.getActiveOracleAppIds(),
       symbol !== "ALGO" ? market.getAsset().getUnderlyingAssetId() : undefined
     )
-
   }
 
-  async prepareMintToCollateralTransacdtions (symbol: string, amount: number, address: string = undefined) {
-    if (!address){
+  async prepareMintToCollateralTransactions(symbol: string, amount: number, address: string = undefined) {
+    console.log("PREPARE MINT TO COLLATERAL TRANSACTIONS IN CLIENT.TS\n")
+    if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
     return prepareMintToCollateralTransactions(
-      address, 
+      address,
       await this.getDefaultParams(),
-      this.manager.getStorageAddress(address),
+      await this.manager.getStorageAddress(address),
       amount,
       this.manager.getManagerAppId(),
       market.getMarketAppId(),
@@ -477,15 +543,16 @@ export class Client {
     )
   }
 
-  async prepareRemoveCollateralTransactions (symbol: string, amount: number, address: string = undefined) {
+  async prepareRemoveCollateralTransactions(symbol: string, amount: number, address: string = undefined) {
+    console.log("PREPARE REMOVE COLLATERAL TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
     return prepareRemoveCollateralTransactions(
-      address, 
+      address,
       await this.getDefaultParams(),
-      this.manager.getStorageAddress(address),
+      await this.manager.getStorageAddress(address),
       amount,
       market.getAsset().bankAssetId(),
       this.manager.getManagerAppId(),
@@ -495,15 +562,16 @@ export class Client {
     )
   }
 
-  async prepareRemoveCollateralUnderlyingTransactions (symbol: string, amount: number, address: string = undefined) {
+  async prepareRemoveCollateralUnderlyingTransactions(symbol: string, amount: number, address: string = undefined) {
+    console.log("PREPARE REMOVE COLLATERAL UNDERLYING TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
     return prepareRemoveCollateralUnderlyingTransactions(
-      address, 
+      address,
       await this.getDefaultParams(),
-      this.manager.getStorageAddress(address),
+      await this.manager.getStorageAddress(address),
       amount,
       market.getAsset().getUnderlyingAssetId(),
       this.manager.getManagerAppId(),
@@ -513,14 +581,16 @@ export class Client {
     )
   }
 
-  async prepareRepayBorrowTransactions (symbol: string, amount: number, address: string = undefined) {
+  async prepareRepayBorrowTransactions(symbol: string, amount: number, address: string = undefined) {
+    console.log("PREPARE REPAY BORROW TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
     return prepareRepayBorrowTransactions(
-      address, 
+      address,
       await this.getDefaultParams(),
+      await this.manager.getStorageAddress(address),
       amount,
       this.manager.getManagerAppId(),
       market.getMarketAppId(),
@@ -532,9 +602,13 @@ export class Client {
   }
 
   //Staking transactions builders
-
-  async prepareStakingContractOptinTransactions (stakingContractName : string, storageAddress : string, address : string = undefined) {
-    if (!address){
+  async prepareStakingContractOptinTransactions(
+    stakingContractName: string,
+    storageAddress: string,
+    address: string = undefined
+  ) {
+    console.log("PREPARE STAKING CONTRACT OPT IN TRANSACTIONS IN CLIENT.TS\n")
+    if (!address) {
       address = this.userAddress
     }
     let stakingContract = this.getStakingContract(stakingContractName)
@@ -547,17 +621,18 @@ export class Client {
     )
   }
 
-  async prepareStakeTransactions (stakingContractName: string, amount: number, address: string = undefined) {
+  async prepareStakeTransactions(stakingContractName: string, amount: number, address: string = undefined) {
+    console.log("PREPARE STAKE TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let stakingContract = this.getStakingContract(stakingContractName)
     let assetId = stakingContract.getAsset().getUnderlyingAssetId()
     return prepareStakeTransactions(
-      address, 
-      await this.getDefaultParams(), 
-      stakingContract.getStorageAddress(address),
-      amount, 
+      address,
+      await this.getDefaultParams(),
+      await stakingContract.getStorageAddress(address),
+      amount,
       stakingContract.getManagerAppId(),
       stakingContract.getMarketAppId(),
       stakingContract.getMarketAddress(),
@@ -566,34 +641,36 @@ export class Client {
     )
   }
 
-  async prepareUnstakeTransactions (stakingContractName: string, amount: number, address: string = undefined) {
+  async prepareUnstakeTransactions(stakingContractName: string, amount: number, address: string = undefined) {
+    console.log("PREPARE UNSTAKE TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let stakingContract = this.getStakingContract(stakingContractName)
     let assetId = stakingContract.getAsset().getUnderlyingAssetId()
     return prepareUnstakeTransactions(
-      address, 
+      address,
       await this.getDefaultParams(),
-      stakingContract.getStorageAddress(address),
-      amount, 
+      await stakingContract.getStorageAddress(address),
+      amount,
       stakingContract.getManagerAppId(),
       stakingContract.getMarketAppId(),
       stakingContract.getOracleAppId(),
-      assetId > 1 ? assetId: undefined
+      assetId > 1 ? assetId : undefined
     )
   }
 
-  async prepareClaimStakingRewardsTransactions (stakingContractName: string, address: string = undefined) {
+  async prepareClaimStakingRewardsTransactions(stakingContractName: string, address: string = undefined) {
+    console.log("PREPARE CLAIM STAKING REWARDS TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let stakingContract = this.getStakingContract(stakingContractName)
     let assetId = stakingContract.getAsset().getUnderlyingAssetId()
     return prepareClaimStakingRewardsTransactions(
-      address, 
+      address,
       await this.getDefaultParams(),
-      stakingContract.getStorageAddress(address),
+      await stakingContract.getStorageAddress(address),
       stakingContract.getManagerAppId(),
       stakingContract.getMarketAppId(),
       stakingContract.getOracleAppId(),
@@ -601,81 +678,54 @@ export class Client {
     )
   }
 
-  async submit (transactionGroup: TransactionGroup, wait: boolean = false) {
+  async submit(transactionGroup: Uint8Array, wait: boolean = false) {
+    console.log("SUBMIT IN CLIENT.TS\n")
+    let txid: string
     try {
-      //I think we have to sign these first no?
-      let txid = await this.algodClient.sendRawTransaction(transactionGroup).do()
+      txid = await this.algodClient.sendRawTransaction(transactionGroup).do()
+    } catch (e) {
+      console.log("Error in submitting")
     }
+    if (wait) {
+      //not sure about wait rounds (last parameter)
+      return waitForConfirmation(this.algodClient, txid, 10)
+    }
+    return { txid: txid }
   }
 }
 
-
-/*
-************JAVASCRIPT************
-
-JAVASCRIPT INDEXER
-
-const indexer_token = "";
-const indexer_server = "http://localhost";
-const indexer_port = 8980;
-
-const indexerClient = new algosdk.Indexer("", http://localhost", 8980);
-
-
-JAVASCRIPT CLIENT
-
-const algodToken = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-        const algodServer = 'http://localhost';
-        const algodPort = 4001;
-        let algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
-
-
-
-
-************PYTHON************
-
-PYTHON INDEXER
-
-import json
-# requires Python SDK version 1.3 or higher
-from algosdk.v2client import indexer
-
-# instantiate indexer client
-myindexer = indexer.IndexerClient(indexer_token="", indexer_address="http://localhost:8980")
-
-
-PYTHON CLIENT
-
-algod_address = "http://localhost:4001"
-    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    algod_client = algod.AlgodClient(algod_token, algod_address)
-
-*/
-
-export class AlgofiTestnetClient extends Client{
-  constructor(algodClient : Algodv2, indexerClient : Indexer = undefined,  userAddress : string = undefined){
-    let historicalIndexerClient = new Indexer("", "https://indexer.testnet.algoexplorerapi.io/", 8980, {"User-Agent":"algosdk"}) 
-    if (algodClient === undefined) {
-      let algodClient = new Algodv2("", "https://api.testnet.algoexplorer.io", 4001, {"User-Agent": "algosdk"})
-    }   
-    if (indexerClient === undefined) {
-      let indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", 8980, {"User-Agent":"algosdk"})
-    }
-    super(algodClient, indexerClient, historicalIndexerClient, userAddress, "testnet")
-}
+export async function AlgofiTestnetClient(
+  algodClient: Algodv2,
+  indexerClient: Indexer = undefined,
+  userAddress: string = undefined
+) {
+  console.log("INSTANTIATING TESTNET CLIENT IN CLIENT.TS\n")
+  let historicalIndexerClient = new Indexer("", "https://indexer.testnet.algoexplorerapi.io/", "")
+  if (algodClient === undefined) {
+    algodClient = new Algodv2(
+      "ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff",
+      "https://node.chainvault.io/test",
+      ""
+    )
+  }
+  if (indexerClient === undefined) {
+    indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io/")
+  }
+  return await Client.init(algodClient, indexerClient, historicalIndexerClient, userAddress, "testnet")
 }
 
-
-export class AlgofiMainnetClient extends Client {
-  constructor(algodClient : Algodv2, indexerClient : Indexer = undefined,  userAddress : string = undefined){
-    let historicalIndexerClient = new Indexer("", "https://indexer.algoexplorerapi.io/", 8980, {"User-Agent":"algosdk"}) 
-    if (algodClient === undefined) {
-      let algodClient = new Algodv2("", "https://algoexplorerapi.io", 4001, {"User-Agent": "algosdk"})
-    }   
-    if (indexerClient === undefined) {
-      let indexerClient = new Indexer("", "https://algoindexer.algoexplorerapi.io", 8980, {"User-Agent":"algosdk"})
-    }
-    super(algodClient, indexerClient, historicalIndexerClient, userAddress, "mainnet")
+export async function AlgofiMainnetClient(
+  algodClient: Algodv2,
+  indexerClient: Indexer = undefined,
+  userAddress: string = undefined
+) {
+  console.log("INSTANTIATING MAINNET CLIENT IN CLIENT.TS\n")
+  let historicalIndexerClient = new Indexer("", "https://indexer.algoexplorerapi.io/", "")
+  if (algodClient === undefined) {
+    algodClient = new Algodv2("", "https://algoexplorerapi.io")
+  }
+  if (indexerClient === undefined) {
+    indexerClient = new Indexer("", "https://algoindexer.algoexplorerapi.io", 8980, { "User-Agent": "algosdk" })
+  }
+  return await Client.init(algodClient, indexerClient, historicalIndexerClient, userAddress, "mainnet")
 }
-}
-

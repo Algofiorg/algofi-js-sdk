@@ -1,7 +1,7 @@
 import { SuggestedParams, makeApplicationNoOpTxn } from "algosdk"
 import { TransactionGroup } from "./utils"
 import { getInitTxns } from "./prepend"
-import { Transactions } from "./utils"
+import { Transactions, intToBytes } from "./utils"
 import { managerStrings } from "./contractStrings"
 
 let enc = new TextEncoder()
@@ -17,6 +17,7 @@ export function prepareBorrowTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
+  console.log("PREPARE BORROW TRANSACTIONS IN BORROW.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.BORROW,
     sender,
