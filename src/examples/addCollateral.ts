@@ -18,16 +18,16 @@ export async function addCollateralExample(
   const client = IS_MAINNET
     ? await AlgofiMainnetClient(undefined, undefined, sender)
     : await AlgofiTestnetClient(undefined, undefined, sender)
-  console.log("TSLDKFJSLDKFJSDLFKJSLDKFJSDF")
+  // console.log("TSLDKFJSLDKFJSDLFKJSLDKFJSDF")
 
-  const symbol = client.getActiveOrderedSymbols()[0]
+  // const symbol = client.getActiveOrderedSymbols()[0]
 
-  console.log(buffer)
-  console.log("Initial State")
-  console.log(buffer)
+  // console.log(buffer)
+  // console.log("Initial State")
+  // console.log(buffer)
 
-  await printMarketState(client.getMarket(symbol))
-  await printUserState(client, symbol, sender)
+  // await printMarketState(client.getMarket(symbol))
+  // await printUserState(client, symbol, sender)
   // const assetBalance = await client.getUserBalance(
   //   client
   //     .getMarket(symbol)
