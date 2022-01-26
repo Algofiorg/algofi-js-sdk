@@ -8,7 +8,6 @@ export async function borrowExample(
   let user = mnemonicToSecretKey(mnemonic)
   let sender = user.addr
   let key = user.sk
-  console.log("this ran")
 
   const buffer = "----------------------------------------------------------------------------------------------------"
 

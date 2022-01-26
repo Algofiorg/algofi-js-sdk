@@ -2,17 +2,20 @@ import { Algodv2 } from "algosdk"
 import { Market } from "../v1/market"
 import { Client } from "../v1/client"
 
-export function printMarketState(market: Market) {
+export async function printMarketState(market: Market) {
+  console.log("STARTING PRINT MARKET STATE IN EXAMPLEUTILS.TS\n")
   market.updateGlobalState()
   console.log("underlying_cash =", market.getUnderlyingCash())
   console.log("bank_circulation =", market.getBankCirculation())
   console.log("active_collateral =", market.getActiveCollateral())
-  console.log("underlying_borrowed =", market.getUnderlyingBorrowed())
+  console.log("underlying_borrowed =", await market.getUnderlyingBorrowed())
   console.log("total_borrow_interest_rate =", market.getTotalBorrowInterestRate())
+  console.log("\nPRINT MARKET STATE FINISHED\n")
 }
 
 export async function printUserState(client: Client, symbol: string, address: string) {
-  let userState = client.getUserState(address)
+  console.log("STARTING PRINT USER STATE IN EXAMPLEUTILS.TS\n")
+  let userState = await client.getUserState(address)
   for (let [key, value] of Object.entries(userState["manager"])) {
     console.log(key, "=", value)
   }

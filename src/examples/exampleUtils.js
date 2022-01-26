@@ -38,12 +38,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.printStakingContractState = exports.printUserState = exports.printMarketState = void 0;
 function printMarketState(market) {
-    market.updateGlobalState();
-    console.log("underlying_cash =", market.getUnderlyingCash());
-    console.log("bank_circulation =", market.getBankCirculation());
-    console.log("active_collateral =", market.getActiveCollateral());
-    console.log("underlying_borrowed =", market.getUnderlyingBorrowed());
-    console.log("total_borrow_interest_rate =", market.getTotalBorrowInterestRate());
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, _b, _c;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0:
+                    console.log("STARTING PRINT MARKET STATE IN EXAMPLEUTILS.TS\n");
+                    market.updateGlobalState();
+                    console.log("underlying_cash =", market.getUnderlyingCash());
+                    console.log("bank_circulation =", market.getBankCirculation());
+                    console.log("active_collateral =", market.getActiveCollateral());
+                    _b = (_a = console).log;
+                    _c = ["underlying_borrowed ="];
+                    return [4 /*yield*/, market.getUnderlyingBorrowed()];
+                case 1:
+                    _b.apply(_a, _c.concat([_d.sent()]));
+                    console.log("total_borrow_interest_rate =", market.getTotalBorrowInterestRate());
+                    console.log("\nPRINT MARKET STATE FINISHED\n");
+                    return [2 /*return*/];
+            }
+        });
+    });
 }
 exports.printMarketState = printMarketState;
 function printUserState(client, symbol, address) {
@@ -52,7 +67,10 @@ function printUserState(client, symbol, address) {
         return __generator(this, function (_m) {
             switch (_m.label) {
                 case 0:
-                    userState = client.getUserState(address);
+                    console.log("STARTING PRINT USER STATE IN EXAMPLEUTILS.TS\n");
+                    return [4 /*yield*/, client.getUserState(address)];
+                case 1:
+                    userState = _m.sent();
                     for (_i = 0, _a = Object.entries(userState["manager"]); _i < _a.length; _i++) {
                         _b = _a[_i], key = _b[0], value = _b[1];
                         console.log(key, "=", value);
@@ -65,12 +83,12 @@ function printUserState(client, symbol, address) {
                     _g = (_f = console).log;
                     _h = ["user_balance_asset ="];
                     return [4 /*yield*/, client.getUserBalance(asset.getUnderlyingAssetId())];
-                case 1:
+                case 2:
                     _g.apply(_f, _h.concat([(_m.sent()) / Math.pow(10, asset.get_underlying_asset_info()["decimals"])]));
                     _k = (_j = console).log;
                     _l = ["user_balance_bank_assert ="];
                     return [4 /*yield*/, client.getUserBalance(asset.getBankAssetId())];
-                case 2:
+                case 3:
                     _k.apply(_j, _l.concat([(_m.sent()) / Math.pow(10, asset.getBankAssetInfo()["decimals"])]));
                     return [2 /*return*/];
             }
