@@ -1,4 +1,4 @@
-import { addCollateralExample } from "./addCollateralExample"
+import { addCollateralExample } from "./addCollateral"
 
 async function foo() {
   await addCollateralExample()

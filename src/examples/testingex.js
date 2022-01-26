@@ -36,12 +36,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var addCollateralExample_1 = require("./addCollateralExample");
+var addCollateral_1 = require("./addCollateral");
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, addCollateralExample_1.addCollateralExample)()];
+                case 0: return [4 /*yield*/, (0, addCollateral_1.addCollateralExample)()];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
