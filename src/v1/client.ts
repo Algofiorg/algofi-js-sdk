@@ -1,5 +1,13 @@
-import { Algodv2, Indexer, SuggestedParams, waitForConfirmation } from "algosdk"
-import { getInitRound, getOrderedSymbols, getManagerAppId, getMarketAppId, getStakingContracts, get } from "./utils"
+import { Algodv2, Indexer, SuggestedParams, Transaction, waitForConfirmation } from "algosdk"
+import {
+  getInitRound,
+  getOrderedSymbols,
+  getManagerAppId,
+  getMarketAppId,
+  getStakingContracts,
+  get,
+  TransactionGroup
+} from "./utils"
 import { Manager } from "./manager"
 import { Market } from "./market"
 import { StakingContract } from "./stakingContract"
@@ -25,10 +33,6 @@ export interface StringToNum {
   [key: string]: number
 }
 
-export interface StakingContractInfo {
-  [key: string]: StringToNum
-}
-
 export interface StakingContracts {
   [key: string]: StakingContract
 }
@@ -48,7 +52,7 @@ export class Client {
   maxAtomicOptInOrderedSymbols: string[]
   manager: Manager
   markets: Markets
-  stakingContractInfo: StakingContractInfo
+  stakingContractInfo: { [key: string]: StringToNum }
   stakingContracts: StakingContracts
 
   constructor(
@@ -369,39 +373,43 @@ export class Client {
     return accounts
   }
 
-  getActiveOracleAppIds() {
+  getActiveOracleAppIds(): number[] {
     console.log("GET ACTIVE ORACLE APP IDS IN CLIENT.TS\n")
-    let temp = []
+    let activeOracleAppIds = []
     for (let market of Object.values(this.getActiveMarkets())) {
-      temp.push(market.getAsset().getOracleAppId())
+      activeOracleAppIds.push(market.getAsset().getOracleAppId())
     }
-    return temp
+    console.log("get active oracle app ids in client.ts finished and returned", activeOracleAppIds, "\n")
+    return activeOracleAppIds
   }
 
-  getActiveMarketAppIds() {
+  getActiveMarketAppIds(): number[] {
     console.log("GET ACTIVE MARKET IDS IN CLIENT.TS\n")
-    let temp = []
+    let activeMarketAppIds = []
     for (let market of Object.values(this.getActiveMarkets())) {
-      temp.push(market.getMarketAppId())
+      activeMarketAppIds.push(market.getMarketAppId())
     }
-    return temp
+    console.log("get active market app ids in client.ts finished and returned", activeMarketAppIds, "\n")
+    return activeMarketAppIds
   }
 
-  getActiveMarketAddresses() {
+  getActiveMarketAddresses(): string[] {
     console.log("GET ACTIVE MARKET ADDRESSES IN CLIENT.TS\n")
-    let temp = []
+    let activeMarketAddresses = []
     for (let market of Object.values(this.getActiveMarkets())) {
-      temp.push(market.getMarketAddress())
+      activeMarketAddresses.push(market.getMarketAddress())
     }
-    return temp
+    console.log("get active market addresses in client.ts finished and returned", activeMarketAddresses, "\n")
+    return activeMarketAddresses
   }
 
   //TRANSACTION BUILDERS
-  async prepareOptinTransactions(storageAddress: string, address: string = undefined) {
+  async prepareOptinTransactions(storageAddress: string, address: string = null): Promise<TransactionGroup> {
     console.log("PREPARE OPT IN TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
+    console.log("prepare opt in transactions in client.ts finished and returned something\n")
     return prepareManagerAppOptinTransactions(
       this.manager.getManagerAppId(),
       this.getMaxAtomicOptInMarketAppIds(),
@@ -411,12 +419,17 @@ export class Client {
     )
   }
 
-  async prepareAddCollateralTransactions(symbol: string, amount: number, address: string = undefined) {
+  async prepareAddCollateralTransactions(
+    symbol: string,
+    amount: number,
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE ADD COLLATERAL TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
+    console.log("prepare add collateral transactions in client.ts finished and returned something\n")
     return prepareAddCollateralTransactions(
       address,
       await this.getDefaultParams(),
@@ -431,12 +444,13 @@ export class Client {
     )
   }
 
-  async prepareBorrowTransactions(symbol: string, amount: number, address: string = undefined) {
+  async prepareBorrowTransactions(symbol: string, amount: number, address: string = null): Promise<TransactionGroup> {
     console.log("PREPARE BORROW TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
+    console.log("prepare borrow transactions in client.ts finished and returned something\n")
     return prepareBorrowTransactions(
       address,
       await this.getDefaultParams(),
@@ -450,12 +464,13 @@ export class Client {
     )
   }
 
-  async prepareBurnTransactions(symbol: string, amount: number, address: string = undefined) {
+  async prepareBurnTransactions(symbol: string, amount: number, address: string = null): Promise<TransactionGroup> {
     console.log("PREPARE BURN TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
+    console.log("prepare burn transactions in client.ts finished and returned something\n")
     return prepareBurnTransactions(
       address,
       await this.getDefaultParams(),
@@ -471,11 +486,12 @@ export class Client {
     )
   }
 
-  async prepareClaimRewardsTransactions(address: string = undefined) {
+  async prepareClaimRewardsTransactions(address: string = null): Promise<TransactionGroup> {
     console.log("PREPARE CLAIM REWARDS TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
+    console.log("prepare claim rewards transactions in client.ts finished and returned something\n")
     return prepareClaimRewardsTransactions(
       address,
       await this.getDefaultParams(),
@@ -492,14 +508,15 @@ export class Client {
     borrowSymbol: string,
     amount: number,
     collateralSymbol: string,
-    address: string = undefined
-  ) {
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE LIQUIDATE TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let borrowMarket = this.getMarket(borrowSymbol)
     let collateralMarket = this.getMarket(collateralSymbol)
+    console.log("prepare liquidate transactions in client.ts finished and returned something\n")
     return prepareLiquidateTransactions(
       address,
       await this.getDefaultParams(),
@@ -517,12 +534,13 @@ export class Client {
     )
   }
 
-  async prepareMintTransactions(symbol: string, amount: number, address: string = undefined) {
+  async prepareMintTransactions(symbol: string, amount: number, address: string = null): Promise<TransactionGroup> {
     console.log("PREPARE MINT TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
+    console.log("prepare mint transactions in client.ts finished and returned something\n")
     return prepareMintTransactions(
       address,
       await this.getDefaultParams(),
@@ -538,12 +556,17 @@ export class Client {
     )
   }
 
-  async prepareMintToCollateralTransactions(symbol: string, amount: number, address: string = undefined) {
+  async prepareMintToCollateralTransactions(
+    symbol: string,
+    amount: number,
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE MINT TO COLLATERAL TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
+    console.log("prepare mint to collateral transactions finished and returned something\n")
     return prepareMintToCollateralTransactions(
       address,
       await this.getDefaultParams(),
@@ -558,12 +581,17 @@ export class Client {
     )
   }
 
-  async prepareRemoveCollateralTransactions(symbol: string, amount: number, address: string = undefined) {
+  async prepareRemoveCollateralTransactions(
+    symbol: string,
+    amount: number,
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE REMOVE COLLATERAL TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
+    console.log("prepare remove collateral transactions finished and returned something\n")
     return prepareRemoveCollateralTransactions(
       address,
       await this.getDefaultParams(),
@@ -577,12 +605,17 @@ export class Client {
     )
   }
 
-  async prepareRemoveCollateralUnderlyingTransactions(symbol: string, amount: number, address: string = undefined) {
+  async prepareRemoveCollateralUnderlyingTransactions(
+    symbol: string,
+    amount: number,
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE REMOVE COLLATERAL UNDERLYING TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
+    console.log("prepare remove collateral underlying transactions finished and returned something\n")
     return prepareRemoveCollateralUnderlyingTransactions(
       address,
       await this.getDefaultParams(),
@@ -596,12 +629,17 @@ export class Client {
     )
   }
 
-  async prepareRepayBorrowTransactions(symbol: string, amount: number, address: string = undefined) {
+  async prepareRepayBorrowTransactions(
+    symbol: string,
+    amount: number,
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE REPAY BORROW TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let market = this.getMarket(symbol)
+    console.log("prepare repay borrow transactions finished and returned something\n")
     return prepareRepayBorrowTransactions(
       address,
       await this.getDefaultParams(),
@@ -620,13 +658,14 @@ export class Client {
   async prepareStakingContractOptinTransactions(
     stakingContractName: string,
     storageAddress: string,
-    address: string = undefined
-  ) {
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE STAKING CONTRACT OPT IN TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let stakingContract = this.getStakingContract(stakingContractName)
+    console.log("prepare staking contract optin transactions finished and returned something\n")
     return prepareManagerAppOptinTransactions(
       stakingContract.getManagerAppId(),
       [stakingContract.getMarketAppId()],
@@ -636,13 +675,18 @@ export class Client {
     )
   }
 
-  async prepareStakeTransactions(stakingContractName: string, amount: number, address: string = undefined) {
+  async prepareStakeTransactions(
+    stakingContractName: string,
+    amount: number,
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE STAKE TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let stakingContract = this.getStakingContract(stakingContractName)
     let assetId = stakingContract.getAsset().getUnderlyingAssetId()
+    console.log("prepare stake transactions in client.ts finished and returned something\n")
     return prepareStakeTransactions(
       address,
       await this.getDefaultParams(),
@@ -656,13 +700,18 @@ export class Client {
     )
   }
 
-  async prepareUnstakeTransactions(stakingContractName: string, amount: number, address: string = undefined) {
+  async prepareUnstakeTransactions(
+    stakingContractName: string,
+    amount: number,
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE UNSTAKE TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let stakingContract = this.getStakingContract(stakingContractName)
     let assetId = stakingContract.getAsset().getUnderlyingAssetId()
+    console.log("prepare unstake transactions in client.ts finished and returned something\n")
     return prepareUnstakeTransactions(
       address,
       await this.getDefaultParams(),
@@ -675,13 +724,17 @@ export class Client {
     )
   }
 
-  async prepareClaimStakingRewardsTransactions(stakingContractName: string, address: string = undefined) {
+  async prepareClaimStakingRewardsTransactions(
+    stakingContractName: string,
+    address: string = null
+  ): Promise<TransactionGroup> {
     console.log("PREPARE CLAIM STAKING REWARDS TRANSACTIONS IN CLIENT.TS\n")
     if (!address) {
       address = this.userAddress
     }
     let stakingContract = this.getStakingContract(stakingContractName)
     let assetId = stakingContract.getAsset().getUnderlyingAssetId()
+    console.log("prepare claim staking rewards transactions in client.ts finished and returned something\n")
     return prepareClaimStakingRewardsTransactions(
       address,
       await this.getDefaultParams(),
@@ -693,12 +746,12 @@ export class Client {
     )
   }
 
-  async submit(transactionGroup: Uint8Array, wait: boolean = false) {
+  async submit(transactionGroup: Uint8Array, wait: boolean = false): Promise<{}> {
     console.log("SUBMIT IN CLIENT.TS\n")
     let txid: string
     try {
       txid = await this.algod.sendRawTransaction(transactionGroup).do()
-    } catch (e) {
+    } catch (AlgodHTTPError) {
       console.log("Error in submitting")
     }
     if (wait) {
@@ -709,38 +762,38 @@ export class Client {
   }
 }
 
-export async function AlgofiTestnetClient(
+export async function newAlgofiTestnetClient(
   algodClient: Algodv2,
-  indexerClient: Indexer = undefined,
-  userAddress: string = undefined
-) {
+  indexerClient: Indexer = null,
+  userAddress: string = null
+): Promise<Client> {
   console.log("INSTANTIATING TESTNET CLIENT IN CLIENT.TS\n")
   let historicalIndexerClient = new Indexer("", "https://indexer.testnet.algoexplorerapi.io/", "")
-  if (algodClient === undefined) {
+  if (algodClient === null) {
     algodClient = new Algodv2(
       "ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff",
       "https://node.chainvault.io/test",
       ""
     )
   }
-  if (indexerClient === undefined) {
-    indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io/")
+  if (indexerClient === null) {
+    indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io/", "")
   }
   return await Client.init(algodClient, indexerClient, historicalIndexerClient, userAddress, "testnet")
 }
 
-export async function AlgofiMainnetClient(
+export async function newAlgofiMainnetClient(
   algodClient: Algodv2,
-  indexerClient: Indexer = undefined,
-  userAddress: string = undefined
-) {
+  indexerClient: Indexer = null,
+  userAddress: string = null
+): Promise<Client> {
   console.log("INSTANTIATING MAINNET CLIENT IN CLIENT.TS\n")
   let historicalIndexerClient = new Indexer("", "https://indexer.algoexplorerapi.io/", "")
-  if (algodClient === undefined) {
-    algodClient = new Algodv2("", "https://algoexplorerapi.io")
+  if (algodClient === null) {
+    algodClient = new Algodv2("", "https://algoexplorerapi.io", "")
   }
-  if (indexerClient === undefined) {
-    indexerClient = new Indexer("", "https://algoindexer.algoexplorerapi.io", 8980, { "User-Agent": "algosdk" })
+  if (indexerClient === null) {
+    indexerClient = new Indexer("", "https://algoindexer.algoexplorerapi.io", "")
   }
   return await Client.init(algodClient, indexerClient, historicalIndexerClient, userAddress, "mainnet")
 }

@@ -3,6 +3,11 @@ import { Transaction, generateAccount, secretKeyToMnemonic, encodeUint64, Algod 
 import { contracts } from "./contracts"
 import { Algodv2, assignGroupID } from "algosdk"
 
+//Constants
+const PARAMETER_SCALE_FACTOR = 1e3
+const SCALE_FACDTOR = 1e9
+const REWARDS_SCALE_FACTOR = 1e14
+
 export enum Transactions {
   MINT = 1,
   MINT_TO_COLLATERAL = 2,
@@ -16,25 +21,23 @@ export enum Transactions {
   CLAIM_REWARDS = 10
 }
 
-export function get(object: any, key: any, default_value: any) {
+export function get(object: {}, key: any, default_value: any): any {
   var result = object[key]
   return typeof result !== "undefined" ? result : default_value
 }
 
-export function toAscii(word: string) {
-  let temp = []
-  for (let i = 0; i < word.length; i++) {
-    temp.push(word.charCodeAt(i))
-  }
-  return temp
+//I'm not sure how to implement this function, but it isn't used anywhere else in the py sdk so
+//will come back to this later
+export function getProgram(definition: {}, variables: {}): Uint8Array {
+  return
 }
 
-export function getProgram(definition, variables = undefined) {
-  console.log("GET PROGRAM IN UTILS.TS\n")
-  let template = definition["bytecode"]
-  let templateBytes = toAscii(template)
-  let offset = 0
-}
+// export function getProgram(definition, variables = undefined) {
+//   console.log("GET PROGRAM IN UTILS.TS\n")
+//   let template = definition["bytecode"]
+//   let templateBytes = toAscii(template)
+//   let offset = 0
+// }
 
 export function encodeValue(value: number, type: string) {
   console.log("ENCODE VALUE IN UTILS.TS\n")
@@ -142,18 +145,19 @@ export const getManagerAppId = (chain: string) => {
   return contracts[chain]["managerAppId"]
 }
 
-const waitForConfirmation = async function(client: Algodv2, txId: string) {
-  console.log("WAIT FOR CONFIRMATION IN UTILS.TS")
-  const response = await client.status().do()
+export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
+  console.log("WAIT FOR CONFIRMATION IN UTILS.TS\n")
+  const response = await algodClient.status().do()
   let lastround = response["last-round"]
   while (true) {
-    const pendingInfo = await client.pendingTransactionInformation(txId).do()
+    const pendingInfo = await algodClient.pendingTransactionInformation(txId).do()
     if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
-      // console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"])
+      //Got the completed Transaction
+      console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"])
       break
     }
     lastround++
-    await client.statusAfterBlock(lastround).do()
+    await algodClient.statusAfterBlock(lastround).do()
   }
 }
 

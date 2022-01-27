@@ -1,6 +1,6 @@
 import algosdk, { encodeAddress, SuggestedParams, Transaction } from "algosdk"
 import { getInitTxns } from "./prepend"
-import { Transactions, intToBytes } from "./utils"
+import { Transactions, intToBytes, TransactionGroup } from "./utils"
 import { managerStrings } from "./contractStrings"
 import { getJSDocReturnType } from "typescript"
 
@@ -14,7 +14,7 @@ export function prepareStakingContractOptinTransactions(
   sender: string,
   storageAddress: string,
   suggestedParams: SuggestedParams
-): Transaction[] {
+): TransactionGroup {
   console.log("PREPARE STAKING CONTRACT OPT IN TRANSACDTIONS IN STAKING.TS\n")
   let txnPayment = algosdk.makePaymentTxnWithSuggestedParams(
     sender,
@@ -50,7 +50,7 @@ export function prepareStakingContractOptinTransactions(
   temp.push(txnMarket)
   temp.push(txnUserOptInManager)
   temp.push(txnStorageOptInManager)
-  return temp
+  return new TransactionGroup(temp)
 }
 
 export function prepareStakeTransactions(
@@ -63,7 +63,7 @@ export function prepareStakeTransactions(
   marketAddress: string,
   oracleAppId: number,
   assetId: number = undefined
-): Transaction[] {
+): TransactionGroup {
   let supportedOracleAppIds = [oracleAppId]
   let supportedMarketAppIds = [marketAppId]
   let prefixTransactions = getInitTxns(
@@ -116,7 +116,7 @@ export function prepareStakeTransactions(
   temp.push(txn0)
   temp.push(txn1)
   temp.push(txn2)
-  return temp
+  return new TransactionGroup(temp)
 }
 
 export function prepareUnstakeTransactions(
@@ -128,7 +128,7 @@ export function prepareUnstakeTransactions(
   marketAppId: number,
   oracleAppId: number,
   assetId: number = undefined
-): Transaction[] {
+): TransactionGroup {
   console.log("PREPARE UNSTAKE TRANSACTIONS IN STAKING.TS\n")
   let supportedMarketAppIds = [marketAppId]
   let supportedOracleAppIds = [oracleAppId]
@@ -172,7 +172,7 @@ export function prepareUnstakeTransactions(
   }
   txnGroup.push(txn0)
   txnGroup.push(txn1)
-  return txnGroup
+  return new TransactionGroup(txnGroup)
 }
 
 export function prepareClaimStakingRewardsTransactions(
@@ -183,7 +183,7 @@ export function prepareClaimStakingRewardsTransactions(
   marketAppId: number,
   oracleAppId: number,
   foreignAssets: number[]
-) {
+): TransactionGroup {
   console.log("PREPARE CLAIM STAKING REWARDS TRANSACTIONS IN STAKING.TS\n")
   let supportedMarketAppIds = [marketAppId]
   let supportedOracleAppIds = [oracleAppId]
@@ -205,4 +205,7 @@ export function prepareClaimStakingRewardsTransactions(
     undefined,
     foreignAssets
   )
+  let temp = [...prefixTransactions]
+  temp.push(txn0)
+  return new TransactionGroup(temp)
 }
