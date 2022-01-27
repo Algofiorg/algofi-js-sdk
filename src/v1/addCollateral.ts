@@ -1,5 +1,5 @@
-import { Transactions, TransactionGroup } from "./utils"
 import { SuggestedParams, makeApplicationNoOpTxn, makeAssetTransferTxnWithSuggestedParams } from "algosdk"
+import { Transactions, TransactionGroup } from "./utils"
 import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
@@ -49,11 +49,6 @@ export function prepareAddCollateralTransactions(
     bankAssetId,
     suggestedParams
   )
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  temp.push(txn1)
-  temp.push(txn2)
-
-  let txnGroup = new TransactionGroup(temp)
-  return txnGroup
+  console.log("prepare add collateral transactions in addcollateral.ts finished and returned something\n")
+  return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }

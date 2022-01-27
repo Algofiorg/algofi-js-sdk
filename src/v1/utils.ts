@@ -1,4 +1,3 @@
-import { Base64Encoder } from "./encode"
 import {
   Transaction,
   generateAccount,
@@ -9,8 +8,8 @@ import {
   makePaymentTxn,
   makePaymentTxnWithSuggestedParams
 } from "algosdk"
-import { contracts } from "./contracts"
 import { Algodv2, assignGroupID } from "algosdk"
+import { contracts } from "./contracts"
 
 //Constants
 const PARAMETER_SCALE_FACTOR = 1e3

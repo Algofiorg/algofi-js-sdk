@@ -1,4 +1,4 @@
-// import { Algodv2 } from "algosdk"
+import { Algodv2 } from "algosdk"
 // import { AlgofiMainnetClient } from "../v1/client"
 // const token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 // const server = "http://localhost"
@@ -77,6 +77,16 @@
 // console.log(a.addr)
 // console.log(a.sk)
 // console.log(secretKeyToMnemonic(a.sk))
-const enc = new TextEncoder()
-console.log(Buffer.from("ac"))
-console.log(enc.encode("ac"))
+// const enc = new TextEncoder()
+// console.log(Buffer.from("ac"))
+// console.log(enc.encode("ac"))
+
+async function foo() {
+  let algodClient = new Algodv2(
+    "ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff",
+    "https://node.chainvault.io/test",
+    ""
+  )
+  console.log(await algodClient.getAssetByID(408947).do())
+}
+foo()
