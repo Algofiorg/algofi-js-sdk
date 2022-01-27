@@ -298,36 +298,40 @@ export function searchGlobalState(globalState: {}[], searchKey: any): any {
 
 export class TransactionGroup {
   transactions: Transaction[]
-  //figure out type for signedTransactions
-  signedTransactions: any
+  signedTransactions: Uint8Array[]
   constructor(transactions: Transaction[]) {
     console.log("CONSTRUCTOR TRANSACTION GROUP IN UTILS.TS")
     this.transactions = assignGroupID(transactions)
     let signedTransactions = []
     for (let _ of this.transactions) {
-      signedTransactions.push(undefined)
+      signedTransactions.push(null)
     }
     this.signedTransactions = signedTransactions
   }
 
   //figure out how to notate types of privateKey
-  //Also address is not used so I took it out of the parameters
-  signWithPrivateKey = (privateKey: any) => {
+  //Also address is not used but I can take it out later
+  signWithPrivateKey(address: string, privateKey: Uint8Array): void {
     console.log("SIGN WITH PRIVATE KEY IN UTILS.TS")
-    for (let [i, txn] of Object.entries(this.transactions)) {
+    for (let [i, txn] of this.transactions.entries()) {
       this.signedTransactions[i] = txn.signTxn(privateKey)
     }
+    console.log("sign with private key in utils.ts finished\n")
   }
 
-  signWithPrivateKeys = (privateKeys: any) => {
+  signWithPrivateKeys(privateKeys: Uint8Array[]): void {
     console.log("SIGN WITH PRIVATE KEYS IN UTILS.TS")
-    //do assertion assert(len(private_keys) == len(self.transactions))
-    for (let [i, txn] of Object.entries(this.transactions)) {
+    if (privateKeys.length !== this.transactions.length) {
+      throw new Error("Different number of private keys and transactions")
+    }
+    for (let [i, txn] of this.transactions.entries()) {
       this.signedTransactions[i] = txn.signTxn(privateKeys[i])
     }
+    console.log("sign with private keys in utils.ts finished\n")
   }
 
-  submit = async (algod: Algodv2, wait: boolean = false) => {
+  //formatter is saving this as txid:txid instead of "txid":txid
+  async submit(algod: Algodv2, wait: boolean = false) {
     console.log("SUBMIT IN UTILS.TS")
     let txid: string
     try {
@@ -339,7 +343,7 @@ export class TransactionGroup {
     if (wait) {
       return waitForConfirmation(algod, txid)
     }
-    //formatter is saving this as txid:txid instead of "txid":txid
+    console.log("submit in utils.ts finishe\n")
     return {
       txid: txid
     }
