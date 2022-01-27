@@ -1,11 +1,9 @@
-"use strict";
 // import { Algodv2 } from "algosdk"
 // import { AlgofiMainnetClient } from "../v1/client"
 // const token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 // const server = "http://localhost"
 // const port = 4001
 // const client = new Algodv2(token, server, port)
-exports.__esModule = true;
 // const foo = async (address: string) => {
 //   const a = await client.accountInformation(address).do()
 //   console.log(a)
@@ -60,8 +58,11 @@ exports.__esModule = true;
 //     value: "SGksIEknbSBkZWNvZGVkIGZyb20gYmFzZTY"
 //   })
 // )
-var algosdk_1 = require("algosdk");
-var a = (0, algosdk_1.generateAccount)();
-console.log(a.addr);
-console.log(a.sk);
-console.log((0, algosdk_1.secretKeyToMnemonic)(a.sk));
+// import { generateAccount, secretKeyToMnemonic } from "algosdk"
+// let a = generateAccount()
+// console.log(a.addr)
+// console.log(a.sk)
+// console.log(secretKeyToMnemonic(a.sk))
+var enc = new TextEncoder();
+console.log(Buffer.from("ac"));
+console.log(enc.encode("ac"));

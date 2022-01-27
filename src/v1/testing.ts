@@ -70,10 +70,13 @@
 //   })
 // )
 
-import { generateAccount, secretKeyToMnemonic } from "algosdk"
+// import { generateAccount, secretKeyToMnemonic } from "algosdk"
 
-let a = generateAccount()
+// let a = generateAccount()
 
-console.log(a.addr)
-console.log(a.sk)
-console.log(secretKeyToMnemonic(a.sk))
+// console.log(a.addr)
+// console.log(a.sk)
+// console.log(secretKeyToMnemonic(a.sk))
+const enc = new TextEncoder()
+console.log(Buffer.from("ac"))
+console.log(enc.encode("ac"))
