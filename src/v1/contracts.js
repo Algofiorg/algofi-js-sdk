@@ -218,11 +218,11 @@ exports.contracts = {
                 bankAssetId: 482653551,
                 underlyingAssetId: 465865291
             },
-            "STBL-USDC-LP": {
-                marketAppId: 485244022,
-                managerAppId: 485247444,
-                bankAssetId: 485254141,
-                underlyingAssetId: 467020179
+            "STBL-USDC-LP-V2": {
+                marketAppId: 553866305,
+                managerAppId: 553869413,
+                bankAssetId: 553898734,
+                underlyingAssetId: 552737686
             }
         }
     }

@@ -1,4 +1,5 @@
 import { Algodv2 } from "algosdk"
+import { AlgofiMainnetClient } from "../v1/client"
 // const token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 // const server = "http://localhost"
 // const port = 4001
@@ -31,7 +32,8 @@ import { Algodv2 } from "algosdk"
 //     "https://node.chainvault.io/test",
 //     ""
 //   )
-//   console.log(await algodClient.status().do())
+//   // let testnetClient = AlgofiMainnetClient(algodClient)
+//   console.log(await algodClient.accountInformation("XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ").do())
 // }
 
 // foo()

@@ -55,13 +55,11 @@ var Transactions;
     Transactions[Transactions["CLAIM_REWARDS"] = 10] = "CLAIM_REWARDS";
 })(Transactions = exports.Transactions || (exports.Transactions = {}));
 function get(object, key, default_value) {
-    console.log("GET IN UTILS.TS\n");
     var result = object[key];
     return typeof result !== "undefined" ? result : default_value;
 }
 exports.get = get;
 function toAscii(word) {
-    console.log("TO ASCII IN UTILS.TS\n");
     var temp = [];
     for (var i = 0; i < word.length; i++) {
         temp.push(word.charCodeAt(i));
@@ -113,9 +111,9 @@ var signAndSubmitTransaction = function (client, transactions, signedTransaction
     });
 }); };
 exports.signAndSubmitTransaction = signAndSubmitTransaction;
+var dec = new TextDecoder();
 function formatState(state) {
     console.log("FORMAT STATE IN UTILS.TS\n");
-    // console.log("FORMAT STATE IN UTILS.TS")
     var formatted = {};
     for (var _i = 0, state_1 = state; _i < state_1.length; _i++) {
         var item = state_1[_i];
@@ -124,20 +122,26 @@ function formatState(state) {
         var formattedKey = void 0;
         var formattedValue = void 0;
         try {
+            formattedKey = encode_1.Base64Encoder._utf8_decode(encode_1.Base64Encoder.decode(key));
+        }
+        catch (e) {
             formattedKey = encode_1.Base64Encoder.decode(key);
-            if (value["type"] == 1) {
-                // note -- this doesn't exactly match functionality of the python impl.
-                formattedValue = encode_1.Base64Encoder.decode(value["bytes"]);
+        }
+        if (value["type"] === 1) {
+            try {
+                formattedValue = encode_1.Base64Encoder._utf8_decode(encode_1.Base64Encoder.decode(value["bytes"]));
             }
-            else {
-                formattedValue = value["uint"];
+            catch (e) {
+                formattedValue = value["bytes"];
             }
             formatted[formattedKey] = formattedValue;
         }
-        catch (err) { }
+        else {
+            formatted[formattedKey] = value["uint"];
+        }
+        console.log("format state in utils.ts finished and returned", formatted, "\n");
+        return formatted;
     }
-    // console.log(formatted)
-    return formatted;
 }
 exports.formatState = formatState;
 var getGlobalState = function (algodClient, appId) { return __awaiter(void 0, void 0, void 0, function () {
@@ -150,6 +154,7 @@ var getGlobalState = function (algodClient, appId) { return __awaiter(void 0, vo
             case 1:
                 application = _a.sent();
                 stateDict = formatState(application["params"]["global-state"]);
+                console.log("get global state in utils.ts finished and returned", stateDict, "\n");
                 return [2 /*return*/, stateDict];
         }
     });
@@ -174,31 +179,37 @@ var searchGlobalState = function (globalState, searchKey) {
 };
 exports.searchGlobalState = searchGlobalState;
 //Figure out if we are returning the same file as the python sdk
-var readLocalState = function (client, address, appId) { return __awaiter(void 0, void 0, void 0, function () {
-    var results, _i, _a, localState;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                console.log("READ LOCAL STATE IN UTILS.TS");
-                return [4 /*yield*/, client.accountInformation(address)["do"]()];
-            case 1:
-                results = _b.sent();
-                for (_i = 0, _a = results["apps-local-state"]; _i < _a.length; _i++) {
-                    localState = _a[_i];
-                    if (localState["id"] === appId) {
-                        if (!Object.keys(localState).includes("key-value")) {
-                            return [2 /*return*/, {}];
+function readLocalState(client, address, appId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var results, _i, _a, localState;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    console.log("READ LOCAL STATE IN UTILS.TS\n");
+                    return [4 /*yield*/, client.accountInformation(address)["do"]()];
+                case 1:
+                    results = _b.sent();
+                    for (_i = 0, _a = results["apps-local-state"]; _i < _a.length; _i++) {
+                        localState = _a[_i];
+                        if (localState["id"] === appId) {
+                            if (!Object.keys(localState).includes("key-value")) {
+                                console.log("read local state in utils.ts finished and returned {}\n");
+                                return [2 /*return*/, {}];
+                            }
+                            console.log("read local state in utils.ts finished and returned", formatState(localState["key-value"]), "\n");
+                            return [2 /*return*/, formatState(localState["key-value"])];
                         }
-                        return [2 /*return*/, formatState(localState["key-value"])];
                     }
-                }
-                return [2 /*return*/, {}];
-        }
+                    console.log("read local state in utils.ts finished and returned {}\n");
+                    return [2 /*return*/, {}];
+            }
+        });
     });
-}); };
+}
 exports.readLocalState = readLocalState;
 var getManagerAppId = function (chain) {
     console.log("GET MANAGER APP ID IN UTILS.TS\n");
+    console.log("get manager app id in utils.ts finished and returned", contracts_1.contracts[chain]["managerAppId"], "\n");
     return contracts_1.contracts[chain]["managerAppId"];
 };
 exports.getManagerAppId = getManagerAppId;
@@ -220,7 +231,7 @@ var waitForConfirmation = function (client, txId) {
                 case 3:
                     pendingInfo = _a.sent();
                     if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
-                        console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"]);
+                        // console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"])
                         return [3 /*break*/, 5];
                     }
                     lastround++;
@@ -245,6 +256,7 @@ var getMarketAppId = function (chain, symbol) {
 exports.getMarketAppId = getMarketAppId;
 var getInitRound = function (chain) {
     console.log("GET INIT ROUND IN UTILS.TS\n");
+    console.log("get init round in utils.ts finished and returned", contracts_1.contracts[chain]["initRound"], "\n");
     return contracts_1.contracts[chain]["initRound"];
 };
 exports.getInitRound = getInitRound;
@@ -284,6 +296,7 @@ var getOrderedSymbols = function (chain, max, maxAtomicOptIn) {
         supportedMarketCount = contracts_1.contracts["supportedMarketCount"];
     }
     // console.log(supportedMarketCount)
+    console.log("get ordered symbols in utils.ts finished and returned", contracts_1.contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount), "\n");
     return contracts_1.contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount);
 };
 exports.getOrderedSymbols = getOrderedSymbols;

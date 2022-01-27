@@ -1,5 +1,5 @@
 import { Algodv2, Indexer } from "algosdk"
-import { StakingContractInfo } from "./client"
+import { StakingContractInfo, StringToNum } from "./client"
 import { Manager } from "./manager"
 import { Market } from "./market"
 import { get } from "./utils"
@@ -7,22 +7,15 @@ import { get } from "./utils"
 export class StakingContract {
   algodClient: Algodv2
   historicalIndexerClient: Indexer
-  stakingContractInfo: StakingContractInfo
   manager: Manager
   market: Market
 
-  constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, stakingContractInfo: StakingContractInfo) {
+  constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, stakingContractInfo: StringToNum) {
     console.log("CONSTRUCTOR IN STAKINGCONTRACT.TS\n")
     this.algodClient = algodClient
     this.historicalIndexerClient = historicalIndexerClient
-    //Have to ask about this, seems like I'm missing something about type checking with stakingContractInfo
-    //Setting the network to mainnet for now
-    this.manager = new Manager(this.algodClient, stakingContractInfo["mainnet"]["managerAppId"])
-    this.market = new Market(
-      this.algodClient,
-      this.historicalIndexerClient,
-      stakingContractInfo["mainnet"]["marketAppId"]
-    )
+    this.manager = new Manager(this.algodClient, stakingContractInfo["managerAppId"])
+    this.market = new Market(this.algodClient, this.historicalIndexerClient, stakingContractInfo["marketAppId"])
     this.updateGlobalState()
   }
 

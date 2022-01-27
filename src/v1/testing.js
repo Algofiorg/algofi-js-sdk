@@ -63,9 +63,11 @@ function foo() {
             switch (_c.label) {
                 case 0:
                     algodClient = new algosdk_1.Algodv2("ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff", "https://node.chainvault.io/test", "");
+                    // let testnetClient = AlgofiMainnetClient(algodClient)
                     _b = (_a = console).log;
-                    return [4 /*yield*/, algodClient.status()["do"]()];
+                    return [4 /*yield*/, algodClient.accountInformation("XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ")["do"]()];
                 case 1:
+                    // let testnetClient = AlgofiMainnetClient(algodClient)
                     _b.apply(_a, [_c.sent()]);
                     return [2 /*return*/];
             }

@@ -17,13 +17,11 @@ export enum Transactions {
 }
 
 export function get(object: any, key: any, default_value: any) {
-  console.log("GET IN UTILS.TS\n")
   var result = object[key]
   return typeof result !== "undefined" ? result : default_value
 }
 
 export function toAscii(word: string) {
-  console.log("TO ASCII IN UTILS.TS\n")
   let temp = []
   for (let i = 0; i < word.length; i++) {
     temp.push(word.charCodeAt(i))
@@ -65,34 +63,41 @@ export const signAndSubmitTransaction = async (client: Algodv2, transactions, si
   return waitForConfirmation(client, txid)
 }
 
+const dec = new TextDecoder()
+
 export function formatState(state) {
   console.log("FORMAT STATE IN UTILS.TS\n")
-  // console.log("FORMAT STATE IN UTILS.TS")
   let formatted = {}
   for (let item of state) {
     let key = item["key"]
     let value = item["value"]
-    let formattedKey
-    let formattedValue
+    let formattedKey: string
+    let formattedValue: string
     try {
+      formattedKey = Base64Encoder._utf8_decode(Base64Encoder.decode(key))
+    } catch (e) {
       formattedKey = Base64Encoder.decode(key)
-      if (value["type"] == 1) {
-        // note -- this doesn't exactly match functionality of the python impl.
-        formattedValue = Base64Encoder.decode(value["bytes"])
-      } else {
-        formattedValue = value["uint"]
+    }
+    if (value["type"] === 1) {
+      try {
+        formattedValue = Base64Encoder._utf8_decode(Base64Encoder.decode(value["bytes"]))
+      } catch (e) {
+        formattedValue = value["bytes"]
       }
       formatted[formattedKey] = formattedValue
-    } catch (err) {}
+    } else {
+      formatted[formattedKey] = value["uint"]
+    }
+    console.log("format state in utils.ts finished and returned", formatted, "\n")
+    return formatted
   }
-  // console.log(formatted)
-  return formatted
 }
 
 export const getGlobalState = async (algodClient: Algodv2, appId: number) => {
   console.log("GET GLOBAL STATE IN UTILS.TS\n")
   let application = await algodClient.getApplicationByID(appId).do()
   const stateDict = formatState(application["params"]["global-state"])
+  console.log("get global state in utils.ts finished and returned", stateDict, "\n")
   return stateDict
 }
 
@@ -113,22 +118,27 @@ export const searchGlobalState = (globalState, searchKey) => {
 }
 
 //Figure out if we are returning the same file as the python sdk
-export const readLocalState = async (client: Algodv2, address: string, appId: number) => {
-  console.log("READ LOCAL STATE IN UTILS.TS")
+export async function readLocalState(client: Algodv2, address: string, appId: number) {
+  console.log("READ LOCAL STATE IN UTILS.TS\n")
+  // Address XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ
   const results = await client.accountInformation(address).do()
   for (let localState of results["apps-local-state"]) {
     if (localState["id"] === appId) {
       if (!Object.keys(localState).includes("key-value")) {
+        console.log("read local state in utils.ts finished and returned {}\n")
         return {}
       }
+      console.log("read local state in utils.ts finished and returned", formatState(localState["key-value"]), "\n")
       return formatState(localState["key-value"])
     }
   }
+  console.log("read local state in utils.ts finished and returned {}\n")
   return {}
 }
 
 export const getManagerAppId = (chain: string) => {
   console.log("GET MANAGER APP ID IN UTILS.TS\n")
+  console.log("get manager app id in utils.ts finished and returned", contracts[chain]["managerAppId"], "\n")
   return contracts[chain]["managerAppId"]
 }
 
@@ -139,7 +149,7 @@ const waitForConfirmation = async function(client: Algodv2, txId: string) {
   while (true) {
     const pendingInfo = await client.pendingTransactionInformation(txId).do()
     if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
-      console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"])
+      // console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"])
       break
     }
     lastround++
@@ -159,6 +169,7 @@ export const getMarketAppId = (chain: string, symbol: string) => {
 
 export const getInitRound = (chain: string) => {
   console.log("GET INIT ROUND IN UTILS.TS\n")
+  console.log("get init round in utils.ts finished and returned", contracts[chain]["initRound"], "\n")
   return contracts[chain]["initRound"]
 }
 
@@ -185,6 +196,11 @@ export const getOrderedSymbols = (chain: string, max: boolean = false, maxAtomic
     supportedMarketCount = contracts["supportedMarketCount"]
   }
   // console.log(supportedMarketCount)
+  console.log(
+    "get ordered symbols in utils.ts finished and returned",
+    contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount),
+    "\n"
+  )
   return contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount)
 }
 
