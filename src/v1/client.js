@@ -398,7 +398,10 @@ var Client = /** @class */ (function () {
                     case 1:
                         if (!(nextPage !== null)) return [3 /*break*/, 3];
                         console.log(nextPage);
-                        return [4 /*yield*/, this.indexerClient.searchAccounts()["do"]()];
+                        return [4 /*yield*/, this.indexerClient
+                                .searchAccounts()
+                                .applicationID(appId)
+                                .nextToken(nextPage)["do"]()];
                     case 2:
                         accountData = _b.sent();
                         for (_i = 0, _a = accountData["accounts"]; _i < _a.length; _i++) {
@@ -409,7 +412,7 @@ var Client = /** @class */ (function () {
                             nextPage = accountData["next-token"];
                         }
                         else {
-                            nextPage = undefined;
+                            nextPage = null;
                         }
                         return [3 /*break*/, 1];
                     case 3: return [2 /*return*/, accounts];
@@ -885,12 +888,11 @@ function newAlgofiTestnetClient(algodClient, indexerClient, userAddress) {
                 case 0:
                     historicalIndexerClient = new algosdk_1.Indexer("", "https://indexer.testnet.algoexplorerapi.io/", "");
                     if (algodClient === null) {
-                        algodClient = new algosdk_1.Algodv2("ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff", "https://node.chainvault.io/test", "");
+                        algodClient = new algosdk_1.Algodv2("", "https://api.testnet.algoexplorer.io", "");
                     }
                     if (indexerClient === null) {
                         indexerClient = new algosdk_1.Indexer("", "https://algoindexer.testnet.algoexplorerapi.io/", "");
                     }
-                    console.log(algodClient, indexerClient, historicalIndexerClient, userAddress);
                     return [4 /*yield*/, Client.init(algodClient, indexerClient, historicalIndexerClient, userAddress, "testnet")];
                 case 1: return [2 /*return*/, _a.sent()];
             }

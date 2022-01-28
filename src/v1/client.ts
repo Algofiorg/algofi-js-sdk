@@ -302,10 +302,10 @@ export class Client {
   }
 
   // INDEXER HELPERS
-  async getStorageAccounts(stakingContractName: string = null) {
+  async getStorageAccounts(stakingContractName: string = null): Promise<any[]> {
     let nextPage = ""
     let accounts = []
-    let appId
+    let appId: number
     if (stakingContractName === null) {
       appId = Object.values(this.getActiveMarkets())[0].getMarketAppId()
     } else {
@@ -313,15 +313,18 @@ export class Client {
     }
     while (nextPage !== null) {
       console.log(nextPage)
-      //make sure this is the js analog to indexer.accounts, we are just assuming at this point
-      let accountData = await this.indexerClient.searchAccounts().do()
+      let accountData = await this.indexerClient
+        .searchAccounts()
+        .applicationID(appId)
+        .nextToken(nextPage)
+        .do()
       for (let account of accountData["accounts"]) {
         accounts.push(account)
       }
       if (accountData.includes("next-token")) {
         nextPage = accountData["next-token"]
       } else {
-        nextPage = undefined
+        nextPage = null
       }
     }
     return accounts
@@ -684,16 +687,11 @@ export async function newAlgofiTestnetClient(
 ): Promise<Client> {
   let historicalIndexerClient = new Indexer("", "https://indexer.testnet.algoexplorerapi.io/", "")
   if (algodClient === null) {
-    algodClient = new Algodv2(
-      "ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff",
-      "https://node.chainvault.io/test",
-      ""
-    )
+    algodClient = new Algodv2("", "https://api.testnet.algoexplorer.io", "")
   }
   if (indexerClient === null) {
     indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io/", "")
   }
-  console.log(algodClient, indexerClient, historicalIndexerClient, userAddress)
   return await Client.init(algodClient, indexerClient, historicalIndexerClient, userAddress, "testnet")
 }
 

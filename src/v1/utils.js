@@ -200,19 +200,19 @@ function formatState(state) {
             formattedKey = Buffer.from(key).toString();
         }
         if (value["type"] === 1) {
-            try {
-                formattedValue = Buffer.from(value["bytes"], "base64").toString();
-            }
-            catch (e) {
+            if (value["bytes"] !== "") {
                 formattedValue = value["bytes"];
+            }
+            else {
+                formattedValue = Buffer.from(value["bytes"], "base64").toString();
             }
             formatted[formattedKey] = formattedValue;
         }
         else {
             formatted[formattedKey] = value["uint"];
         }
-        return formatted;
     }
+    return formatted;
 }
 exports.formatState = formatState;
 //Figure out if we are returning the same file as the python sdk
@@ -266,10 +266,7 @@ function getGlobalState(algodClient, appId) {
         var application, stateDict;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    console.log(appId);
-                    console.log(algodClient);
-                    return [4 /*yield*/, algodClient.getApplicationByID(appId)["do"]()];
+                case 0: return [4 /*yield*/, algodClient.getApplicationByID(appId)["do"]()];
                 case 1:
                     application = _a.sent();
                     stateDict = formatState(application["params"]["global-state"]);

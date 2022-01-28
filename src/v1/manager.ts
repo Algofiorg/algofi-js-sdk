@@ -47,6 +47,7 @@ export class Manager {
       encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64")),
       "\n"
     )
+    console.log(rawStorageAddress)
     return encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64"))
   }
 

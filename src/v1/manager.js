@@ -85,6 +85,7 @@ var Manager = /** @class */ (function () {
                         }
                         //still need to figure out if this is correct
                         console.log("get storage address in manager.ts finished and returned:", (0, algosdk_1.encodeAddress)(Buffer.from(rawStorageAddress.trim(), "base64")), "\n");
+                        console.log(rawStorageAddress);
                         return [2 /*return*/, (0, algosdk_1.encodeAddress)(Buffer.from(rawStorageAddress.trim(), "base64"))];
                 }
             });

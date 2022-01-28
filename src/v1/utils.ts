@@ -151,18 +151,17 @@ export function formatState(state: {}[]): {} {
       formattedKey = Buffer.from(key).toString()
     }
     if (value["type"] === 1) {
-      try {
-        formattedValue = Buffer.from(value["bytes"], "base64").toString()
-      } catch (e) {
+      if (value["bytes"] !== "") {
         formattedValue = value["bytes"]
+      } else {
+        formattedValue = Buffer.from(value["bytes"], "base64").toString()
       }
       formatted[formattedKey] = formattedValue
     } else {
       formatted[formattedKey] = value["uint"]
     }
-
-    return formatted
   }
+  return formatted
 }
 
 //Figure out if we are returning the same file as the python sdk
@@ -173,7 +172,6 @@ export async function readLocalState(client: Algodv2, address: string, appId: nu
       if (!Object.keys(localState).includes("key-value")) {
         return {}
       }
-
       return formatState(localState["key-value"])
     }
   }
@@ -193,8 +191,6 @@ export async function readGlobalState(client: Algodv2, address: string, appId: n
 
 //need to make sure that getApplicationByID is the same thing as client.application_info(app_id) for pysdk
 export async function getGlobalState(algodClient: Algodv2, appId: number): Promise<{}> {
-  console.log(appId)
-  console.log(algodClient)
   let application = await algodClient.getApplicationByID(appId).do()
   const stateDict = formatState(application["params"]["global-state"])
   return stateDict
