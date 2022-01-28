@@ -23,7 +23,6 @@ export function prepareRepayBorrowTransactions(
   supportedOracleAppIds: number[],
   assetId: number = null
 ): TransactionGroup {
-  console.log("PREPARE REPAY BORROW TRANSACTIONS IN REPAYBORROW.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.REPAY_BORROW,
     sender,
@@ -62,6 +61,5 @@ export function prepareRepayBorrowTransactions(
     txn2 = makePaymentTxnWithSuggestedParams(sender, marketAddress, amount, undefined, undefined, suggestedParams)
   }
 
-  console.log("prepare repay borrow transactions in repayborrow.ts finished and returned something\n")
   return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }

@@ -16,7 +16,6 @@ export function prepareRemoveCollateralTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
-  console.log("PREPARE REMOVE COLLATERAL TRANSACTIONS IN REMOVECOLLATERAL.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.REMOVE_COLLATERAL,
     sender,
@@ -41,6 +40,5 @@ export function prepareRemoveCollateralTransactions(
     [bankAssetId]
   )
 
-  console.log("prepare remove collateral transactions in removecollateral.ts finished and returned something\n")
   return new TransactionGroup([...prefixTransactions, txn0, txn1])
 }

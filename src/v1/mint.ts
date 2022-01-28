@@ -24,7 +24,6 @@ export function prepareMintTransactions(
   supportedOracleAppIds: number[],
   assetId: number = null
 ): TransactionGroup {
-  console.log("PREPARE MINT TRANSACTIONS IN MINT.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.MINT,
     sender,
@@ -62,7 +61,5 @@ export function prepareMintTransactions(
   } else {
     txn2 = makePaymentTxnWithSuggestedParams(sender, marketAddress, amount, undefined, undefined, suggestedParams)
   }
-
-  console.log("prepare mint transactions in mint.ts finished and returned something\n")
   return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }

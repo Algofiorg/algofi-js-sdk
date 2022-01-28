@@ -15,7 +15,6 @@ export function prepareManagerAppOptinTransactions(
   storageAddress: string,
   suggestedParams: SuggestedParams
 ): TransactionGroup {
-  console.log("PREPARE MANAGER APP OPTIN TRANSACTIONS IN OPTIN.TS\n")
   //have to convert opt_in_min_balance * 1e6 to an integer
   let txnPayment = makePaymentTxnWithSuggestedParams(
     sender,
@@ -47,7 +46,6 @@ export function prepareManagerAppOptinTransactions(
     undefined,
     appAddress
   )
-  console.log("prepare manager app optin transactions in optin.ts finished and returned something\n")
   return new TransactionGroup([txnPayment, ...marketOptinTransactions, txnUserOptinManager, txnStorageOptinManager])
 }
 

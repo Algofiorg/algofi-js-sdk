@@ -47,7 +47,6 @@ export class Asset {
     oraclePriceField: string = null,
     oraclePriceScaleFactor: number = null
   ): Promise<Asset> {
-    console.log("INIT IN ASSET.TS")
     let asset = new Asset(
       algodClient,
       underlyingAssetId,
@@ -64,14 +63,10 @@ export class Asset {
   }
 
   getUnderlyingAssetId(): number {
-    console.log("GET UNDERLYING ASSET ID IN ASSET.TS\n")
-    console.log("get underlying asset id in asset.ts finished and returned", this.underlyingAssetId, "\n")
     return this.underlyingAssetId
   }
 
   getUnderlyingAssetInfo(): {} {
-    console.log("GET UNDERLYING ASSET info IN ASSET.TS\n")
-    console.log("get underlying asset info in asset.ts finished and returned", this.underlyingAssetInfo, "\n")
     return this.underlyingAssetInfo
   }
 

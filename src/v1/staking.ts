@@ -21,7 +21,6 @@ export function prepareStakingContractOptinTransactions(
   storageAddress: string,
   suggestedParams: SuggestedParams
 ): TransactionGroup {
-  console.log("PREPARE STAKING CONTRACT OPT IN TRANSACDTIONS IN STAKING.TS\n")
   //need to convert value to int
   let txnPayment = makePaymentTxnWithSuggestedParams(
     sender,
@@ -120,7 +119,6 @@ export function prepareUnstakeTransactions(
   oracleAppId: number,
   assetId: number = null
 ): TransactionGroup {
-  console.log("PREPARE UNSTAKE TRANSACTIONS IN STAKING.TS\n")
   let supportedMarketAppIds = [marketAppId]
   let supportedOracleAppIds = [oracleAppId]
   let prefixTransactions = getInitTxns(
@@ -170,7 +168,6 @@ export function prepareClaimStakingRewardsTransactions(
   oracleAppId: number,
   foreignAssets: number[]
 ): TransactionGroup {
-  console.log("PREPARE CLAIM STAKING REWARDS TRANSACTIONS IN STAKING.TS\n")
   let supportedMarketAppIds = [marketAppId]
   let supportedOracleAppIds = [oracleAppId]
   let prefixTransactions = getInitTxns(

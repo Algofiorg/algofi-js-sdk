@@ -17,7 +17,6 @@ export function prepareAddCollateralTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
-  console.log("PREPARE ADD COLLATERAL TRANSACTIONS IN ADDCOLLATERAL.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.ADD_COLLATERAL,
     sender,
@@ -49,6 +48,5 @@ export function prepareAddCollateralTransactions(
     bankAssetId,
     suggestedParams
   )
-  console.log("prepare add collateral transactions in addcollateral.ts finished and returned something\n")
   return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }

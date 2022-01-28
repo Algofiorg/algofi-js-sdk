@@ -17,7 +17,6 @@ export function prepareBorrowTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
-  console.log("PREPARE BORROW TRANSACTIONS IN BORROW.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.BORROW,
     sender,
@@ -41,6 +40,5 @@ export function prepareBorrowTransactions(
     [managerAppId],
     [assetId]
   )
-  console.log("prepare borrow transactions in borrow.ts finished and returned something")
   return new TransactionGroup([...prefixTransactions, txn0, txn1])
 }

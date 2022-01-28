@@ -64,7 +64,6 @@ export function getProgram(definition: {}, variables: {} = null): Uint8Array {
 }
 
 export function encodeValue(value: number, type: string): Uint8Array {
-  console.log("ENCODE VALUE IN UTILS.TS\n")
   if (type === "int") {
     return encodeVarint(value)
   }
@@ -74,7 +73,6 @@ export function encodeValue(value: number, type: string): Uint8Array {
 //Again will come back to this function, it doesn't seem to be used anywhere else in the py sdk
 //except get_program, but get_program isn't used anywhere else other than its declaration
 export function encodeVarint(number: number): Uint8Array {
-  console.log("ENCODE VARINT IN UTILS.TS\n")
   return
 }
 
@@ -87,7 +85,6 @@ export async function signAndSubmitTransaction(
   sender: string,
   senderSk: Uint8Array
 ) {
-  console.log("SIGN AND SUBMIT TRANSACTION IN UTILS.TS")
   for (const [i, txn] of transactions.entries()) {
     if (true) {
       signedTransactions[i] = txn.signTxn(senderSk)
@@ -98,7 +95,6 @@ export async function signAndSubmitTransaction(
 }
 
 export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
-  console.log("WAIT FOR CONFIRMATION IN UTILS.TS\n")
   const response = await algodClient.status().do()
   let lastround = response["last-round"]
   while (true) {
@@ -143,7 +139,6 @@ print(decoded)
 //but bytes object has no property encode, which makes sense because if you are in bytes then you hva ealready encoded it into bytes
 //and want to decode it into a charset
 export function formatState(state: {}[]): {} {
-  console.log("FORMAT STATE IN UTILS.TS\n")
   let formatted = {}
   for (let item of state) {
     let key = item["key"]
@@ -165,31 +160,27 @@ export function formatState(state: {}[]): {} {
     } else {
       formatted[formattedKey] = value["uint"]
     }
-    console.log("format state in utils.ts finished and returned", formatted, "\n")
+
     return formatted
   }
 }
 
 //Figure out if we are returning the same file as the python sdk
 export async function readLocalState(client: Algodv2, address: string, appId: number): Promise<{}> {
-  console.log("READ LOCAL STATE IN UTILS.TS\n")
   let results = await client.accountInformation(address).do()
   for (let localState of results["apps-local-state"]) {
     if (localState["id"] === appId) {
       if (!Object.keys(localState).includes("key-value")) {
-        console.log("read local state in utils.ts finished and returned {}\n")
         return {}
       }
-      console.log("read local state in utils.ts finished and returned", formatState(localState["key-value"]), "\n")
+
       return formatState(localState["key-value"])
     }
   }
-  console.log("read local state in utils.ts finished and returned {}\n")
   return {}
 }
 
 export async function readGlobalState(client: Algodv2, address: string, appId: number): Promise<{}> {
-  console.log("READ GLOBAL STATE IN UTILS.TS")
   const results = await client.accountInformation(address).do()
   const appsCreated = results["created-apps"]
   for (let app of appsCreated) {
@@ -197,27 +188,21 @@ export async function readGlobalState(client: Algodv2, address: string, appId: n
       return formatState(app["params"]["global-state"])
     }
   }
-  console.log("format state in utils.ts finished and returned {}\n")
   return {}
 }
 
 //need to make sure that getApplicationByID is the same thing as client.application_info(app_id) for pysdk
 export async function getGlobalState(algodClient: Algodv2, appId: number): Promise<{}> {
-  console.log("GET GLOBAL STATE IN UTILS.TS\n")
   let application = await algodClient.getApplicationByID(appId).do()
   const stateDict = formatState(application["params"]["global-state"])
-  console.log("get global state in utils.ts finished and returned", stateDict, "\n")
   return stateDict
 }
 
 export function getStakingContracts(chain: string): {} {
-  console.log("GET STAKING CONTRACTS IN UTILS.TS\n")
-  console.log("get staking contracts in utils.ts finished and returned", contracts[chain]["STAKING_CONTRACTS"], "\n")
   return contracts[chain]["STAKING_CONTRACTS"]
 }
 
 export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomicOptIn: boolean = false): string[] {
-  console.log("GET ORDERED SYMBOLS IN UTILS.TS\n")
   let supportedMarketCount: number
   if (max) {
     supportedMarketCount = contracts["maxMarketCount"]
@@ -235,20 +220,14 @@ export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomic
 }
 
 export function getManagerAppId(chain: string): number {
-  console.log("GET MANAGER APP ID IN UTILS.TS\n")
-  console.log("get manager app id in utils.ts finished and returned", contracts[chain]["managerAppId"], "\n")
   return contracts[chain]["managerAppId"]
 }
 
 export function getMarketAppId(chain: string, symbol: string): number {
-  console.log("GET MARKET APP ID IN UTILS.TS\n")
-  console.log("get market app id finished and returned", contracts[chain]["SYMBOL_INFO"][symbol]["marketAppId"], "\n")
   return contracts[chain]["SYMBOL_INFO"][symbol]["marketAppId"]
 }
 
 export function getInitRound(chain: string): number {
-  console.log("GET INIT ROUND IN UTILS.TS\n")
-  console.log("get init round in utils.ts finished and returned", contracts[chain]["initRound"], "\n")
   return contracts[chain]["initRound"]
 }
 
@@ -259,15 +238,12 @@ export function preparePaymentTransaction(
   amount: number,
   rekey_to: string = null
 ): TransactionGroup {
-  console.log("PREPARE PAYMENT TRANSACTION IN UTILS.TS\n")
   let txn = makePaymentTxnWithSuggestedParams(sender, receiver, amount, undefined, undefined, suggestedParams)
   let txnGroup = new TransactionGroup([txn])
-  console.log("prepare payment transactions in utils.ts finished and returned", txnGroup, "\n")
   return txnGroup
 }
 
 export function getNewAccount(): any[] {
-  console.log("GET NEW ACCOUNT IN UTILS.TS")
   //this is actually not asynchronous
   let newAccount = generateAccount()
 
@@ -277,12 +253,10 @@ export function getNewAccount(): any[] {
 
   //this works as well
   let passphrase = secretKeyToMnemonic(key)
-  console.log("get new account in utils.ts finished and returned", [key, address, passphrase], "\n")
   return [key, address, passphrase]
 }
 
 export function searchGlobalState(globalState: {}, searchKey: any): any {
-  console.log("SEARCH GLOBAL STATE IN UTILS.TS")
   for (let field of Object.keys(globalState)) {
     let value = field["value"]
     let key = field["key"]
@@ -292,7 +266,7 @@ export function searchGlobalState(globalState: {}, searchKey: any): any {
       } else {
         value = value["bytes"]
       }
-      console.log("search global state in utils.ts finished and returned", value, "\n")
+
       return value
     }
   }
@@ -303,7 +277,6 @@ export class TransactionGroup {
   transactions: Transaction[]
   signedTransactions: Uint8Array[]
   constructor(transactions: Transaction[]) {
-    console.log("CONSTRUCTOR TRANSACTION GROUP IN UTILS.TS")
     this.transactions = assignGroupID(transactions)
     let signedTransactions = []
     for (let _ of this.transactions) {
@@ -315,27 +288,22 @@ export class TransactionGroup {
   //figure out how to notate types of privateKey
   //Also address is not used but I can take it out later
   signWithPrivateKey(address: string, privateKey: Uint8Array): void {
-    console.log("SIGN WITH PRIVATE KEY IN UTILS.TS")
     for (let [i, txn] of this.transactions.entries()) {
       this.signedTransactions[i] = txn.signTxn(privateKey)
     }
-    console.log("sign with private key in utils.ts finished\n")
   }
 
   signWithPrivateKeys(privateKeys: Uint8Array[]): void {
-    console.log("SIGN WITH PRIVATE KEYS IN UTILS.TS")
     if (privateKeys.length !== this.transactions.length) {
       throw new Error("Different number of private keys and transactions")
     }
     for (let [i, txn] of this.transactions.entries()) {
       this.signedTransactions[i] = txn.signTxn(privateKeys[i])
     }
-    console.log("sign with private keys in utils.ts finished\n")
   }
 
   //formatter is saving this as txid:txid instead of "txid":txid
   async submit(algod: Algodv2, wait: boolean = false) {
-    console.log("SUBMIT IN UTILS.TS")
     let txid: string
     try {
       txid = await algod.sendRawTransaction(this.signedTransactions).do()
@@ -346,7 +314,7 @@ export class TransactionGroup {
     if (wait) {
       return waitForConfirmation(algod, txid)
     }
-    console.log("submit in utils.ts finishe\n")
+
     return {
       txid: txid
     }

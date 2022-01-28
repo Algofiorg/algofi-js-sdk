@@ -14,7 +14,6 @@ export function prepareClaimRewardsTransactions(
   supportedOracleAppIds: number[],
   foreignAssets: number[]
 ) {
-  console.log("PREPARE CLAIM REWARDS TRANSACTIONS IN CLAIMREWARDS.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.CLAIM_REWARDS,
     sender,
@@ -34,6 +33,5 @@ export function prepareClaimRewardsTransactions(
     undefined,
     foreignAssets
   )
-  console.log("prepare claim rewards transactions in claimrewards.ts finished and returned something.\n")
   return new TransactionGroup([...prefixTransactions, txn0])
 }

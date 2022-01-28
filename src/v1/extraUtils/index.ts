@@ -1,5 +1,5 @@
 import algosdk, { Algodv2, Transaction } from "algosdk"
-import { getParams, waitForConfirmation, buildUserTransaction, getLeadingTxs } from "./extraUtils/submissionUtils"
+import { getParams, waitForConfirmation, buildUserTransaction, getLeadingTxs } from "./submissionUtils"
 export { getParams, waitForConfirmation }
 import {
   getStorageAddress,
@@ -14,9 +14,9 @@ import {
   extrapolateUserData,
   updateGlobalUserTotals,
   updateGlobalTotals
-} from "./extraUtils/stateUtils"
+} from "./stateUtils"
 export { getUserManagerData, getGlobalManagerInfo, getStorageAddress }
-import { managerStrings, marketStrings } from "./contractStrings"
+import { managerStrings, marketStrings } from "../contractStrings"
 export { managerStrings, marketStrings }
 import {
   orderedAssets,
@@ -30,8 +30,8 @@ import {
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR,
   foreignAppIds
-} from "./config"
-import { Base64Encoder } from "./extraUtils/encoder"
+} from "../config"
+import { Base64Encoder } from "./encoder"
 export {
   getAccountOptInData,
   orderedAssets,
@@ -46,17 +46,17 @@ export {
   SCALE_FACTOR,
   Base64Encoder
 }
-import { Asset } from "./asset"
-import { Market } from "./market"
-import { prepareAddCollateralTransactions } from "./addCollateral"
-import { prepareBorrowTransactions } from "./borrow"
-import { prepareBurnTransactions } from "./burn"
-import { prepareClaimRewardsTransactions } from "./claimRewards"
-import { prepareMintTransactions } from "./mint"
-import { prepareMintToCollateralTransactions } from "./mintToCollateral"
-import { prepareRemoveCollateralTransactions } from "./removeCollateral"
-import { prepareRemoveCollateralUnderlyingTransactions } from "./removeCollateralUnderlying"
-import { prepareRepayBorrowTransactions } from "./repayBorrow"
+import { Asset } from "../asset"
+import { Market } from "../market"
+import { prepareAddCollateralTransactions } from "../addCollateral"
+import { prepareBorrowTransactions } from "../borrow"
+import { prepareBurnTransactions } from "../burn"
+import { prepareClaimRewardsTransactions } from "../claimRewards"
+import { prepareMintTransactions } from "../mint"
+import { prepareMintToCollateralTransactions } from "../mintToCollateral"
+import { prepareRemoveCollateralTransactions } from "../removeCollateral"
+import { prepareRemoveCollateralUnderlyingTransactions } from "../removeCollateralUnderlying"
+import { prepareRepayBorrowTransactions } from "../repayBorrow"
 
 export {
   Asset,

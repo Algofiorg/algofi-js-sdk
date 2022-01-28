@@ -26,7 +26,6 @@ export function prepareLiquidateTransactions(
   collateralBankAssetId: number,
   borrowAssetId: number = null
 ): TransactionGroup {
-  console.log("PREPARE LIQUIDATE TRANSACTIONS IN LIQUIDATE.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.LIQUIDATE,
     sender,

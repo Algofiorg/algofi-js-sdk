@@ -18,7 +18,6 @@ export function prepareBurnTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
-  console.log("PREPARE BURN TRANSACTIONS IN BURN.TS\n")
   let prefixTransactions = getInitTxns(
     Transactions.BURN,
     sender,
@@ -48,6 +47,5 @@ export function prepareBurnTransactions(
     bankAssetId,
     suggestedParams
   )
-  console.log("prepare burn transactions in burn.ts finished and returned something\n")
   return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }

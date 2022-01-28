@@ -35,7 +35,6 @@ export class Market {
   historicalIndexer: Indexer
 
   constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number) {
-    console.log("CONSTRUCTOR IN MARKET.TS\n")
     this.algod = algodClient
     this.historicalIndexer = historicalIndexerClient
 
@@ -53,7 +52,6 @@ export class Market {
   }
 
   async updateGlobalState(): Promise<void> {
-    console.log("UPDATE GLOBAL STATE IN MARKET.TS\n")
     let marketState = await getGlobalState(this.algod, this.marketAppId)
 
     this.marketCounter = marketState[marketStrings.manager_market_counter_var]
@@ -99,43 +97,35 @@ export class Market {
   }
 
   getMarketAppId(): number {
-    console.log("GET MARKET APP ID IN MARKET.TS\n")
     return this.marketAppId
   }
 
   getMarketAddress(): string {
-    console.log("GET MARKET ADDRESS IN MARKET.TS\n")
     return this.marketAddress
   }
 
   getMarketCounter(): number {
-    console.log("GET MARKET COUNTER IN MARKET.TS\n")
     return this.marketCounter
   }
 
   getAsset(): Asset {
-    console.log("GET ASSET IN MARKET.TS\n")
     return this.asset
   }
 
   getActiveCollateral(): number {
-    console.log("GET ACTIVE COLLATERAL IN MARKET.TS\n")
     return this.activeCollateral
   }
 
   getBankCirculation(): number {
-    console.log("GET BANK CIRCULATION IN MARKET.TS\n")
     return this.bankCirculation
   }
 
   getBankToUnderlyingExchange(): number {
-    console.log("GET BANK TO UNDERLYING EXCHANGE IN MARKET.TS\n")
     return this.bankToUnderlyingExchange
   }
 
   //need to figure out the js equivalent of historical_indexer.applications
   async getUnderlyingBorrowed(block: number = null): Promise<number> {
-    console.log("GET UNDERLYING BORROWED IN MARKET.TS\n")
     if (block) {
       try {
         let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
@@ -149,11 +139,9 @@ export class Market {
     }
   }
   getOutstandingBorrowShares(): number {
-    console.log("GET OUTSTANDING BORROW SHARES IN MARKET.TS\n")
     return this.outstandingBorrowShares
   }
   async getUnderlyingCash(block = null): Promise<number> {
-    console.log("GET UNDERLYING CASH IN MARKET.TS\n")
     if (block) {
       try {
         let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
@@ -167,7 +155,6 @@ export class Market {
     }
   }
   async getUnderlyingReserves(block = null): Promise<number> {
-    console.log("GET UNDERLYING RESERVES IN MARKET.TS\n")
     if (block) {
       try {
         let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
@@ -182,7 +169,6 @@ export class Market {
   }
 
   async getTotalBorrowInterestRate(block = null): Promise<number> {
-    console.log("GET TOTAL BORROW INTEREST RATE IN MARKET.TS\n")
     if (block) {
       try {
         let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
@@ -196,17 +182,14 @@ export class Market {
     }
   }
   getCollateralFactor(): number {
-    console.log("GET COLLATERAL FACDTOR IN MARKET.TS\n")
     return this.collateralFactor
   }
   getLiquidationIncentive(): number {
-    console.log("GET LIQUIDATION INCENTIVE IN MARKET.TS\n")
     return this.liquidationIncentive
   }
 
   // User functions
   async getStorageState(storageAddress: string): Promise<{}> {
-    console.log("GET STORAGE STATE IN MARKET.TS\n")
     let result = {}
     let userState = await readLocalState(this.algod, storageAddress, this.marketAppId)
     let asset = this.getAsset()

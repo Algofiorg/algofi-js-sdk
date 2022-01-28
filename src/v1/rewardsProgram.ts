@@ -17,7 +17,6 @@ export class RewardsProgram {
   rewardsSecondaryAssetId: number
 
   constructor(algodClient: algosdk.Algodv2, managerState: {}) {
-    console.log("CONSTRUCTOR IN REWARDSPROGRAM.TS\n")
     this.algod = algodClient
     this.latestRewardsTime = get(managerState, managerStrings.latest_rewards_time, 0)
     this.rewardsProgramNumber = get(managerState, managerStrings.n_rewards_programs, 0)
@@ -31,7 +30,6 @@ export class RewardsProgram {
   //Getters
 
   getRewardsAssetIds(): number[] {
-    console.log("GET REWARDS ASSET IDS IN REWARDSPROGRAM.TS\n")
     const result = []
     if (this.rewardsAssetId > 1) {
       result.push(this.rewardsAssetId)
@@ -42,36 +40,28 @@ export class RewardsProgram {
     return result
   }
   getLatestRewardsTime(): number {
-    console.log("GET LATEST REWARDS TIME IN REWARDSPROGRAM.TS\n")
     return this.latestRewardsTime
   }
   getRewardsProgramNumber(): number {
-    console.log("GET REWARDS PROGRAM NUMBER IN REWARDSPROGRAM.TS\n")
     return this.rewardsProgramNumber
   }
   getRewardsAmount(): number {
-    console.log("GET REWARDS AMOUNT IN REWARDSPROGRAM.TS\n")
     return this.rewardsAmount
   }
   getRewardsPerSecond(): number {
-    console.log("GET REWARDS PER SECOND IN REWARDSPROGRAM.TS\n")
     return this.rewardsPerSecond
   }
   getRewardsAssetId(): number {
-    console.log("GET REWARDS ASSET ID IN REWARDSPROGRAM.TS\n")
     return this.rewardsAssetId
   }
   getRewardsSecondaryRatio(): number {
-    console.log("GET REWARDS SECONDARY RATIO IN REWARDSPROGRAM.TS\n")
     return this.rewardsSecondaryRatio
   }
   getRewardsSecondaryAssetId(): number {
-    console.log("GET REWARDS SECONDARY ASSET ID IN REWARDSPROGRAM.TS\n")
     return this.rewardsSecondaryAssetId
   }
 
   async getStorageUnrealizedRewards(storageAddress: string, manager: Manager, markets: Market[]): Promise<number[]> {
-    console.log("GET STORAGE UNREALIZED REWARDS IN REWARDSPROGRAM.TS\n")
     let managerState = await getGlobalState(this.algod, manager.getManagerAppId())
     let managerStorageState = await readLocalState(this.algod, storageAddress, manager.getManagerAppId())
     let onCurrentProgram =
