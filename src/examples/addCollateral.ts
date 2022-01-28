@@ -5,7 +5,6 @@ import { printMarketState, printUserState } from "./exampleUtils"
 export async function addCollateralExample(
   mnemonic: string = "biology engine verify maze coral cotton swear laptop surge vital surround entire glance dial oblige bleak friend royal round region divorce elephant law above local"
 ) {
-  console.log("ADD COLLATERAL EXAMPLE IN ADDCOLLATERAL.TS\n")
   let user = mnemonicToSecretKey(mnemonic)
   let sender = user.addr
   let key = user.sk
@@ -21,12 +20,15 @@ export async function addCollateralExample(
 
   const symbol = client.getActiveOrderedSymbols()[0]
 
-  console.log(buffer)
-  console.log("Initial State")
-  console.log(buffer)
+  console.log(client.getActiveOrderedSymbols())
+  // console.log(symbol)
 
-  await printMarketState(client.getMarket(symbol))
-  await printUserState(client, symbol, sender)
+  // console.log(buffer)
+  // console.log("Initial State")
+  // console.log(buffer)
+
+  // await printMarketState(client.getMarket(symbol))
+  // await printUserState(client, symbol, sender)
   // const assetBalance = await client.getUserBalance(
   //   client
   //     .getMarket(symbol)

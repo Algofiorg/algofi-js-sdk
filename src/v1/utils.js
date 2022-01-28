@@ -285,14 +285,15 @@ function getOrderedSymbols(chain, max, maxAtomicOptIn) {
     if (maxAtomicOptIn === void 0) { maxAtomicOptIn = false; }
     var supportedMarketCount;
     if (max) {
-        supportedMarketCount = contracts_1.contracts["maxMarketCount"];
+        supportedMarketCount = contracts_1.contracts[chain]["maxMarketCount"];
     }
     else if (maxAtomicOptIn) {
-        supportedMarketCount = contracts_1.contracts["maxAtomicOptInMarketCount"];
+        supportedMarketCount = contracts_1.contracts[chain]["maxAtomicOptInMarketCount"];
     }
     else {
-        supportedMarketCount = contracts_1.contracts["supportedMarketCount"];
+        supportedMarketCount = contracts_1.contracts[chain]["supportedMarketCount"];
     }
+    console.log("SUPPORTED MARKET COUNT", supportedMarketCount);
     return contracts_1.contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount);
 }
 exports.getOrderedSymbols = getOrderedSymbols;

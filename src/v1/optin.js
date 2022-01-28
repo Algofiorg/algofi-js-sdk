@@ -28,7 +28,6 @@ function prepareManagerAppOptinTransactions(managerAppId, getMaxAtomicOptInMarke
     return new utils_1.TransactionGroup(__spreadArray(__spreadArray([txnPayment], marketOptinTransactions, true), [txnUserOptinManager, txnStorageOptinManager], false));
 }
 exports.prepareManagerAppOptinTransactions = prepareManagerAppOptinTransactions;
-//Do I really have to add a random note here?
 function prepareMarketAppOptinTransactions(marketAppId, sender, suggestedParams) {
     return new utils_1.TransactionGroup([
         (0, algosdk_1.makeApplicationOptInTxn)(sender, suggestedParams, marketAppId, [(0, utils_1.intToBytes)((0, utils_1.getRandomInt)(1000000))])

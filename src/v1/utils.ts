@@ -203,12 +203,13 @@ export function getStakingContracts(chain: string): {} {
 export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomicOptIn: boolean = false): string[] {
   let supportedMarketCount: number
   if (max) {
-    supportedMarketCount = contracts["maxMarketCount"]
+    supportedMarketCount = contracts[chain]["maxMarketCount"]
   } else if (maxAtomicOptIn) {
-    supportedMarketCount = contracts["maxAtomicOptInMarketCount"]
+    supportedMarketCount = contracts[chain]["maxAtomicOptInMarketCount"]
   } else {
-    supportedMarketCount = contracts["supportedMarketCount"]
+    supportedMarketCount = contracts[chain]["supportedMarketCount"]
   }
+  console.log("SUPPORTED MARKET COUNT", supportedMarketCount)
   return contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount)
 }
 

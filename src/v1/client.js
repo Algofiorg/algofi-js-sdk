@@ -89,6 +89,7 @@ var Client = /** @class */ (function () {
                 switch (_d.label) {
                     case 0:
                         client = new Client(algodClient, indexerClient, historicalIndexerClient, userAddress, chain);
+                        console.log(client);
                         client.markets = {};
                         _i = 0, _a = client.maxOrderedSymbols;
                         _d.label = 1;
@@ -247,7 +248,6 @@ var Client = /** @class */ (function () {
                     case 1:
                         _a[_b] = _f.sent();
                         console.log(result["manager"]);
-                        console.log("this ran");
                         return [4 /*yield*/, this.manager.getStorageAddress(address)];
                     case 2:
                         storageAddress = _f.sent();
@@ -374,7 +374,6 @@ var Client = /** @class */ (function () {
         return this.activeOrderedSymbols;
     };
     Client.prototype.getRawPrices = function () {
-        //Errors will be fixed once we figure out getActiveMarkets
         var rawPrices = {};
         for (var _i = 0, _a = Object.entries(this.getActiveMarkets()); _i < _a.length; _i++) {
             var _b = _a[_i], symbol = _b[0], market = _b[1];

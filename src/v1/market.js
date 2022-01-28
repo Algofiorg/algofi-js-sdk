@@ -279,7 +279,7 @@ var Market = /** @class */ (function () {
                             (result["active_collateral_usd"] * this.collateralFactor) / v0_1.PARAMETER_SCALE_FACTOR;
                         result["borrow_shares"] = (0, utils_1.get)(userState, contractStrings_1.marketStrings.user_borrow_shares, 0);
                         //Need to figure out how to convert this into an int
-                        result["borrow_underlying"] = (this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares;
+                        result["borrow_underlying"] = Math.floor((this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares);
                         _c = result;
                         _d = "borrow_usd";
                         return [4 /*yield*/, asset.toUSD(result["borrow_underlying"])];

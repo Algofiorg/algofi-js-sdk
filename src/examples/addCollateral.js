@@ -39,7 +39,6 @@ exports.__esModule = true;
 exports.addCollateralExample = void 0;
 var client_1 = require("../v1/client");
 var algosdk_1 = require("algosdk");
-var exampleUtils_1 = require("./exampleUtils");
 function addCollateralExample(mnemonic) {
     if (mnemonic === void 0) { mnemonic = "biology engine verify maze coral cotton swear laptop surge vital surround entire glance dial oblige bleak friend royal round region divorce elephant law above local"; }
     return __awaiter(this, void 0, void 0, function () {
@@ -47,7 +46,6 @@ function addCollateralExample(mnemonic) {
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    console.log("ADD COLLATERAL EXAMPLE IN ADDCOLLATERAL.TS\n");
                     user = (0, algosdk_1.mnemonicToSecretKey)(mnemonic);
                     sender = user.addr;
                     key = user.sk;
@@ -65,45 +63,7 @@ function addCollateralExample(mnemonic) {
                 case 4:
                     client = _a;
                     symbol = client.getActiveOrderedSymbols()[0];
-                    console.log(buffer);
-                    console.log("Initial State");
-                    console.log(buffer);
-                    return [4 /*yield*/, (0, exampleUtils_1.printMarketState)(client.getMarket(symbol))];
-                case 5:
-                    _b.sent();
-                    return [4 /*yield*/, (0, exampleUtils_1.printUserState)(client, symbol, sender)
-                        // const assetBalance = await client.getUserBalance(
-                        //   client
-                        //     .getMarket(symbol)
-                        //     .getAsset()
-                        //     .getUnderlyingAssetId()
-                        // )
-                        // if (assetBalance === 0) {
-                        //   throw new Error("User has no balance of asset " + symbol)
-                        // }
-                        // console.log(buffer)
-                        // console.log("Processing add_collateral transaction")
-                        // console.log(buffer)
-                        // let txn = await client.prepareMintTransactions(symbol, assetBalance * 0.1, sender)
-                        // txn.signWithPrivateKey(key)
-                        // await txn.submit(client.algodClient, true)
-                        // let bankAssetBalance = await client.getUserBalance(
-                        //   client
-                        //     .getMarket(symbol)
-                        //     .getAsset()
-                        //     .getBankAssetId()
-                        // )
-                        // txn = await client.prepareAddCollateralTransactions(symbol, bankAssetBalance * 0.1, sender)
-                        // txn.signWithPrivateKey(key)
-                        // txn.submit(client.algodClient, true)
-                        // console.log(buffer)
-                        // console.log("Final State")
-                        // console.log(buffer)
-                        // printMarketState(client.getMarket(symbol))
-                        // printUserState(client, symbol, sender)
-                    ];
-                case 6:
-                    _b.sent();
+                    console.log(client.getActiveOrderedSymbols());
                     return [2 /*return*/];
             }
         });

@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var algosdk_1 = require("algosdk");
+var addCollateral_1 = require("./addCollateral");
 // async function getUnderlyingBorrowed(block: number = null): Promise<number> {
 //   if (block) {
 //     try {
@@ -54,14 +55,32 @@ var algodClient = new algosdk_1.Algodv2("", "https://api.testnet.algoexplorer.io
 var indexerClient = new algosdk_1.Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "");
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, _b;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0:
-                    _b = (_a = console).log;
-                    return [4 /*yield*/, indexerClient.lookupApplications(67288478)["do"]()];
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: 
+                // console.log(await indexerClient.lookupApplications(67288478).do())
+                return [4 /*yield*/, (0, addCollateral_1.addCollateralExample)()
+                    // let market = await Market.init(algodClient, indexerClient, 67288478)
+                    // let a = await market.getUnderlyingBorrowed()
+                    // console.log(a)
+                    // // console.log(
+                    // //   await indexerClient
+                    // //     .searchAccounts()
+                    // //     .assetID(408947)
+                    // //     .do()
+                    // // )
+                    // console.log(
+                    //   await readGlobalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 67288478)
+                    // await readLocalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 51422788)
+                    // )
+                    // console.log(await algodClient.getAssetByID(408947).do())
+                    // console.log(await algodClient.accountInformation("XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ").do())
+                    // getUnderlyingBorrowed()
+                    // console.log(getApplicationAddress(67288478))
+                ];
                 case 1:
-                    _b.apply(_a, [_c.sent()]);
+                    // console.log(await indexerClient.lookupApplications(67288478).do())
+                    _a.sent();
                     return [2 /*return*/];
             }
         });

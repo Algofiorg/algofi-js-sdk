@@ -118,7 +118,7 @@ var RewardsProgram = /** @class */ (function () {
                         return [3 /*break*/, 3];
                     case 7:
                         rewardsIssued = this.getRewardsAmount() > 0 ? timeElapsed * this.getRewardsPerSecond() : 0;
-                        projectedLatestRewardsCoefficient = rewardsIssued * config_1.REWARDS_SCALE_FACTOR;
+                        projectedLatestRewardsCoefficient = Math.floor(rewardsIssued * config_1.REWARDS_SCALE_FACTOR);
                         _d = 0, markets_2 = markets;
                         _j.label = 8;
                     case 8:

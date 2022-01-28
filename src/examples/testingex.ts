@@ -22,8 +22,8 @@ import { Market } from "../v1/market"
 let algodClient = new Algodv2("", "https://api.testnet.algoexplorer.io", "")
 let indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "")
 async function foo() {
-  console.log(await indexerClient.lookupApplications(67288478).do())
-  // await addCollateralExample()
+  // console.log(await indexerClient.lookupApplications(67288478).do())
+  await addCollateralExample()
   // let market = await Market.init(algodClient, indexerClient, 67288478)
   // let a = await market.getUnderlyingBorrowed()
   // console.log(a)

@@ -105,6 +105,7 @@ export class Client {
     chain: string
   ): Promise<Client> {
     let client = new Client(algodClient, indexerClient, historicalIndexerClient, userAddress, chain)
+    console.log(client)
     client.markets = {}
     for (let symbol of client.maxOrderedSymbols) {
       client.markets[symbol] = await Market.init(
@@ -186,7 +187,6 @@ export class Client {
     }
     result["manager"] = await this.manager.getUserState(address)
     console.log(result["manager"])
-    console.log("this ran")
     let storageAddress = await this.manager.getStorageAddress(address)
 
     for (let symbol of this.activeOrderedSymbols) {
@@ -286,7 +286,6 @@ export class Client {
   }
 
   getRawPrices(): {} {
-    //Errors will be fixed once we figure out getActiveMarkets
     let rawPrices = {}
     for (let [symbol, market] of Object.entries(this.getActiveMarkets())) {
       rawPrices[symbol] = market.getAsset().getRawPrice()
