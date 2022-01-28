@@ -3,7 +3,7 @@ import { TransactionGroup, Transactions, intToBytes } from "./utils"
 import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
-let enc = new TextEncoder()
+const enc = new TextEncoder()
 
 export function prepareRemoveCollateralTransactions(
   sender: string,

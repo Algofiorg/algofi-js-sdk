@@ -1,9 +1,9 @@
 import { makeApplicationNoOpTxn, SuggestedParams } from "algosdk"
-import { getInitTxns } from "./prepend"
 import { TransactionGroup, Transactions } from "./utils"
 import { managerStrings } from "./contractStrings"
+import { getInitTxns } from "./prepend"
 
-let enc = new TextEncoder()
+const enc = new TextEncoder()
 
 export function prepareClaimRewardsTransactions(
   sender: string,
@@ -34,8 +34,6 @@ export function prepareClaimRewardsTransactions(
     undefined,
     foreignAssets
   )
-
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  return new TransactionGroup(temp)
+  console.log("prepare claim rewards transactions in claimrewards.ts finished and returned something.\n")
+  return new TransactionGroup([...prefixTransactions, txn0])
 }

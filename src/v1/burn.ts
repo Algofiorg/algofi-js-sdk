@@ -1,9 +1,9 @@
 import { makeApplicationNoOpTxn, makeAssetTransferTxnWithSuggestedParams, SuggestedParams } from "algosdk"
-import { managerStrings } from "./contractStrings"
 import { TransactionGroup, Transactions } from "./utils"
+import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
-let enc = new TextEncoder()
+const enc = new TextEncoder()
 
 export function prepareBurnTransactions(
   sender: string,
@@ -48,9 +48,6 @@ export function prepareBurnTransactions(
     bankAssetId,
     suggestedParams
   )
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  temp.push(txn1)
-  temp.push(txn2)
-  return new TransactionGroup(temp)
+  console.log("prepare burn transactions in burn.ts finished and returned something\n")
+  return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }

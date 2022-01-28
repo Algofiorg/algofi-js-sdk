@@ -9,7 +9,7 @@ import { managerStrings } from "./contractStrings"
 import { TransactionGroup, Transactions } from "./utils"
 import { getInitTxns } from "./prepend"
 
-let enc = new TextEncoder()
+const enc = new TextEncoder()
 
 export function prepareMintToCollateralTransactions(
   sender: string,

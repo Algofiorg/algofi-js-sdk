@@ -1,7 +1,13 @@
-import algosdk, { makeAssetTransferTxnWithSuggestedParams, SuggestedParams, Transaction } from "algosdk"
-import { getInitTxns } from "./prepend"
+import {
+  makeAssetTransferTxnWithSuggestedParams,
+  SuggestedParams,
+  Transaction,
+  makeApplicationNoOpTxn,
+  makePaymentTxnWithSuggestedParams
+} from "algosdk"
 import { TransactionGroup, Transactions } from "./utils"
 import { managerStrings } from "./contractStrings"
+import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
 
@@ -18,7 +24,7 @@ export function prepareLiquidateTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[],
   collateralBankAssetId: number,
-  borrowAssetId: number = undefined
+  borrowAssetId: number = null
 ): TransactionGroup {
   console.log("PREPARE LIQUIDATE TRANSACTIONS IN LIQUIDATE.TS\n")
   let prefixTransactions = getInitTxns(
@@ -28,9 +34,9 @@ export function prepareLiquidateTransactions(
     managerAppId,
     supportedMarketAppIds,
     supportedOracleAppIds,
-    storageAccount
+    liquidateeStorageAccount
   )
-  let txn0 = algosdk.makeApplicationNoOpTxn(
+  let txn0 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     managerAppId,
@@ -39,7 +45,7 @@ export function prepareLiquidateTransactions(
     supportedMarketAppIds
   )
 
-  let txn1 = algosdk.makeApplicationNoOpTxn(
+  let txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     borrowMarketAppId,
@@ -60,23 +66,19 @@ export function prepareLiquidateTransactions(
       borrowAssetId,
       suggestedParams
     )
+  } else {
+    txn2 = makePaymentTxnWithSuggestedParams(sender, borrowMarketAddress, amount, undefined, undefined, suggestedParams)
   }
 
-  let txn3 = makeAssetTransferTxnWithSuggestedParams(
+  let txn3 = makeApplicationNoOpTxn(
     sender,
-    borrowMarketAddress,
-    undefined,
-    undefined,
-    amount,
-    undefined,
-    undefined,
-    suggestedParams
+    suggestedParams,
+    collateralMarketAppId,
+    [enc.encode(managerStrings.liquidate)],
+    [liquidateeStorageAccount, storageAccount],
+    [managerAppId, borrowMarketAppId],
+    [collateralBankAssetId]
   )
 
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  temp.push(txn1)
-  temp.push(txn2)
-  temp.push(txn3)
-  return new TransactionGroup(temp)
+  return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2, txn3])
 }

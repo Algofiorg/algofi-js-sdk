@@ -9,7 +9,7 @@ import { getInitTxns } from "./prepend"
 import { TransactionGroup, Transactions } from "./utils"
 import { managerStrings } from "./contractStrings"
 
-let enc = new TextEncoder()
+const enc = new TextEncoder()
 
 export function prepareRepayBorrowTransactions(
   sender: string,

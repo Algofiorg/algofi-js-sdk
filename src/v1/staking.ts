@@ -6,7 +6,7 @@ import { getJSDocReturnType } from "typescript"
 
 let OPT_IN_MIN_BALANCE = 0.65
 
-let enc = new TextEncoder()
+const enc = new TextEncoder()
 
 export function prepareStakingContractOptinTransactions(
   managerAppId: number,
@@ -75,7 +75,7 @@ export function prepareStakeTransactions(
     supportedOracleAppIds,
     storageAccount
   )
-  let enc = new TextEncoder()
+
   let txn0 = algosdk.makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
     enc.encode(managerStrings.mint_to_collateral)
   ])
