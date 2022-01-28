@@ -1,8 +1,8 @@
 import { SuggestedParams, makeApplicationNoOpTxn } from "algosdk"
-import { TransactionGroup } from "./utils"
-import { getInitTxns } from "./prepend"
 import { Transactions, intToBytes } from "./utils"
 import { managerStrings } from "./contractStrings"
+import { TransactionGroup } from "./utils"
+import { getInitTxns } from "./prepend"
 
 let enc = new TextEncoder()
 
@@ -29,7 +29,6 @@ export function prepareBorrowTransactions(
   )
   let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
     enc.encode(managerStrings.borrow),
-    //figure out intToBytes
     intToBytes(amount)
   ])
 
@@ -42,10 +41,6 @@ export function prepareBorrowTransactions(
     [managerAppId],
     [assetId]
   )
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  temp.push(txn1)
-
-  let txnGroup = new TransactionGroup(temp)
-  return txnGroup
+  console.log("prepare borrow transactions in borrow.ts finished and returned something")
+  return new TransactionGroup([...prefixTransactions, txn0, txn1])
 }
