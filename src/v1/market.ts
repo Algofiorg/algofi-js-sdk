@@ -31,7 +31,7 @@ export class Market {
   underlyingCash: number
   underlyingReserves: number
   totalBorrowInterestRate: number
-  asset: any
+  asset: Asset
   historicalIndexer: Indexer
 
   constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number) {
@@ -85,7 +85,7 @@ export class Market {
     this.totalBorrowInterestRate = get(marketState, marketStrings.total_borrow_interest_rate, 0)
 
     this.asset = this.underlyingAssetId
-      ? new Asset(
+      ? await Asset.init(
           this.algod,
           this.underlyingAssetId,
           this.bankAssetId,
@@ -205,7 +205,7 @@ export class Market {
     result["borrow_shares"] = get(userState, marketStrings.user_borrow_shares, 0)
 
     //Need to figure out how to convert this into an int
-    result["borrow_underlying"] = (this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares
+    result["borrow_underlying"] = Math.floor((this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares)
 
     result["borrow_usd"] = await asset.toUSD(result["borrow_underlying"])
 

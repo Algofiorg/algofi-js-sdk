@@ -180,16 +180,17 @@ export class Client {
   }
 
   async getUserState(address: string = null): Promise<{}> {
-    //Address XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ
     let result = {}
     if (!address) {
       address = this.userAddress
     }
     result["manager"] = await this.manager.getUserState(address)
+    console.log(result["manager"])
+    console.log("this ran")
     let storageAddress = await this.manager.getStorageAddress(address)
 
     for (let symbol of this.activeOrderedSymbols) {
-      result[symbol] = this.markets[symbol].getStorageState(storageAddress)
+      result[symbol] = await this.markets[symbol].getStorageState(storageAddress)
     }
     return result
   }
@@ -676,7 +677,7 @@ export class Client {
       //not sure about wait rounds (last parameter)
       return waitForConfirmation(this.algod, txid, 10)
     }
-    return { txid: txid }
+    return { "txid": txid }
   }
 }
 

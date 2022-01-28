@@ -37,36 +37,31 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var algosdk_1 = require("algosdk");
-var utils_1 = require("../v1/utils");
+// async function getUnderlyingBorrowed(block: number = null): Promise<number> {
+//   if (block) {
+//     try {
+//       let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
+//       data = data["application"]["params"]["global-state"]
+//       return searchGlobalState(data, marketStrings.underlying_borrowed)
+//     } catch (e) {
+//       throw new Error("Issue getting data")
+//     }
+//   } else {
+//     return this.underlyingBorrowed
+//   }
+// }
+var algodClient = new algosdk_1.Algodv2("", "https://api.testnet.algoexplorer.io", "");
+var indexerClient = new algosdk_1.Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "");
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
-        var algodClient, _a, _b;
+        var _a, _b;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    algodClient = new algosdk_1.Algodv2("", "https://api.testnet.algoexplorer.io", "");
-                    // let indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "")
-                    // console.log(
-                    //   await indexerClient
-                    //     .searchAccounts()
-                    //     .assetID(408947)
-                    //     .do()
-                    // )
                     _b = (_a = console).log;
-                    return [4 /*yield*/, (0, utils_1.readGlobalState)(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 67288478)
-                        // await readLocalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 51422788)
-                    ];
+                    return [4 /*yield*/, indexerClient.lookupApplications(67288478)["do"]()];
                 case 1:
-                    // let indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "")
-                    // console.log(
-                    //   await indexerClient
-                    //     .searchAccounts()
-                    //     .assetID(408947)
-                    //     .do()
-                    // )
-                    _b.apply(_a, [_c.sent()
-                        // await readLocalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 51422788)
-                    ]);
+                    _b.apply(_a, [_c.sent()]);
                     return [2 /*return*/];
             }
         });

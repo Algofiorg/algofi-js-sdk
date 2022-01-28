@@ -79,7 +79,7 @@ export class RewardsProgram {
     let timeElapsed: number
     let rewardsIssued = this.getRewardsAmount() > 0 ? timeElapsed * this.getRewardsPerSecond() : 0
     // Need to conver this into an integer
-    let projectedLatestRewardsCoefficient = rewardsIssued * REWARDS_SCALE_FACTOR
+    let projectedLatestRewardsCoefficient = Math.floor(rewardsIssued * REWARDS_SCALE_FACTOR)
 
     for (let market of markets) {
       // Get coefficients

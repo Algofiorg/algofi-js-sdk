@@ -233,9 +233,9 @@ var Client = /** @class */ (function () {
     Client.prototype.getUserState = function (address) {
         if (address === void 0) { address = null; }
         return __awaiter(this, void 0, void 0, function () {
-            var result, _a, _b, storageAddress, _i, _c, symbol;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            var result, _a, _b, storageAddress, _i, _c, symbol, _d, _e;
+            return __generator(this, function (_f) {
+                switch (_f.label) {
                     case 0:
                         result = {};
                         if (!address) {
@@ -245,15 +245,27 @@ var Client = /** @class */ (function () {
                         _b = "manager";
                         return [4 /*yield*/, this.manager.getUserState(address)];
                     case 1:
-                        _a[_b] = _d.sent();
+                        _a[_b] = _f.sent();
+                        console.log(result["manager"]);
+                        console.log("this ran");
                         return [4 /*yield*/, this.manager.getStorageAddress(address)];
                     case 2:
-                        storageAddress = _d.sent();
-                        for (_i = 0, _c = this.activeOrderedSymbols; _i < _c.length; _i++) {
-                            symbol = _c[_i];
-                            result[symbol] = this.markets[symbol].getStorageState(storageAddress);
-                        }
-                        return [2 /*return*/, result];
+                        storageAddress = _f.sent();
+                        _i = 0, _c = this.activeOrderedSymbols;
+                        _f.label = 3;
+                    case 3:
+                        if (!(_i < _c.length)) return [3 /*break*/, 6];
+                        symbol = _c[_i];
+                        _d = result;
+                        _e = symbol;
+                        return [4 /*yield*/, this.markets[symbol].getStorageState(storageAddress)];
+                    case 4:
+                        _d[_e] = _f.sent();
+                        _f.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 3];
+                    case 6: return [2 /*return*/, result];
                 }
             });
         });
@@ -869,7 +881,7 @@ var Client = /** @class */ (function () {
                             //not sure about wait rounds (last parameter)
                             return [2 /*return*/, (0, algosdk_1.waitForConfirmation)(this.algod, txid, 10)];
                         }
-                        return [2 /*return*/, { txid: txid }];
+                        return [2 /*return*/, { "txid": txid }];
                 }
             });
         });

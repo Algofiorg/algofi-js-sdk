@@ -55,9 +55,8 @@ export class Asset {
       oraclePriceField,
       oraclePriceScaleFactor
     )
-    // it should be {"decimals":6} not {decimals:6}
     asset.underlyingAssetInfo =
-      underlyingAssetId != 1 ? (await asset.algod.getAssetByID(underlyingAssetId).do())["params"] : { decimals: 6 }
+    underlyingAssetId != 1 ? (await asset.algod.getAssetByID(underlyingAssetId).do())["params"] : { "decimals": 6 }
     asset.bankAssetInfo = (await asset.algod.getAssetByID(bankAssetId).do())["params"]
     return asset
   }

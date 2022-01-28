@@ -71,12 +71,12 @@ var Market = /** @class */ (function () {
     };
     Market.prototype.updateGlobalState = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var marketState;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var marketState, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0: return [4 /*yield*/, (0, utils_1.getGlobalState)(this.algod, this.marketAppId)];
                     case 1:
-                        marketState = _a.sent();
+                        marketState = _c.sent();
                         this.marketCounter = marketState[contractStrings_1.marketStrings.manager_market_counter_var];
                         // market asset info
                         this.underlyingAssetId = (0, utils_1.get)(marketState, contractStrings_1.marketStrings.asset_id, null);
@@ -103,9 +103,17 @@ var Market = /** @class */ (function () {
                         this.underlyingCash = (0, utils_1.get)(marketState, contractStrings_1.marketStrings.underlying_cash, 0);
                         this.underlyingReserves = (0, utils_1.get)(marketState, contractStrings_1.marketStrings.underlying_reserves, 0);
                         this.totalBorrowInterestRate = (0, utils_1.get)(marketState, contractStrings_1.marketStrings.total_borrow_interest_rate, 0);
-                        this.asset = this.underlyingAssetId
-                            ? new asset_1.Asset(this.algod, this.underlyingAssetId, this.bankAssetId, this.oracleAppId, this.oraclePriceField, this.oraclePriceScaleFactor)
-                            : null;
+                        _a = this;
+                        if (!this.underlyingAssetId) return [3 /*break*/, 3];
+                        return [4 /*yield*/, asset_1.Asset.init(this.algod, this.underlyingAssetId, this.bankAssetId, this.oracleAppId, this.oraclePriceField, this.oraclePriceScaleFactor)];
+                    case 2:
+                        _b = _c.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        _b = null;
+                        _c.label = 4;
+                    case 4:
+                        _a.asset = _b;
                         return [2 /*return*/];
                 }
             });

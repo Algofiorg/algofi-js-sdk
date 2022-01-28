@@ -293,7 +293,6 @@ function getOrderedSymbols(chain, max, maxAtomicOptIn) {
     else {
         supportedMarketCount = contracts_1.contracts["supportedMarketCount"];
     }
-    console.log("get ordered symbols in utils.ts finished and returned", contracts_1.contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount), "\n");
     return contracts_1.contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount);
 }
 exports.getOrderedSymbols = getOrderedSymbols;
@@ -395,7 +394,7 @@ var TransactionGroup = /** @class */ (function () {
                             return [2 /*return*/, waitForConfirmation(algod, txid)];
                         }
                         return [2 /*return*/, {
-                                txid: txid
+                                "txid": txid
                             }];
                 }
             });

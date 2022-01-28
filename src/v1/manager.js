@@ -84,8 +84,7 @@ var Manager = /** @class */ (function () {
                             throw new Error("No storage address found");
                         }
                         //still need to figure out if this is correct
-                        console.log("get storage address in manager.ts finished and returned:", (0, algosdk_1.encodeAddress)(Buffer.from(rawStorageAddress.trim(), "base64")), "\n");
-                        console.log(rawStorageAddress);
+                        console.log("get storage Address finished and returned", (0, algosdk_1.encodeAddress)(Buffer.from(rawStorageAddress.trim(), "base64")));
                         return [2 /*return*/, (0, algosdk_1.encodeAddress)(Buffer.from(rawStorageAddress.trim(), "base64"))];
                 }
             });
@@ -93,23 +92,14 @@ var Manager = /** @class */ (function () {
     };
     Manager.prototype.getUserState = function (address) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _c, _d, _e;
-            return __generator(this, function (_f) {
-                switch (_f.label) {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        //Address XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ
-                        _b = (_a = console).log;
-                        _c = ["get user state in manager.ts finished and returned"];
-                        _d = this.getStorageState;
+                        _a = this.getStorageState;
                         return [4 /*yield*/, this.getStorageAddress(address)];
-                    case 1: return [4 /*yield*/, _d.apply(this, [_f.sent()])];
-                    case 2:
-                        //Address XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ
-                        _b.apply(_a, _c.concat([_f.sent(), "\n"]));
-                        _e = this.getStorageState;
-                        return [4 /*yield*/, this.getStorageAddress(address)];
-                    case 3: return [4 /*yield*/, _e.apply(this, [_f.sent()])];
-                    case 4: return [2 /*return*/, _f.sent()];
+                    case 1: return [4 /*yield*/, _a.apply(this, [_b.sent()])];
+                    case 2: return [2 /*return*/, _b.sent()];
                 }
             });
         });

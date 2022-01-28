@@ -71,7 +71,6 @@ var Asset = /** @class */ (function () {
                 switch (_d.label) {
                     case 0:
                         asset = new Asset(algodClient, underlyingAssetId, bankAssetId, oracleAppId, oraclePriceField, oraclePriceScaleFactor);
-                        // it should be {"decimals":6} not {decimals:6}
                         _a = asset;
                         if (!(underlyingAssetId != 1)) return [3 /*break*/, 2];
                         return [4 /*yield*/, asset.algod.getAssetByID(underlyingAssetId)["do"]()];
@@ -79,10 +78,9 @@ var Asset = /** @class */ (function () {
                         _b = (_d.sent())["params"];
                         return [3 /*break*/, 3];
                     case 2:
-                        _b = { decimals: 6 };
+                        _b = { "decimals": 6 };
                         _d.label = 3;
                     case 3:
-                        // it should be {"decimals":6} not {decimals:6}
                         _a.underlyingAssetInfo = _b;
                         _c = asset;
                         return [4 /*yield*/, asset.algod.getAssetByID(bankAssetId)["do"]()];

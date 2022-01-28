@@ -42,22 +42,11 @@ export class Manager {
       throw new Error("No storage address found")
     }
     //still need to figure out if this is correct
-    console.log(
-      "get storage address in manager.ts finished and returned:",
-      encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64")),
-      "\n"
-    )
-    console.log(rawStorageAddress)
+    console.log("get storage Address finished and returned", encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64")))
     return encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64"))
   }
 
   async getUserState(address: string): Promise<{}> {
-    //Address XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ
-    console.log(
-      "get user state in manager.ts finished and returned",
-      await this.getStorageState(await this.getStorageAddress(address)),
-      "\n"
-    )
     return await this.getStorageState(await this.getStorageAddress(address))
   }
 

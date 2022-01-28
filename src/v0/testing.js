@@ -36,60 +36,88 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.printStakingContractState = exports.printUserState = exports.printMarketState = void 0;
-function printMarketState(market) {
+var algosdk_1 = require("algosdk");
+// import { AlgofiMainnetClient } from "../v1/client"
+// const token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+// const server = "http://localhost"
+// const port = 4001
+// const client = new Algodv2(token, server, port)
+// const foo = async (address: string) => {
+//   const a = await client.accountInformation(address).do()
+//   console.log(a)
+// }
+// foo("HLTOSATJWLJSBPICJZPR5KBYNDNJ7S47SQCSRNNOBEEH7JGWUEQPZAIS44")
+// const foo = async () => {
+//   const a = await client.getAssetByID(408947).do()
+//   console.log(a)
+// }
+// foo()
+// const token = ""
+// const server = "http://localhost"
+// const port = 8980
+// const indexerClient = new algosdk.Indexer(token, server, port)
+// indexerClient.lookupApplications()
+// async function foo() {
+//   let algodClient = new Algodv2(
+//     "ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff",
+//     "https://node.chainvault.io/test",
+//     ""
+//   )
+//   // let testnetClient = AlgofiMainnetClient(algodClient)
+//   console.log(await algodClient.accountInformation("XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ").do())
+// }
+// foo()
+// const decoded = Buffer.from("SGksIEknbSBkZWNvZGVkIGZyb20gYmFzZTY", "base64").toString("base64url")
+// // console.log(decoded)
+// const something = Buffer.from("hello")
+// console.log(something)
+// function formatState(state) {
+//   let key = state["key"]
+//   let value = state["value"]
+//   let formattedKey: string
+//   let formattedValue: string
+//   let formatted = {}
+//   try {
+//     formattedKey = Buffer.from(key, "base64").toString()
+//   } catch (e) {
+//     formattedKey = Buffer.from(key).toString()
+//   }
+//   try {
+//     formattedValue = Buffer.from(value["bytes"], "base64").toString()
+//   } catch (e) {
+//     formattedValue = value["bytes"]
+//   }
+//   formatted[formattedKey] = formattedValue
+//   return formatted
+// }
+// console.log(
+//   formatState({
+//     key: "SGksIEknbSBkZWNvZGVkIGZyb20gYmFzZTY0",
+//     value: "SGksIEknbSBkZWNvZGVkIGZyb20gYmFzZTY"
+//   })
+// )
+// import { generateAccount, secretKeyToMnemonic } from "algosdk"
+// let a = generateAccount()
+// console.log(a.addr)
+// console.log(a.sk)
+// console.log(secretKeyToMnemonic(a.sk))
+// const enc = new TextEncoder()
+// console.log(Buffer.from("ac"))
+// console.log(enc.encode("ac"))
+function foo() {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-        return __generator(this, function (_k) {
-            switch (_k.label) {
-                case 0:
-                    market.updateGlobalState();
-                    _b = (_a = console).log;
-                    _c = ["underlying_cash ="];
-                    return [4 /*yield*/, market.getUnderlyingCash()];
-                case 1:
-                    _b.apply(_a, _c.concat([_k.sent()]));
-                    console.log("bank_circulation =", market.getBankCirculation());
-                    console.log("active_collateral =", market.getActiveCollateral());
-                    _e = (_d = console).log;
-                    _f = ["underlying_borrowed ="];
-                    return [4 /*yield*/, market.getUnderlyingBorrowed()];
-                case 2:
-                    _e.apply(_d, _f.concat([_k.sent()]));
-                    _h = (_g = console).log;
-                    _j = ["total_borrow_interest_rate ="];
-                    return [4 /*yield*/, market.getTotalBorrowInterestRate()];
-                case 3:
-                    _h.apply(_g, _j.concat([_k.sent()]));
-                    return [2 /*return*/];
-            }
-        });
-    });
-}
-exports.printMarketState = printMarketState;
-function printUserState(client, symbol, address) {
-    return __awaiter(this, void 0, void 0, function () {
-        var _a, _b;
+        var algodClient, _a, _b;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    // console.log("PRINT USER STATE IN EXAMPLEUTILS.TS\n")
+                    algodClient = new algosdk_1.Algodv2("ad4c18357393cb79f6ddef80b1c03ca99266ec99d55dff51b31811143f8b2dff", "https://node.chainvault.io/test", "");
                     _b = (_a = console).log;
-                    return [4 /*yield*/, client.getUserState(address)];
+                    return [4 /*yield*/, algodClient.getAssetByID(408947)["do"]()];
                 case 1:
-                    // console.log("PRINT USER STATE IN EXAMPLEUTILS.TS\n")
                     _b.apply(_a, [_c.sent()]);
                     return [2 /*return*/];
             }
         });
     });
 }
-exports.printUserState = printUserState;
-function printStakingContractState(client, stakingContractName, address) {
-    var stakingContract = client.getStakingContract(stakingContractName);
-    stakingContract.updateGlobalState();
-    console.log("staked =", stakingContract.getStaked());
-    var stakingContractUserState = stakingContract.getUserState(address);
-    console.log("user_staked =", stakingContractUserState["staked"]);
-}
-exports.printStakingContractState = printStakingContractState;
+foo();

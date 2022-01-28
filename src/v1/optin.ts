@@ -49,7 +49,6 @@ export function prepareManagerAppOptinTransactions(
   return new TransactionGroup([txnPayment, ...marketOptinTransactions, txnUserOptinManager, txnStorageOptinManager])
 }
 
-//Do I really have to add a random note here?
 export function prepareMarketAppOptinTransactions(
   marketAppId: number,
   sender: string,

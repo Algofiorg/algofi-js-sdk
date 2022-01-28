@@ -209,11 +209,6 @@ export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomic
   } else {
     supportedMarketCount = contracts["supportedMarketCount"]
   }
-  console.log(
-    "get ordered symbols in utils.ts finished and returned",
-    contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount),
-    "\n"
-  )
   return contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount)
 }
 
@@ -314,7 +309,7 @@ export class TransactionGroup {
     }
 
     return {
-      txid: txid
+      "txid": txid
     }
   }
 }
