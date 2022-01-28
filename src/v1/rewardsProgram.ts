@@ -8,15 +8,15 @@ import { get } from "./utils"
 
 export class RewardsProgram {
   algod: algosdk.Algodv2
-  latestRewardsTime: any
-  rewardsProgramNumber: any
+  latestRewardsTime: number
+  rewardsProgramNumber: number
   rewardsAmount: number
-  rewardsPerSecond: any
-  rewardsAssetId: any
-  rewardsSecondaryRatio: any
-  rewardsSecondaryAssetId: any
+  rewardsPerSecond: number
+  rewardsAssetId: number
+  rewardsSecondaryRatio: number
+  rewardsSecondaryAssetId: number
 
-  constructor(algodClient: algosdk.Algodv2, managerState: any) {
+  constructor(algodClient: algosdk.Algodv2, managerState: {}) {
     console.log("CONSTRUCTOR IN REWARDSPROGRAM.TS\n")
     this.algod = algodClient
     this.latestRewardsTime = get(managerState, managerStrings.latest_rewards_time, 0)
@@ -30,7 +30,7 @@ export class RewardsProgram {
 
   //Getters
 
-  getRewardsAssetIds() {
+  getRewardsAssetIds(): number[] {
     console.log("GET REWARDS ASSET IDS IN REWARDSPROGRAM.TS\n")
     const result = []
     if (this.rewardsAssetId > 1) {
@@ -41,55 +41,55 @@ export class RewardsProgram {
     }
     return result
   }
-  getLatestRewardsTime() {
+  getLatestRewardsTime(): number {
     console.log("GET LATEST REWARDS TIME IN REWARDSPROGRAM.TS\n")
     return this.latestRewardsTime
   }
-  getRewardsProgramNumber() {
+  getRewardsProgramNumber(): number {
     console.log("GET REWARDS PROGRAM NUMBER IN REWARDSPROGRAM.TS\n")
     return this.rewardsProgramNumber
   }
-  getRewardsAmount() {
+  getRewardsAmount(): number {
     console.log("GET REWARDS AMOUNT IN REWARDSPROGRAM.TS\n")
     return this.rewardsAmount
   }
-  getRewardsPerSecond() {
+  getRewardsPerSecond(): number {
     console.log("GET REWARDS PER SECOND IN REWARDSPROGRAM.TS\n")
     return this.rewardsPerSecond
   }
-  getRewardsAssetId() {
+  getRewardsAssetId(): number {
     console.log("GET REWARDS ASSET ID IN REWARDSPROGRAM.TS\n")
     return this.rewardsAssetId
   }
-  getRewardsSecondaryRatio() {
+  getRewardsSecondaryRatio(): number {
     console.log("GET REWARDS SECONDARY RATIO IN REWARDSPROGRAM.TS\n")
     return this.rewardsSecondaryRatio
   }
-  getRewardsSecondaryAssetId() {
+  getRewardsSecondaryAssetId(): number {
     console.log("GET REWARDS SECONDARY ASSET ID IN REWARDSPROGRAM.TS\n")
     return this.rewardsSecondaryAssetId
   }
 
-  async getStorageUnrealizedRewards(storageAddress: string, manager: Manager, markets: Market[]) {
+  async getStorageUnrealizedRewards(storageAddress: string, manager: Manager, markets: Market[]): Promise<number[]> {
     console.log("GET STORAGE UNREALIZED REWARDS IN REWARDSPROGRAM.TS\n")
-    let managerState = getGlobalState(this.algod, manager.getManagerAppId())
-    let managerStorageState = readLocalState(this.algod, storageAddress, manager.getManagerAppId())
+    let managerState = await getGlobalState(this.algod, manager.getManagerAppId())
+    let managerStorageState = await readLocalState(this.algod, storageAddress, manager.getManagerAppId())
     let onCurrentProgram =
-      this.getRewardsProgramNumber === get(managerStorageState, managerStrings.user_rewards_program_number, 0)
+      this.getRewardsProgramNumber() === get(managerStorageState, managerStrings.user_rewards_program_number, 0)
     let totalUnrealizedRewards = onCurrentProgram ? get(managerStorageState, managerStrings.user_pending_rewards, 0) : 0
     let totalSecondaryUnrealizedRewards = onCurrentProgram
       ? get(managerStorageState, managerStrings.user_secondary_pending_rewards, 0)
       : 0
 
-    // Loop through to get total TVL
     let totalBorrowUsd = 0
     for (let market of markets) {
-      totalBorrowUsd += market.getAsset().toUSD(market.getUnderlyingBorrowed())
+      totalBorrowUsd += await market.getAsset().toUSD(await market.getUnderlyingBorrowed())
     }
-    // FIGURE OUT TIME
+    //need to figure out time module in javascript
     let timeElapsed: number
     let rewardsIssued = this.getRewardsAmount() > 0 ? timeElapsed * this.getRewardsPerSecond() : 0
-    let projectedLatestRewardsCoefficient = Number(rewardsIssued * REWARDS_SCALE_FACTOR)
+    // Need to conver this into an integer
+    let projectedLatestRewardsCoefficient = rewardsIssued * REWARDS_SCALE_FACTOR
 
     for (let market of markets) {
       // Get coefficients
@@ -105,23 +105,22 @@ export class RewardsProgram {
       let marketUnderlyingTvl =
         underlyingBorrowed + (market.getActiveCollateral() * market.getBankToUnderlyingExchange()) / SCALE_FACTOR
 
+      // need to make this into an integer
       let projectedCoefficient: number =
         coefficient +
-        Number(
-          (rewardsIssued * REWARDS_SCALE_FACTOR * market.getAsset().toUSD(market.getUnderlyingBorrowed())) /
-            (totalBorrowUsd * marketUnderlyingTvl)
-        )
+        (rewardsIssued * REWARDS_SCALE_FACTOR * (await market.getAsset().toUSD(await market.getUnderlyingBorrowed()))) /
+          (totalBorrowUsd * marketUnderlyingTvl)
 
-      let marketStorageState = market.getStorageState(storageAddress)
+      let marketStorageState = await market.getStorageState(storageAddress)
 
-      let unrealizedRewards = Number(
+      // need to make this into an integer
+      let unrealizedRewards =
         ((projectedCoefficient - userCoefficient) *
           (marketStorageState["active_collateral_underlying"] + marketStorageState["borrow_underlying"])) /
-          REWARDS_SCALE_FACTOR
-      )
-      let secondaryUnrealizedRewards = Number(
-        (unrealizedRewards * this.getRewardsSecondaryRatio()) / PARAMETER_SCALE_FACTOR
-      )
+        REWARDS_SCALE_FACTOR
+
+      // need to make this into an integer
+      let secondaryUnrealizedRewards = (unrealizedRewards * this.getRewardsSecondaryRatio()) / PARAMETER_SCALE_FACTOR
 
       totalUnrealizedRewards += unrealizedRewards
       totalSecondaryUnrealizedRewards += secondaryUnrealizedRewards

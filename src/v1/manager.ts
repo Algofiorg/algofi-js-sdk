@@ -19,9 +19,9 @@ export class Manager {
     console.log("constructor in manager.ts finished\n")
   }
 
-  updateGlobalState(): void {
+  async updateGlobalState(): Promise<void> {
     console.log("UPDATE GLOBAL STATE IN MANAGER.TS\n")
-    let managerState = getGlobalState(this.algod, this.managerAppId)
+    let managerState = await getGlobalState(this.algod, this.managerAppId)
     this.rewardsProgram = new RewardsProgram(this.algod, managerState)
     console.log("update global state in manager.ts finished\n")
   }

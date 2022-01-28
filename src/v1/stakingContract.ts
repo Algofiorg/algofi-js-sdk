@@ -1,8 +1,9 @@
 import { Algodv2, Indexer } from "algosdk"
-import { StakingContractInfo, StringToNum } from "./client"
+import { StringToNum } from "./client"
 import { Manager } from "./manager"
 import { Market } from "./market"
-import { get } from "./utils"
+import { Asset } from "./asset"
+import { RewardsProgram } from "./rewardsProgram"
 
 export class StakingContract {
   algodClient: Algodv2
@@ -15,83 +16,92 @@ export class StakingContract {
     this.algodClient = algodClient
     this.historicalIndexerClient = historicalIndexerClient
     this.manager = new Manager(this.algodClient, stakingContractInfo["managerAppId"])
-    this.market = new Market(this.algodClient, this.historicalIndexerClient, stakingContractInfo["marketAppId"])
-    this.updateGlobalState()
   }
 
-  updateGlobalState = () => {
+  static async init(
+    algodClient: Algodv2,
+    historicalIndexerClient: Indexer,
+    stakingContractInfo: StringToNum
+  ): Promise<StakingContract> {
+    let stakingContract = new StakingContract(algodClient, historicalIndexerClient, stakingContractInfo)
+    stakingContract.market = await Market.init(algodClient, historicalIndexerClient, stakingContractInfo["marketAppId"])
+    await stakingContract.updateGlobalState()
+    return stakingContract
+  }
+
+  async updateGlobalState(): Promise<void> {
     console.log("UPDATE GLOBAL STATE IN STAKINGCONTRACT.TS\n")
-    this.getManager().updateGlobalState()
-    this.getMarket().updateGlobalState()
+    await this.getManager().updateGlobalState()
+    await this.getMarket().updateGlobalState()
   }
 
-  getManager = () => {
+  getManager(): Manager {
     console.log("GET MANAGER IN STAKINGCONTRACT.TS\n")
     return this.manager
   }
 
-  getMarket = () => {
+  getMarket(): Market {
     console.log("GET MARKET IN STAKINGCONTRACT.TS\n")
     return this.market
   }
 
-  getAsset = () => {
+  getAsset(): Asset {
     console.log("GET ASSET IN STAKINGCONTRACT.TS\n")
     return this.getMarket().getAsset()
   }
 
-  getManagerAppId = () => {
+  getManagerAppId(): number {
     console.log("GET MANAGER APP ID IN STAKINGCONTRACT.TS\n")
     return this.getManager().getManagerAppId()
   }
 
-  getManagerAddress = () => {
+  getManagerAddress(): string {
     console.log("GET MANAGER ADDRESS IN STAKINGCONTRACT.TS\n")
     return this.getManager().getManagerAddress()
   }
 
-  getMarketAppId = () => {
+  getMarketAppId(): number {
     console.log("GET MARKET APP ID IN STAKINGCONTRACT.TS\n")
     return this.getMarket().getMarketAppId()
   }
 
-  getMarketAddress = () => {
+  getMarketAddress(): string {
     console.log("GET MARKET ADDRESS IN STAKINGCONTRACT.TS\n")
     return this.getMarket().getMarketAddress()
   }
 
-  getOracleAppId = () => {
+  getOracleAppId(): number {
     console.log("GET ORACLE APP ID IN STAKINGCONTRACT.TS\n")
     return this.getMarket()
       .getAsset()
       .getOracleAppId()
   }
 
-  getStaked = () => {
+  getStaked(): number {
     console.log("GET STAKED IN STAKINGCONTRACT.TS\n")
     return this.getMarket().getActiveCollateral()
   }
 
-  getRewardsProgram = () => {
+  getRewardsProgram(): RewardsProgram {
     console.log("GET REWARDS PROIGRAM IN STAKINGCONTRACT.TS\n")
     return this.getManager().getRewardsProgram()
   }
 
-  getStorageAddress = (address: string) => {
+  async getStorageAddress(address: string): Promise<string> {
     console.log("GET STORAGE ADDRESS IN STAKINGCONTRACT.TS\n")
-    return this.getManager().getStorageAddress(address)
+    return await this.getManager().getStorageAddress(address)
   }
 
-  async getUserState(address: string) {
+  async getUserState(address: string): Promise<{}> {
     console.log("GET USER SETATE IN STAKINGCONTRACT.TS\n")
     let storageAddress = await this.getStorageAddress(address)
     if (!storageAddress) {
       throw new Error("no storage address found")
     }
-    return this.getStorageState(storageAddress)
+    return await this.getStorageState(storageAddress)
   }
 
-  getStorageState = async (storageAddress: string) => {
+  async getStorageState(storageAddress: string): Promise<{}> {
     console.log("GET STORAGE STATE IN STAKINGCONTRACT.TS\n")
     let result = {}
     let unrealizedRewards: number
@@ -104,7 +114,7 @@ export class StakingContract {
     result["unrealized_rewards"] = unrealizedRewards
     result["secondary_unrealized_rewards"] = secondaryUnrealizedRewards
 
-    let userMarketState = this.getMarket().getStorageState(storageAddress)
+    let userMarketState = await this.getMarket().getStorageState(storageAddress)
     result["staked_bank"] = userMarketState["active_collateral_bank"]
     result["stake_underlying"] = userMarketState["active_collateral_underlying"]
 
