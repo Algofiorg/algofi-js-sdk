@@ -262,23 +262,28 @@ var Market = /** @class */ (function () {
                 switch (_e.label) {
                     case 0:
                         result = {};
-                        return [4 /*yield*/, (0, utils_1.readLocalState)(this.algod, storageAddress, this.marketAppId)];
+                        return [4 /*yield*/, (0, utils_1.readLocalState)(this.algod, storageAddress, this.marketAppId)
+                            // console.log("USER STATE", userState)
+                            // userState is being returned correctly
+                        ];
                     case 1:
                         userState = _e.sent();
                         asset = this.getAsset();
                         result["active_collateral_bank"] = (0, utils_1.get)(userState, contractStrings_1.marketStrings.user_active_collateral, 0);
-                        // Need to figure out how to convert this into an int
                         result["active_collateral_underlying"] =
-                            (result["active_collateral_bank"] * this.bankToUnderlyingExchange) / v0_1.SCALE_FACTOR;
+                            Math.floor((result["active_collateral_bank"] * this.bankToUnderlyingExchange) / v0_1.SCALE_FACTOR);
+                        // console.log("RESULT", result)
+                        // result so far is correct
                         _a = result;
                         _b = "active_collateral_usd";
                         return [4 /*yield*/, asset.toUSD(result["active_collateral_underlying"])];
                     case 2:
+                        // console.log("RESULT", result)
+                        // result so far is correct
                         _a[_b] = _e.sent();
                         result["active_collateral_max_borrow_usd"] =
                             (result["active_collateral_usd"] * this.collateralFactor) / v0_1.PARAMETER_SCALE_FACTOR;
                         result["borrow_shares"] = (0, utils_1.get)(userState, contractStrings_1.marketStrings.user_borrow_shares, 0);
-                        //Need to figure out how to convert this into an int
                         result["borrow_underlying"] = Math.floor((this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares);
                         _c = result;
                         _d = "borrow_usd";

@@ -120,7 +120,8 @@ function signAndSubmitTransaction(client, transactions, signedTransactions, send
                     return [4 /*yield*/, client.sendRawTransaction(signedTransactions)["do"]()];
                 case 1:
                     txid = _c.sent();
-                    return [2 /*return*/, waitForConfirmation(client, txid)];
+                    return [4 /*yield*/, waitForConfirmation(client, txid)];
+                case 2: return [2 /*return*/, _c.sent()];
             }
         });
     });
@@ -270,6 +271,7 @@ function getGlobalState(algodClient, appId) {
                 case 1:
                     application = _a.sent();
                     stateDict = formatState(application["params"]["global-state"]);
+                    // console.log("STATEDICT", stateDict)
                     return [2 /*return*/, stateDict];
             }
         });
@@ -293,7 +295,6 @@ function getOrderedSymbols(chain, max, maxAtomicOptIn) {
     else {
         supportedMarketCount = contracts_1.contracts[chain]["supportedMarketCount"];
     }
-    console.log("SUPPORTED MARKET COUNT", supportedMarketCount);
     return contracts_1.contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount);
 }
 exports.getOrderedSymbols = getOrderedSymbols;
@@ -382,6 +383,7 @@ var TransactionGroup = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, algod.sendRawTransaction(this.signedTransactions)["do"]()
+                            // console.log("TXID", txid)
                             //Figure out catching and throwing errors as other aliases
                         ];
                     case 1:
@@ -391,12 +393,12 @@ var TransactionGroup = /** @class */ (function () {
                         e_1 = _a.sent();
                         throw new Error(e_1);
                     case 3:
-                        if (wait) {
-                            return [2 /*return*/, waitForConfirmation(algod, txid)];
-                        }
-                        return [2 /*return*/, {
-                                "txid": txid
-                            }];
+                        if (!wait) return [3 /*break*/, 5];
+                        return [4 /*yield*/, waitForConfirmation(algod, txid.txId)];
+                    case 4: return [2 /*return*/, _a.sent()];
+                    case 5: return [2 /*return*/, {
+                            "txid": txid.txId
+                        }];
                 }
             });
         });

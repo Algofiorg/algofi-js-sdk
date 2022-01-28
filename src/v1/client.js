@@ -89,7 +89,6 @@ var Client = /** @class */ (function () {
                 switch (_d.label) {
                     case 0:
                         client = new Client(algodClient, indexerClient, historicalIndexerClient, userAddress, chain);
-                        console.log(client);
                         client.markets = {};
                         _i = 0, _a = client.maxOrderedSymbols;
                         _d.label = 1;

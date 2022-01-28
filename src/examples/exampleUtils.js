@@ -42,24 +42,25 @@ function printMarketState(market) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         return __generator(this, function (_k) {
             switch (_k.label) {
-                case 0:
-                    market.updateGlobalState();
+                case 0: return [4 /*yield*/, market.updateGlobalState()];
+                case 1:
+                    _k.sent();
                     _b = (_a = console).log;
                     _c = ["underlying_cash ="];
                     return [4 /*yield*/, market.getUnderlyingCash()];
-                case 1:
+                case 2:
                     _b.apply(_a, _c.concat([_k.sent()]));
                     console.log("bank_circulation =", market.getBankCirculation());
                     console.log("active_collateral =", market.getActiveCollateral());
                     _e = (_d = console).log;
                     _f = ["underlying_borrowed ="];
                     return [4 /*yield*/, market.getUnderlyingBorrowed()];
-                case 2:
+                case 3:
                     _e.apply(_d, _f.concat([_k.sent()]));
                     _h = (_g = console).log;
                     _j = ["total_borrow_interest_rate ="];
                     return [4 /*yield*/, market.getTotalBorrowInterestRate()];
-                case 3:
+                case 4:
                     _h.apply(_g, _j.concat([_k.sent()]));
                     return [2 /*return*/];
             }
@@ -69,16 +70,34 @@ function printMarketState(market) {
 exports.printMarketState = printMarketState;
 function printUserState(client, symbol, address) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, _b;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0:
-                    // console.log("PRINT USER STATE IN EXAMPLEUTILS.TS\n")
-                    _b = (_a = console).log;
-                    return [4 /*yield*/, client.getUserState(address)];
+        var userState, _i, _a, _b, key, value, _c, _d, _e, key, value, asset, _f, _g, _h, _j, _k, _l;
+        return __generator(this, function (_m) {
+            switch (_m.label) {
+                case 0: return [4 /*yield*/, client.getUserState(address)
+                    // console.log(userState)
+                ];
                 case 1:
-                    // console.log("PRINT USER STATE IN EXAMPLEUTILS.TS\n")
-                    _b.apply(_a, [_c.sent()]);
+                    userState = _m.sent();
+                    // console.log(userState)
+                    for (_i = 0, _a = Object.entries(userState["manager"]); _i < _a.length; _i++) {
+                        _b = _a[_i], key = _b[0], value = _b[1];
+                        console.log(key, "=", value);
+                    }
+                    for (_c = 0, _d = Object.entries(userState[symbol]); _c < _d.length; _c++) {
+                        _e = _d[_c], key = _e[0], value = _e[1];
+                        console.log(key, "=", value);
+                    }
+                    asset = client.getMarket(symbol).getAsset();
+                    _g = (_f = console).log;
+                    _h = ["user_balance_asset ="];
+                    return [4 /*yield*/, client.getUserBalance(asset.getUnderlyingAssetId())];
+                case 2:
+                    _g.apply(_f, _h.concat([(_m.sent()) / Math.pow(10, asset.getUnderlyingAssetInfo()["decimals"])]));
+                    _k = (_j = console).log;
+                    _l = ["user_balance_bank_assert ="];
+                    return [4 /*yield*/, client.getUserBalance(asset.getBankAssetId())];
+                case 3:
+                    _k.apply(_j, _l.concat([(_m.sent()) / Math.pow(10, asset.getBankAssetInfo()["decimals"])]));
                     return [2 /*return*/];
             }
         });
@@ -86,10 +105,21 @@ function printUserState(client, symbol, address) {
 }
 exports.printUserState = printUserState;
 function printStakingContractState(client, stakingContractName, address) {
-    var stakingContract = client.getStakingContract(stakingContractName);
-    stakingContract.updateGlobalState();
-    console.log("staked =", stakingContract.getStaked());
-    var stakingContractUserState = stakingContract.getUserState(address);
-    console.log("user_staked =", stakingContractUserState["staked"]);
+    return __awaiter(this, void 0, void 0, function () {
+        var stakingContract, stakingContractUserState;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    stakingContract = client.getStakingContract(stakingContractName);
+                    return [4 /*yield*/, stakingContract.updateGlobalState()];
+                case 1:
+                    _a.sent();
+                    console.log("staked =", stakingContract.getStaked());
+                    stakingContractUserState = stakingContract.getUserState(address);
+                    console.log("user_staked =", stakingContractUserState["staked"]);
+                    return [2 /*return*/];
+            }
+        });
+    });
 }
 exports.printStakingContractState = printStakingContractState;

@@ -84,7 +84,6 @@ var Manager = /** @class */ (function () {
                             throw new Error("No storage address found");
                         }
                         //still need to figure out if this is correct
-                        console.log("get storage Address finished and returned", (0, algosdk_1.encodeAddress)(Buffer.from(rawStorageAddress.trim(), "base64")));
                         return [2 /*return*/, (0, algosdk_1.encodeAddress)(Buffer.from(rawStorageAddress.trim(), "base64"))];
                 }
             });
@@ -108,11 +107,16 @@ var Manager = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var result, userState;
             return __generator(this, function (_a) {
-                result = {};
-                userState = (0, utils_1.readLocalState)(this.algod, storageAddress, this.managerAppId);
-                result["user_global_max_borrow_in_dollars"] = (0, utils_1.get)(userState, contractStrings_1.managerStrings.user_global_max_borrow_in_dollars, 0);
-                result["user_global_borrowed_in_dollars"] = (0, utils_1.get)(userState, contractStrings_1.managerStrings.user_global_borrowed_in_dollars, 0);
-                return [2 /*return*/, result];
+                switch (_a.label) {
+                    case 0:
+                        result = {};
+                        return [4 /*yield*/, (0, utils_1.readLocalState)(this.algod, storageAddress, this.managerAppId)];
+                    case 1:
+                        userState = _a.sent();
+                        result["user_global_max_borrow_in_dollars"] = (0, utils_1.get)(userState, contractStrings_1.managerStrings.user_global_max_borrow_in_dollars, 0);
+                        result["user_global_borrowed_in_dollars"] = (0, utils_1.get)(userState, contractStrings_1.managerStrings.user_global_borrowed_in_dollars, 0);
+                        return [2 /*return*/, result];
+                }
             });
         });
     };

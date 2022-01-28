@@ -42,7 +42,6 @@ export class Manager {
       throw new Error("No storage address found")
     }
     //still need to figure out if this is correct
-    console.log("get storage Address finished and returned", encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64")))
     return encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64"))
   }
 
@@ -52,7 +51,7 @@ export class Manager {
 
   async getStorageState(storageAddress): Promise<{}> {
     let result = {}
-    let userState = readLocalState(this.algod, storageAddress, this.managerAppId)
+    let userState = await readLocalState(this.algod, storageAddress, this.managerAppId)
     result["user_global_max_borrow_in_dollars"] = get(userState, managerStrings.user_global_max_borrow_in_dollars, 0)
     result["user_global_borrowed_in_dollars"] = get(userState, managerStrings.user_global_borrowed_in_dollars, 0)
     return result

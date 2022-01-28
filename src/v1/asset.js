@@ -121,7 +121,12 @@ var Asset = /** @class */ (function () {
                             throw Error("no oracle app id for asset");
                         }
                         return [4 /*yield*/, (0, utils_1.getGlobalState)(this.algod, this.oracleAppId)];
-                    case 1: return [2 /*return*/, (_a.sent())[this.oraclePriceField]];
+                    case 1: 
+                    // console.log("THIS.ORACLE PRICE FIELD", this.oraclePriceField)
+                    // console.log(await getGlobalState(this.algod, this.oracleAppId))
+                    // getGlobalState seems to be woroking correctly
+                    // for some reason this.oraclePriceField is in base64 still
+                    return [2 /*return*/, (_a.sent())[Buffer.from(this.oraclePriceField, "base64").toString()]];
                 }
             });
         });
@@ -135,12 +140,22 @@ var Asset = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        // oracleAppId is being returned correctly
                         if (this.oracleAppId == null) {
                             throw Error("no oracle app id for asset");
                         }
-                        return [4 /*yield*/, this.getRawPrice()];
+                        return [4 /*yield*/, this.getRawPrice()
+                            // console.log("RAW PRICE", raw_price)
+                            // console.log("UNDERLYING DECIMALS", this.getUnderlyingDecimals()) 
+                            // console.log("ORACLE PRICE SCALE FACTOR", this.getOraclePriceScaleFactor())
+                            // both underlying deicmals and oracle price scale factor return things that seeem correct
+                        ];
                     case 1:
                         raw_price = _a.sent();
+                        // console.log("RAW PRICE", raw_price)
+                        // console.log("UNDERLYING DECIMALS", this.getUnderlyingDecimals()) 
+                        // console.log("ORACLE PRICE SCALE FACTOR", this.getOraclePriceScaleFactor())
+                        // both underlying deicmals and oracle price scale factor return things that seeem correct
                         return [2 /*return*/, (raw_price * Math.pow(10, this.getUnderlyingDecimals())) / (this.getOraclePriceScaleFactor() * 1e3)];
                 }
             });

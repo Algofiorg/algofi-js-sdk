@@ -105,7 +105,6 @@ export class Client {
     chain: string
   ): Promise<Client> {
     let client = new Client(algodClient, indexerClient, historicalIndexerClient, userAddress, chain)
-    console.log(client)
     client.markets = {}
     for (let symbol of client.maxOrderedSymbols) {
       client.markets[symbol] = await Market.init(

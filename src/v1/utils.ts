@@ -91,7 +91,7 @@ export async function signAndSubmitTransaction(
     }
   }
   let txid = await client.sendRawTransaction(signedTransactions).do()
-  return waitForConfirmation(client, txid)
+  return await waitForConfirmation(client, txid)
 }
 
 export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
@@ -193,6 +193,7 @@ export async function readGlobalState(client: Algodv2, address: string, appId: n
 export async function getGlobalState(algodClient: Algodv2, appId: number): Promise<{}> {
   let application = await algodClient.getApplicationByID(appId).do()
   const stateDict = formatState(application["params"]["global-state"])
+  // console.log("STATEDICT", stateDict)
   return stateDict
 }
 
@@ -209,7 +210,6 @@ export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomic
   } else {
     supportedMarketCount = contracts[chain]["supportedMarketCount"]
   }
-  console.log("SUPPORTED MARKET COUNT", supportedMarketCount)
   return contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount)
 }
 
@@ -298,19 +298,19 @@ export class TransactionGroup {
 
   //formatter is saving this as txid:txid instead of "txid":txid
   async submit(algod: Algodv2, wait: boolean = false) {
-    let txid: string
+    let txid: any
     try {
       txid = await algod.sendRawTransaction(this.signedTransactions).do()
+      // console.log("TXID", txid)
       //Figure out catching and throwing errors as other aliases
     } catch (e) {
       throw new Error(e)
     }
     if (wait) {
-      return waitForConfirmation(algod, txid)
+      return await waitForConfirmation(algod, txid.txId)
     }
-
     return {
-      "txid": txid
+      "txid": txid.txId
     }
   }
 }
