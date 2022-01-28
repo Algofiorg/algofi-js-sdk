@@ -26,7 +26,7 @@ export function prepareRemoveCollateralTransactions(
     supportedOracleAppIds,
     storageAccount
   )
-  //figure out int_to_bytes
+
   let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
     enc.encode(managerStrings.remove_collateral),
     intToBytes(amount)
@@ -40,8 +40,7 @@ export function prepareRemoveCollateralTransactions(
     [managerAppId],
     [bankAssetId]
   )
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  temp.push(txn1)
-  return new TransactionGroup(temp)
+
+  console.log("prepare remove collateral transactions in removecollateral.ts finished and returned something\n")
+  return new TransactionGroup([...prefixTransactions, txn0, txn1])
 }
