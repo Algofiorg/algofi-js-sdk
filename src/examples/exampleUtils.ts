@@ -1,6 +1,6 @@
-import { Algodv2 } from "algosdk"
 import { Market } from "../v1/market"
 import { Client } from "../v1/client"
+import { Algodv2 } from "algosdk"
 
 export async function printMarketState(market: Market) {
   await market.updateGlobalState()

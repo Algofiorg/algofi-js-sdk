@@ -1,6 +1,6 @@
 import { newAlgofiMainnetClient, newAlgofiTestnetClient } from "../v1/client"
-import { Algodv2, mnemonicToSecretKey } from "algosdk"
 import { printMarketState, printUserState } from "./exampleUtils"
+import { Algodv2, mnemonicToSecretKey } from "algosdk"
 
 export async function mintExample(
   mnemonic: string = "biology engine verify maze coral cotton swear laptop surge vital surround entire glance dial oblige bleak friend royal round region divorce elephant law above local"

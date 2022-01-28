@@ -31,15 +31,11 @@ async function foo() {
   // // Uncomment to run mint to collateral example
   // await mintToCollateralExample()
 
-  // Uncomment to run remove collateral example
-  // running into one issue
-  await removeCollateralExample()
+  // // Uncomment to run remove collateral example
+  // await removeCollateralExample()
 
   // // Uncomment to run repay borrow example
   // await repayBorrowExample()
-
-
-
 }
 
 foo()

@@ -1,6 +1,7 @@
-import { AlgofiMainnetClient, AlgofiTestnetClient } from "../v1/client"
-import { Algodv2, mnemonicToSecretKey } from "algosdk"
+import { newAlgofiMainnetClient, newAlgofiTestnetClient } from "../v1/client"
 import { printMarketState, printUserState } from "./exampleUtils"
+import { Algodv2, mnemonicToSecretKey } from "algosdk"
+
 
 export async function liquidateExample(
   mnemonic: string = "still exist rifle milk magic fog raw senior grunt claw female talent giggle fatigue truly guard region wife razor put delay arrow napkin ability demise"
@@ -15,8 +16,8 @@ export async function liquidateExample(
   // currently hardcoding a test account
   const IS_MAINNET = false
   const client = IS_MAINNET
-    ? await AlgofiMainnetClient(undefined, undefined, sender)
-    : await AlgofiTestnetClient(undefined, undefined, sender)
+    ? await newAlgofiMainnetClient(undefined, undefined, sender)
+    : await newAlgofiTestnetClient(undefined, undefined, sender)
 
   const collateralSymbol = client.getActiveOrderedSymbols()[0]
   const borrowSymbol = client.getActiveOrderedSymbols()[1]

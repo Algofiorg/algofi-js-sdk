@@ -1,6 +1,6 @@
 import { newAlgofiMainnetClient, newAlgofiTestnetClient } from "../v1/client"
-import {  mnemonicToSecretKey } from "algosdk"
 import { printMarketState, printUserState } from "./exampleUtils"
+import {  mnemonicToSecretKey } from "algosdk"
 
 export async function addCollateralExample(
   mnemonic: string = "biology engine verify maze coral cotton swear laptop surge vital surround entire glance dial oblige bleak friend royal round region divorce elephant law above local"
@@ -44,12 +44,14 @@ export async function addCollateralExample(
   txn.signWithPrivateKey(undefined, key)
   await txn.submit(client.algod, true)
 
+
   let bankAssetBalance = await client.getUserBalance(
     client
       .getMarket(symbol)
       .getAsset()
       .getBankAssetId()
   )
+
 
   txn = await client.prepareAddCollateralTransactions(symbol, Math.floor(bankAssetBalance * 0.1), sender)
   txn.signWithPrivateKey(undefined, key)
