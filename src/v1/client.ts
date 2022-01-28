@@ -1,4 +1,4 @@
-import { Algodv2, Indexer, SuggestedParams, Transaction, waitForConfirmation } from "algosdk"
+import { Algodv2, Indexer, SuggestedParams, waitForConfirmation } from "algosdk"
 import {
   getInitRound,
   getOrderedSymbols,
@@ -527,7 +527,7 @@ export class Client {
       await this.getDefaultParams(),
       await this.manager.getStorageAddress(address),
       amount,
-      market.getAsset().bankAssetId(),
+      market.getAsset().getBankAssetId(),
       this.manager.getManagerAppId(),
       market.getMarketAppId(),
       this.getActiveMarketAppIds(),
@@ -668,9 +668,7 @@ export class Client {
     let txid: string
     try {
       txid = await this.algod.sendRawTransaction(transactionGroup).do()
-    } catch (AlgodHTTPError) {
-
-    }
+    } catch (AlgodHTTPError) {}
     if (wait) {
       //not sure about wait rounds (last parameter)
       return waitForConfirmation(this.algod, txid, 10)
@@ -680,10 +678,10 @@ export class Client {
 }
 
 export async function newAlgofiTestnetClient(
-  algodClient: Algodv2,
+  algodClient: Algodv2 = null,
   indexerClient: Indexer = null,
   userAddress: string = null
-): Promise<Client> 
+): Promise<Client> {
   let historicalIndexerClient = new Indexer("", "https://indexer.testnet.algoexplorerapi.io/", "")
   if (algodClient === null) {
     algodClient = new Algodv2(
@@ -695,14 +693,15 @@ export async function newAlgofiTestnetClient(
   if (indexerClient === null) {
     indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io/", "")
   }
+  console.log(algodClient, indexerClient, historicalIndexerClient, userAddress)
   return await Client.init(algodClient, indexerClient, historicalIndexerClient, userAddress, "testnet")
 }
 
 export async function newAlgofiMainnetClient(
-  algodClient: Algodv2,
+  algodClient: Algodv2 = null,
   indexerClient: Indexer = null,
   userAddress: string = null
-): Promise<Client> 
+): Promise<Client> {
   let historicalIndexerClient = new Indexer("", "https://indexer.algoexplorerapi.io/", "")
   if (algodClient === null) {
     algodClient = new Algodv2("", "https://algoexplorerapi.io", "")

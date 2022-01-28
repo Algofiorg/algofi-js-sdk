@@ -85,7 +85,7 @@ export async function signAndSubmitTransaction(
   sender: string,
   senderSk: Uint8Array
 ) {
-  for (const [i, txn] of transactions.entries()) {
+  for (const [i, txn] of Object.entries(transactions)) {
     if (true) {
       signedTransactions[i] = txn.signTxn(senderSk)
     }
@@ -193,6 +193,8 @@ export async function readGlobalState(client: Algodv2, address: string, appId: n
 
 //need to make sure that getApplicationByID is the same thing as client.application_info(app_id) for pysdk
 export async function getGlobalState(algodClient: Algodv2, appId: number): Promise<{}> {
+  console.log(appId)
+  console.log(algodClient)
   let application = await algodClient.getApplicationByID(appId).do()
   const stateDict = formatState(application["params"]["global-state"])
   return stateDict
@@ -288,7 +290,7 @@ export class TransactionGroup {
   //figure out how to notate types of privateKey
   //Also address is not used but I can take it out later
   signWithPrivateKey(address: string, privateKey: Uint8Array): void {
-    for (let [i, txn] of this.transactions.entries()) {
+    for (let [i, txn] of Object.entries(this.transactions)) {
       this.signedTransactions[i] = txn.signTxn(privateKey)
     }
   }
@@ -297,7 +299,7 @@ export class TransactionGroup {
     if (privateKeys.length !== this.transactions.length) {
       throw new Error("Different number of private keys and transactions")
     }
-    for (let [i, txn] of this.transactions.entries()) {
+    for (let [i, txn] of Object.entries(this.transactions)) {
       this.signedTransactions[i] = txn.signTxn(privateKeys[i])
     }
   }
