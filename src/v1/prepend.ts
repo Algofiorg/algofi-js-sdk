@@ -1,8 +1,6 @@
-import algosdk, { SuggestedParams } from "algosdk"
-import { Transactions } from "./utils"
+import { Transactions, getRandomInt, intToBytes } from "./utils"
+import { SuggestedParams, makeApplicationNoOpTxn, Transaction } from "algosdk"
 import { managerStrings } from "./contractStrings"
-
-//Need to figure out how to skip parameters in a function clal for ts
 
 const NUM_DUMMY_TXNS = 9
 let dummyTxnNumToWord = {
@@ -26,7 +24,7 @@ export function getInitTxns(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[],
   storageAccount: string
-) {
+): Transaction[] {
   console.log("GET INIT TXNS IN PREPEND.TS\n")
   //We need to do a deep copy here, here it is just a shallow copy
   let suggestedParamsModified = suggestedParams
@@ -43,19 +41,22 @@ export function getInitTxns(
   if (listTxnTypes.includes(transactionType)) {
     suggestedParamsModified.fee = 2000
   }
+
   const enc = new TextEncoder()
 
   //Not sure if we have to encode a note here which is a random number
-  let txn0 = algosdk.makeApplicationNoOpTxn(
+  let txn0 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     managerAppId,
     [enc.encode(managerStrings.fetch_market_variables)],
     undefined,
-    supportedMarketAppIds
+    supportedMarketAppIds,
+    undefined,
+    intToBytes(getRandomInt(1000000))
   )
 
-  let txn1 = algosdk.makeApplicationNoOpTxn(
+  let txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParamsModified,
     managerAppId,
@@ -64,7 +65,7 @@ export function getInitTxns(
     supportedOracleAppIds
   )
 
-  let txn2 = algosdk.makeApplicationNoOpTxn(
+  let txn2 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     managerAppId,
@@ -73,10 +74,11 @@ export function getInitTxns(
     supportedMarketAppIds
   )
 
-  let dummyTxns = [txn0, txn1, txn2]
+  let dummyTxns = []
 
+  //need to confirm this is correct
   for (let i = 1; i < NUM_DUMMY_TXNS + 1; i++) {
-    let txn = algosdk.makeApplicationNoOpTxn(
+    let txn = makeApplicationNoOpTxn(
       sender,
       suggestedParams,
       managerAppId,
@@ -86,5 +88,5 @@ export function getInitTxns(
     )
     dummyTxns.push(txn)
   }
-  return dummyTxns
+  return [txn0, txn1, txn2, ...dummyTxns]
 }

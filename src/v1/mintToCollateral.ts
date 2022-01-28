@@ -5,8 +5,8 @@ import {
   makeAssetTransferTxnWithSuggestedParams,
   makePaymentTxnWithSuggestedParams
 } from "algosdk"
-import { managerStrings } from "./contractStrings"
 import { TransactionGroup, Transactions } from "./utils"
+import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
@@ -21,7 +21,7 @@ export function prepareMintToCollateralTransactions(
   marketAddress: string,
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[],
-  assetId: number = undefined
+  assetId: number = null
 ): TransactionGroup {
   console.log("PREPARE MINT TO COLLATERAL TRANSACTIONS IN MINTTOCOLLATERAL.TS\n")
   let prefixTransactions = getInitTxns(
@@ -62,9 +62,7 @@ export function prepareMintToCollateralTransactions(
   } else {
     txn2 = makePaymentTxnWithSuggestedParams(sender, marketAddress, amount, undefined, undefined, suggestedParams)
   }
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  temp.push(txn1)
-  temp.push(txn2)
-  return new TransactionGroup(temp)
+
+  console.log("prepare mint to collateral transactions in minttocollateral.ts finished and returned something.\n")
+  return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }

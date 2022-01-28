@@ -29,6 +29,10 @@ export enum Transactions {
   CLAIM_REWARDS = 10
 }
 
+export function getRandomInt(max: number): number {
+  return Math.floor(Math.random() * max)
+}
+
 export function get(object: {}, key: any, default_value: any): any {
   var result = object[key]
   return typeof result !== "undefined" ? result : default_value

@@ -5,7 +5,7 @@ import {
   getApplicationAddress,
   makeAssetTransferTxnWithSuggestedParams
 } from "algosdk"
-import { TransactionGroup } from "./utils"
+import { TransactionGroup, getRandomInt, intToBytes } from "./utils"
 const OPT_IN_MIN_BALANCE = 3.5695
 
 export function prepareManagerAppOptinTransactions(
@@ -16,6 +16,7 @@ export function prepareManagerAppOptinTransactions(
   suggestedParams: SuggestedParams
 ): TransactionGroup {
   console.log("PREPARE MANAGER APP OPTIN TRANSACTIONS IN OPTIN.TS\n")
+  //have to convert opt_in_min_balance * 1e6 to an integer
   let txnPayment = makePaymentTxnWithSuggestedParams(
     sender,
     storageAddress,
@@ -31,6 +32,8 @@ export function prepareManagerAppOptinTransactions(
   }
 
   let txnUserOptinManager = makeApplicationOptInTxn(sender, suggestedParams, managerAppId)
+
+  //need to make sure getApplicationAddress is ok and similar to python implementation
   let appAddress = getApplicationAddress(managerAppId)
   let txnStorageOptinManager = makeApplicationOptInTxn(
     storageAddress,
@@ -44,13 +47,8 @@ export function prepareManagerAppOptinTransactions(
     undefined,
     appAddress
   )
-  let temp = [txnPayment]
-  for (let txn of marketOptinTransactions) {
-    temp.push(txn)
-  }
-  temp.push(txnUserOptinManager)
-  temp.push(txnStorageOptinManager)
-  return new TransactionGroup(temp)
+  console.log("prepare manager app optin transactions in optin.ts finished and returned something\n")
+  return new TransactionGroup([txnPayment, ...marketOptinTransactions, txnUserOptinManager, txnStorageOptinManager])
 }
 
 //Do I really have to add a random note here?
@@ -59,7 +57,9 @@ export function prepareMarketAppOptinTransactions(
   sender: string,
   suggestedParams: SuggestedParams
 ): TransactionGroup {
-  return new TransactionGroup([makeApplicationOptInTxn(sender, suggestedParams, marketAppId)])
+  return new TransactionGroup([
+    makeApplicationOptInTxn(sender, suggestedParams, marketAppId, [intToBytes(getRandomInt(1000000))])
+  ])
 }
 
 //not sure if there is a built in asset opt in transaction for js
