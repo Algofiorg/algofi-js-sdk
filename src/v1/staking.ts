@@ -1,11 +1,17 @@
-import algosdk, { encodeAddress, SuggestedParams, Transaction } from "algosdk"
+import {
+  SuggestedParams,
+  Transaction,
+  makeApplicationOptInTxn,
+  getApplicationAddress,
+  makePaymentTxnWithSuggestedParams,
+  makeApplicationNoOpTxn,
+  makeAssetTransferTxnWithSuggestedParams
+} from "algosdk"
 import { getInitTxns } from "./prepend"
 import { Transactions, intToBytes, TransactionGroup } from "./utils"
 import { managerStrings } from "./contractStrings"
-import { getJSDocReturnType } from "typescript"
 
 let OPT_IN_MIN_BALANCE = 0.65
-
 const enc = new TextEncoder()
 
 export function prepareStakingContractOptinTransactions(
@@ -16,7 +22,8 @@ export function prepareStakingContractOptinTransactions(
   suggestedParams: SuggestedParams
 ): TransactionGroup {
   console.log("PREPARE STAKING CONTRACT OPT IN TRANSACDTIONS IN STAKING.TS\n")
-  let txnPayment = algosdk.makePaymentTxnWithSuggestedParams(
+  //need to convert value to int
+  let txnPayment = makePaymentTxnWithSuggestedParams(
     sender,
     storageAddress,
     1000000 * OPT_IN_MIN_BALANCE,
@@ -25,14 +32,15 @@ export function prepareStakingContractOptinTransactions(
     suggestedParams
   )
 
-  let txnMarket = algosdk.makeApplicationOptInTxn(sender, suggestedParams, marketAppId)
+  let txnMarket = makeApplicationOptInTxn(sender, suggestedParams, marketAppId)
 
-  let txnUserOptInManager = algosdk.makeApplicationOptInTxn(sender, suggestedParams, managerAppId)
+  let txnUserOptInManager = makeApplicationOptInTxn(sender, suggestedParams, managerAppId)
 
-  let appAddress = algosdk.getApplicationAddress(managerAppId)
+  //make sure this is same as in python implementation
+  let appAddress = getApplicationAddress(managerAppId)
 
   //Figure out how to get this cleaner
-  let txnStorageOptInManager = algosdk.makeApplicationOptInTxn(
+  let txnStorageOptInManager = makeApplicationOptInTxn(
     storageAddress,
     suggestedParams,
     managerAppId,
@@ -45,12 +53,7 @@ export function prepareStakingContractOptinTransactions(
     appAddress
   )
 
-  let temp = []
-  temp.push(txnPayment)
-  temp.push(txnMarket)
-  temp.push(txnUserOptInManager)
-  temp.push(txnStorageOptInManager)
-  return new TransactionGroup(temp)
+  return new TransactionGroup([txnPayment, txnMarket, txnUserOptInManager, txnStorageOptInManager])
 }
 
 export function prepareStakeTransactions(
@@ -62,7 +65,7 @@ export function prepareStakeTransactions(
   marketAppId: number,
   marketAddress: string,
   oracleAppId: number,
-  assetId: number = undefined
+  assetId: number = null
 ): TransactionGroup {
   let supportedOracleAppIds = [oracleAppId]
   let supportedMarketAppIds = [marketAppId]
@@ -76,10 +79,10 @@ export function prepareStakeTransactions(
     storageAccount
   )
 
-  let txn0 = algosdk.makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
+  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
     enc.encode(managerStrings.mint_to_collateral)
   ])
-  let txn1 = algosdk.makeApplicationNoOpTxn(
+  let txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     marketAppId,
@@ -90,7 +93,7 @@ export function prepareStakeTransactions(
 
   let txn2: Transaction
   if (assetId) {
-    txn2 = algosdk.makeAssetTransferTxnWithSuggestedParams(
+    txn2 = makeAssetTransferTxnWithSuggestedParams(
       sender,
       marketAddress,
       undefined,
@@ -101,22 +104,10 @@ export function prepareStakeTransactions(
       suggestedParams
     )
   } else {
-    txn2 = algosdk.makePaymentTxnWithSuggestedParams(
-      sender,
-      marketAddress,
-      amount,
-      undefined,
-      undefined,
-      suggestedParams
-    )
+    txn2 = makePaymentTxnWithSuggestedParams(sender, marketAddress, amount, undefined, undefined, suggestedParams)
   }
 
-  let temp = []
-  temp.push(prefixTransactions)
-  temp.push(txn0)
-  temp.push(txn1)
-  temp.push(txn2)
-  return new TransactionGroup(temp)
+  return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }
 
 export function prepareUnstakeTransactions(
@@ -127,7 +118,7 @@ export function prepareUnstakeTransactions(
   managerAppId: number,
   marketAppId: number,
   oracleAppId: number,
-  assetId: number = undefined
+  assetId: number = null
 ): TransactionGroup {
   console.log("PREPARE UNSTAKE TRANSACTIONS IN STAKING.TS\n")
   let supportedMarketAppIds = [marketAppId]
@@ -141,13 +132,13 @@ export function prepareUnstakeTransactions(
     supportedOracleAppIds,
     storageAccount
   )
-  let txn0 = algosdk.makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
+  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
     enc.encode(managerStrings.remove_collateral_underlying),
     intToBytes(amount)
   ])
   let txn1: Transaction
   if (assetId) {
-    let txn1 = algosdk.makeApplicationNoOpTxn(
+    txn1 = makeApplicationNoOpTxn(
       sender,
       suggestedParams,
       marketAppId,
@@ -157,7 +148,7 @@ export function prepareUnstakeTransactions(
       [assetId]
     )
   } else {
-    let txn1 = algosdk.makeApplicationNoOpTxn(
+    txn1 = makeApplicationNoOpTxn(
       sender,
       suggestedParams,
       marketAppId,
@@ -166,13 +157,8 @@ export function prepareUnstakeTransactions(
       [managerAppId]
     )
   }
-  let txnGroup = []
-  for (let txn of prefixTransactions) {
-    txnGroup.push(txn)
-  }
-  txnGroup.push(txn0)
-  txnGroup.push(txn1)
-  return new TransactionGroup(txnGroup)
+
+  return new TransactionGroup([...prefixTransactions, txn0, txn1])
 }
 
 export function prepareClaimStakingRewardsTransactions(
@@ -196,7 +182,7 @@ export function prepareClaimStakingRewardsTransactions(
     supportedOracleAppIds,
     storageAccount
   )
-  let txn0 = algosdk.makeApplicationNoOpTxn(
+  let txn0 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     managerAppId,
@@ -205,7 +191,6 @@ export function prepareClaimStakingRewardsTransactions(
     undefined,
     foreignAssets
   )
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  return new TransactionGroup(temp)
+
+  return new TransactionGroup([...prefixTransactions, txn0])
 }

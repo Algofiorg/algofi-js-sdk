@@ -1,9 +1,9 @@
+import { RewardsProgram } from "./rewardsProgram"
 import { Algodv2, Indexer } from "algosdk"
 import { StringToNum } from "./client"
 import { Manager } from "./manager"
 import { Market } from "./market"
 import { Asset } from "./asset"
-import { RewardsProgram } from "./rewardsProgram"
 
 export class StakingContract {
   algodClient: Algodv2
