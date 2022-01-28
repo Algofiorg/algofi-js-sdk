@@ -1,5 +1,5 @@
-import { makeApplicationNoOpTxn, SuggestedParams } from "algosdk"
 import { TransactionGroup, Transactions, intToBytes } from "./utils"
+import { makeApplicationNoOpTxn, SuggestedParams } from "algosdk"
 import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
@@ -10,7 +10,7 @@ export function prepareRemoveCollateralUnderlyingTransactions(
   suggestedParams: SuggestedParams,
   storageAccount: string,
   amount: number,
-  bankAssetId: number,
+  assetId: number,
   managerAppId: number,
   marketAppId: number,
   supportedMarketAppIds: number[],
@@ -38,10 +38,11 @@ export function prepareRemoveCollateralUnderlyingTransactions(
     [enc.encode(managerStrings.remove_collateral_underlying)],
     [storageAccount],
     [managerAppId],
-    [bankAssetId]
+    [assetId]
   )
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  temp.push(txn1)
-  return new TransactionGroup(temp)
+
+  console.log(
+    "prepare remove collateral transactions in removecollateralunderlyingtransactions.ts finished and returned something\n"
+  )
+  return new TransactionGroup([...prefixTransactions, txn0, txn1])
 }

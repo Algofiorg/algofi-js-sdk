@@ -1,5 +1,5 @@
-import { Transactions, getRandomInt, intToBytes } from "./utils"
 import { SuggestedParams, makeApplicationNoOpTxn, Transaction } from "algosdk"
+import { Transactions, getRandomInt, intToBytes } from "./utils"
 import { managerStrings } from "./contractStrings"
 
 const NUM_DUMMY_TXNS = 9
