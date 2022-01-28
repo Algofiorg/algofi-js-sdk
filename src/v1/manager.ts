@@ -3,7 +3,6 @@ import { getGlobalState, readLocalState, get } from "./utils"
 import { managerStrings } from "./contractStrings"
 import { RewardsProgram } from "./rewardsProgram"
 import { Market } from "./market"
-import { Base64Encoder } from "./encode"
 
 export class Manager {
   algod: Algodv2
@@ -20,49 +19,49 @@ export class Manager {
     console.log("constructor in manager.ts finished\n")
   }
 
-  updateGlobalState() {
+  updateGlobalState(): void {
     console.log("UPDATE GLOBAL STATE IN MANAGER.TS\n")
     let managerState = getGlobalState(this.algod, this.managerAppId)
     this.rewardsProgram = new RewardsProgram(this.algod, managerState)
     console.log("update global state in manager.ts finished\n")
   }
 
-  getManagerAppId() {
+  getManagerAppId(): number {
     console.log("GET MANAGER APP ID IN MANAGER.TS\n")
     console.log("get manager app id in manager.ts finished and returned", this.managerAppId, "\n")
     return this.managerAppId
   }
 
-  getManagerAddress() {
+  getManagerAddress(): string {
     console.log("GET MANAGER ADDRESS IN MANAGER.TS\n")
     console.log("get manager address in manager.ts finished and returned", this.managerAddress, "\n")
     return this.managerAddress
   }
 
-  getRewardsProgram() {
+  getRewardsProgram(): RewardsProgram {
     console.log("GET REWARDS PROGRAM IN MANAGER.TS\n")
     console.log("get rewards program in manager.ts finished and returned", this.rewardsProgram, "\n")
     return this.rewardsProgram
   }
 
-  async getStorageAddress(address: string) {
+  async getStorageAddress(address: string): Promise<string> {
     console.log("GET STORAGE ADDRESS MANAGER.TS\n")
     let userManagerState = await readLocalState(this.algod, address, this.managerAppId)
-    let rawStorageAddress = get(userManagerState, managerStrings.user_storage_address, undefined)
+    let rawStorageAddress = get(userManagerState, managerStrings.user_storage_address, null)
 
     if (!rawStorageAddress) {
       throw new Error("No storage address found")
     }
-    //Need to figure out if this is correct
+    //still need to figure out if this is correct
     console.log(
       "get storage address in manager.ts finished and returned:",
-      Base64Encoder.decode(rawStorageAddress.trim()),
+      encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64")),
       "\n"
     )
-    return Base64Encoder.decode(rawStorageAddress.trim())
+    return encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64"))
   }
 
-  async getUserState(address: string) {
+  async getUserState(address: string): Promise<{}> {
     console.log("GET USER STATE IN MANAGER.TS\n")
     //Address XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ
     console.log(
@@ -83,13 +82,17 @@ export class Manager {
     return result
   }
 
-  async getUserUnrealizedRewards(address: string, markets: Market[]) {
+  //fix the type of the return of this function later
+  async getUserUnrealizedRewards(address: string, markets: Market[]): Promise<any[]> {
     console.log("GET USER UNREALIZED REWARDS IN MANAGER.TS\n")
+    console.log("get user unrealized rewards in manager.ts finished and returned something\n")
     return this.getStorageUnrealizedRewards(await this.getStorageAddress(address), markets)
   }
 
-  getStorageUnrealizedRewards(storageAddress: string, markets: Market[]) {
+  //make sure that this is async still
+  async getStorageUnrealizedRewards(storageAddress: string, markets: Market[]): Promise<any[]> {
     console.log("GET STORAGE UNREALIZED REWARDS IN MANAGER.TS\n")
-    return this.getRewardsProgram().getStorageUnrealizedRewards(storageAddress, this, markets)
+    console.log("get storage unrealized rewards in manager.ts finished and returned something.\n")
+    return await this.getRewardsProgram().getStorageUnrealizedRewards(storageAddress, this, markets)
   }
 }
