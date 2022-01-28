@@ -1,6 +1,6 @@
 import { newAlgofiMainnetClient, newAlgofiTestnetClient } from "../v1/client"
 import { printMarketState, printUserState } from "./exampleUtils"
-import { Algodv2, mnemonicToSecretKey } from "algosdk"
+import { mnemonicToSecretKey } from "algosdk"
 
 
 export async function liquidateExample(
