@@ -277,9 +277,9 @@ export function getNewAccount(): any[] {
   return [key, address, passphrase]
 }
 
-export function searchGlobalState(globalState: {}[], searchKey: any): any {
+export function searchGlobalState(globalState: {}, searchKey: any): any {
   console.log("SEARCH GLOBAL STATE IN UTILS.TS")
-  for (const field of globalState) {
+  for (let field of Object.keys(globalState)) {
     let value = field["value"]
     let key = field["key"]
     if (searchKey === Buffer.from(key, "base64").toString()) {

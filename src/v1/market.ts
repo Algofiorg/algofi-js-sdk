@@ -1,9 +1,8 @@
-import algosdk, { Algodv2, Indexer } from "algosdk"
-import { Asset } from "./asset"
-import { getGlobalState, readLocalState, searchGlobalState } from "./utils"
+import { getGlobalState, readLocalState, searchGlobalState, get } from "./utils"
+import { Algodv2, Indexer, getApplicationAddress } from "algosdk"
+import { PARAMETER_SCALE_FACTOR, SCALE_FACTOR } from "../v0"
 import { marketStrings } from "./contractStrings"
-import { getStorageAddress, PARAMETER_SCALE_FACTOR, SCALE_FACTOR } from "../v0"
-import { get } from "./utils"
+import { Asset } from "./asset"
 
 export class Market {
   algod: Algodv2
@@ -38,85 +37,44 @@ export class Market {
   constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number) {
     console.log("CONSTRUCTOR IN MARKET.TS\n")
     this.algod = algodClient
-
-    this.marketAppId = marketAppId
-    this.marketAddress = algosdk.getApplicationAddress(this.marketAppId)
-
     this.historicalIndexer = historicalIndexerClient
 
-    this.asset = this.underlyingAssetId
-      ? new Asset(
-          this.algod,
-          this.underlyingAssetId,
-          this.bankAssetId,
-          this.oracleAppId,
-          this.oraclePriceField,
-          this.oraclePriceScaleFactor
-        )
-      : null
+    this.marketAppId = marketAppId
+    //possibly incorrect but I feel like i've tested this before
+    this.marketAddress = getApplicationAddress(this.marketAppId)
   }
 
-  static async init(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number) {
-    console.log("INIT IN MARKET.TS\n")
+  static async init(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number): Promise<Market> {
     let market = new Market(algodClient, historicalIndexerClient, marketAppId)
-    await market.initializeMarketState()
+    // I'm not sure if I was looking at a different file or something but this seems to be the right way to do it
+    // await market.initializeMarketState()
+    await market.updateGlobalState()
     return market
   }
 
-  async initializeMarketState() {
-    console.log("INITIALIZE MARKET STATE IN MARKET.TS\n")
-    const marketState = await getGlobalState(this.algod, this.marketAppId)
-    this.marketCounter = marketState[marketStrings.manager_market_counter_var]
-
-    this.underlyingAssetId = marketState[marketStrings.asset_id]
-    this.bankAssetId = marketState[marketStrings.bank_asset_id]
-
-    this.oracleAppId = marketState[marketStrings.oracle_app_id]
-    this.oraclePriceField = marketState[marketStrings.oracle_price_field]
-    this.oraclePriceScaleFactor = marketState[marketStrings.oracle_price_scale_factor]
-    this.collateralFactor = marketState[marketStrings.collateral_factor]
-    this.liquidationIncentive = marketState[marketStrings.liquidation_incentive]
-    this.reserveFactor = marketState[marketStrings.reserve_factor]
-    this.baseInterestRate = marketState[marketStrings.base_interest_rate]
-    this.slope1 = marketState[marketStrings.slope_1]
-    this.slope2 = marketState[marketStrings.slope_2]
-    this.utilizationOptimal = marketState[marketStrings.utilization_optimal]
-    this.marketSupplyCapInDollars = marketState[marketStrings.market_supply_cap_in_dollars]
-    this.marketBorrowCapInDollars = marketState[marketStrings.market_borrow_cap_in_dollars]
-
-    this.activeCollateral = marketState[marketStrings.active_collateral]
-    this.bankCirculation = marketState[marketStrings.bank_circulation]
-    this.bankToUnderlyingExchange = marketState[marketStrings.bank_to_underlying_exchange]
-    this.underlyingBorrowed = marketState[marketStrings.underlying_borrowed]
-    this.outstandingBorrowShares = marketState[marketStrings.outstanding_borrow_shares]
-    this.underlyingCash = marketState[marketStrings.underlying_cash]
-    this.underlyingReserves = marketState[marketStrings.underlying_reserves]
-    this.totalBorrowInterestRate = marketState[marketStrings.total_borrow_interest_rate]
-  }
-
-  async updateGlobalState() {
+  async updateGlobalState(): Promise<void> {
     console.log("UPDATE GLOBAL STATE IN MARKET.TS\n")
     let marketState = await getGlobalState(this.algod, this.marketAppId)
 
     this.marketCounter = marketState[marketStrings.manager_market_counter_var]
 
     // market asset info
-    this.underlyingAssetId = get(marketState, marketStrings.asset_id, undefined)
-    this.bankAssetId = get(marketState, marketStrings.bank_asset_id, undefined)
+    this.underlyingAssetId = get(marketState, marketStrings.asset_id, null)
+    this.bankAssetId = get(marketState, marketStrings.bank_asset_id, null)
 
     // market parameters
-    this.oracleAppId = get(marketState, marketStrings.oracle_app_id, undefined)
-    this.oraclePriceField = get(marketState, marketStrings.oracle_price_field, undefined)
-    this.oraclePriceScaleFactor = get(marketState, marketStrings.oracle_price_scale_factor, undefined)
-    this.collateralFactor = get(marketState, marketStrings.collateral_factor, undefined)
-    this.liquidationIncentive = get(marketState, marketStrings.liquidation_incentive, undefined)
-    this.reserveFactor = get(marketState, marketStrings.reserve_factor, undefined)
-    this.baseInterestRate = get(marketState, marketStrings.base_interest_rate, undefined)
-    this.slope1 = get(marketState, marketStrings.slope_1, undefined)
-    this.slope2 = get(marketState, marketStrings.slope_2, undefined)
-    this.utilizationOptimal = get(marketState, marketStrings.utilization_optimal, undefined)
-    this.marketSupplyCapInDollars = get(marketState, marketStrings.market_supply_cap_in_dollars, undefined)
-    this.marketBorrowCapInDollars = get(marketState, marketStrings.market_borrow_cap_in_dollars, undefined)
+    this.oracleAppId = get(marketState, marketStrings.oracle_app_id, null)
+    this.oraclePriceField = get(marketState, marketStrings.oracle_price_field, null)
+    this.oraclePriceScaleFactor = get(marketState, marketStrings.oracle_price_scale_factor, null)
+    this.collateralFactor = get(marketState, marketStrings.collateral_factor, null)
+    this.liquidationIncentive = get(marketState, marketStrings.liquidation_incentive, null)
+    this.reserveFactor = get(marketState, marketStrings.reserve_factor, null)
+    this.baseInterestRate = get(marketState, marketStrings.base_interest_rate, null)
+    this.slope1 = get(marketState, marketStrings.slope_1, null)
+    this.slope2 = get(marketState, marketStrings.slope_2, null)
+    this.utilizationOptimal = get(marketState, marketStrings.utilization_optimal, null)
+    this.marketSupplyCapInDollars = get(marketState, marketStrings.market_supply_cap_in_dollars, null)
+    this.marketBorrowCapInDollars = get(marketState, marketStrings.market_borrow_cap_in_dollars, null)
 
     // balance info
     this.activeCollateral = get(marketState, marketStrings.active_collateral, 0)
@@ -137,46 +95,46 @@ export class Market {
           this.oraclePriceField,
           this.oraclePriceScaleFactor
         )
-      : undefined
+      : null
   }
 
-  getMarketAppId() {
+  getMarketAppId(): number {
     console.log("GET MARKET APP ID IN MARKET.TS\n")
     return this.marketAppId
   }
 
-  getMarketAddress() {
+  getMarketAddress(): string {
     console.log("GET MARKET ADDRESS IN MARKET.TS\n")
     return this.marketAddress
   }
 
-  getMarketCounter() {
+  getMarketCounter(): number {
     console.log("GET MARKET COUNTER IN MARKET.TS\n")
     return this.marketCounter
   }
 
-  getAsset() {
+  getAsset(): Asset {
     console.log("GET ASSET IN MARKET.TS\n")
     return this.asset
   }
 
-  getActiveCollateral() {
+  getActiveCollateral(): number {
     console.log("GET ACTIVE COLLATERAL IN MARKET.TS\n")
     return this.activeCollateral
   }
 
-  getBankCirculation() {
+  getBankCirculation(): number {
     console.log("GET BANK CIRCULATION IN MARKET.TS\n")
     return this.bankCirculation
   }
 
-  getBankToUnderlyingExchange() {
+  getBankToUnderlyingExchange(): number {
     console.log("GET BANK TO UNDERLYING EXCHANGE IN MARKET.TS\n")
     return this.bankToUnderlyingExchange
   }
 
   //need to figure out the js equivalent of historical_indexer.applications
-  async getUnderlyingBorrowed(block: number = undefined) {
+  async getUnderlyingBorrowed(block: number = null): Promise<number> {
     console.log("GET UNDERLYING BORROWED IN MARKET.TS\n")
     if (block) {
       try {
@@ -190,15 +148,15 @@ export class Market {
       return this.underlyingBorrowed
     }
   }
-  getOutstandingBorrowShares() {
+  getOutstandingBorrowShares(): number {
     console.log("GET OUTSTANDING BORROW SHARES IN MARKET.TS\n")
     return this.outstandingBorrowShares
   }
-  getUnderlyingCash(block = undefined) {
+  async getUnderlyingCash(block = null): Promise<number> {
     console.log("GET UNDERLYING CASH IN MARKET.TS\n")
     if (block) {
       try {
-        let data = this.historicalIndexer.lookupApplications(this.marketAppId)
+        let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
         data = data["application"]["params"]["global-state"]
         return searchGlobalState(data, marketStrings.underlying_cash)
       } catch (e) {
@@ -208,11 +166,11 @@ export class Market {
       return this.underlyingCash
     }
   }
-  getUnderlyingReserves(block = undefined) {
+  async getUnderlyingReserves(block = null): Promise<number> {
     console.log("GET UNDERLYING RESERVES IN MARKET.TS\n")
     if (block) {
       try {
-        let data = this.historicalIndexer.lookupApplications(this.marketAppId)
+        let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
         data = data["application"]["params"]["global-state"]
         return searchGlobalState(data, marketStrings.underlying_reserves)
       } catch (e) {
@@ -223,11 +181,11 @@ export class Market {
     }
   }
 
-  getTotalBorrowInterestRate(block = undefined) {
+  async getTotalBorrowInterestRate(block = null): Promise<number> {
     console.log("GET TOTAL BORROW INTEREST RATE IN MARKET.TS\n")
     if (block) {
       try {
-        let data = this.historicalIndexer.lookupApplications(this.marketAppId)
+        let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
         data = data["application"]["params"]["global-state"]
         return searchGlobalState(data, marketStrings.total_borrow_interest_rate)
       } catch (e) {
@@ -237,31 +195,36 @@ export class Market {
       return this.totalBorrowInterestRate
     }
   }
-  getCollateralFactor() {
+  getCollateralFactor(): number {
     console.log("GET COLLATERAL FACDTOR IN MARKET.TS\n")
     return this.collateralFactor
   }
-  getLiquidationIncentive() {
+  getLiquidationIncentive(): number {
     console.log("GET LIQUIDATION INCENTIVE IN MARKET.TS\n")
     return this.liquidationIncentive
   }
-  getStorageState(storageAddress: string) {
+
+  // User functions
+  async getStorageState(storageAddress: string): Promise<{}> {
     console.log("GET STORAGE STATE IN MARKET.TS\n")
     let result = {}
-    let userState = readLocalState(this.algod, storageAddress, this.marketAppId)
+    let userState = await readLocalState(this.algod, storageAddress, this.marketAppId)
     let asset = this.getAsset()
     result["active_collateral_bank"] = get(userState, marketStrings.user_active_collateral, 0)
-    result["active_collateral_underlying"] = Number(
+    // Need to figure out how to convert this into an int
+    result["active_collateral_underlying"] =
       (result["active_collateral_bank"] * this.bankToUnderlyingExchange) / SCALE_FACTOR
-    )
-    result["active_collateral_usd"] = asset.toUSD(result["active_collateral_underlying"])
+
+    result["active_collateral_usd"] = await asset.toUSD(result["active_collateral_underlying"])
+
     result["active_collateral_max_borrow_usd"] =
       (result["active_collateral_usd"] * this.collateralFactor) / PARAMETER_SCALE_FACTOR
     result["borrow_shares"] = get(userState, marketStrings.user_borrow_shares, 0)
-    result["borrow_underlying"] = Number(
-      (this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares
-    )
-    result["borrow_usd"] = asset.toUSD(result["borrow_underlying"])
+
+    //Need to figure out how to convert this into an int
+    result["borrow_underlying"] = (this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares
+
+    result["borrow_usd"] = await asset.toUSD(result["borrow_underlying"])
 
     return result
   }
