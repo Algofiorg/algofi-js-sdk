@@ -5,9 +5,9 @@ import {
   SuggestedParams,
   Transaction
 } from "algosdk"
-import { getInitTxns } from "./prepend"
 import { TransactionGroup, Transactions } from "./utils"
 import { managerStrings } from "./contractStrings"
+import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
 
@@ -21,7 +21,7 @@ export function prepareRepayBorrowTransactions(
   marketAddress: string,
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[],
-  assetId: number = undefined
+  assetId: number = null
 ): TransactionGroup {
   console.log("PREPARE REPAY BORROW TRANSACTIONS IN REPAYBORROW.TS\n")
   let prefixTransactions = getInitTxns(
@@ -61,9 +61,7 @@ export function prepareRepayBorrowTransactions(
   } else {
     txn2 = makePaymentTxnWithSuggestedParams(sender, marketAddress, amount, undefined, undefined, suggestedParams)
   }
-  let temp = [...prefixTransactions]
-  temp.push(txn0)
-  temp.push(txn1)
-  temp.push(txn2)
-  return new TransactionGroup(temp)
+
+  console.log("prepare repay borrow transactions in repayborrow.ts finished and returned something\n")
+  return new TransactionGroup([...prefixTransactions, txn0, txn1, txn2])
 }
