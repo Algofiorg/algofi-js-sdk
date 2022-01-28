@@ -36,17 +36,41 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var addCollateral_1 = require("./addCollateral");
+var algosdk_1 = require("algosdk");
+var utils_1 = require("../v1/utils");
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, addCollateral_1.addCollateralExample)()];
+        var algodClient, _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    algodClient = new algosdk_1.Algodv2("", "https://api.testnet.algoexplorer.io", "");
+                    // let indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "")
+                    // console.log(
+                    //   await indexerClient
+                    //     .searchAccounts()
+                    //     .assetID(408947)
+                    //     .do()
+                    // )
+                    _b = (_a = console).log;
+                    return [4 /*yield*/, (0, utils_1.readGlobalState)(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 67288478)
+                        // await readLocalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 51422788)
+                    ];
                 case 1:
-                    _a.sent();
+                    // let indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "")
+                    // console.log(
+                    //   await indexerClient
+                    //     .searchAccounts()
+                    //     .assetID(408947)
+                    //     .do()
+                    // )
+                    _b.apply(_a, [_c.sent()
+                        // await readLocalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 51422788)
+                    ]);
                     return [2 /*return*/];
             }
         });
     });
 }
 foo();
+// console.log(Buffer.from("9CSRPB4ckcpYmXRaUqRSe3dOV2HWDyUu/nKAXOrpmws=", "base64").toString())

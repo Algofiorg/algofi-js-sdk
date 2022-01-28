@@ -1,4 +1,4 @@
-import { AlgofiMainnetClient, AlgofiTestnetClient } from "../v1/client"
+import { newAlgofiMainnetClient, newAlgofiTestnetClient } from "../v1/client"
 import { Algodv2, mnemonicToSecretKey } from "algosdk"
 import { printMarketState, printUserState } from "./exampleUtils"
 
@@ -16,18 +16,17 @@ export async function addCollateralExample(
   // currently hardcoding a test account
   const IS_MAINNET = false
   const client = IS_MAINNET
-    ? await AlgofiMainnetClient(undefined, undefined, sender)
-    : await AlgofiTestnetClient(undefined, undefined, sender)
-  // console.log("TSLDKFJSLDKFJSDLFKJSLDKFJSDF")
+    ? await newAlgofiMainnetClient(undefined, undefined, sender)
+    : await newAlgofiTestnetClient(undefined, undefined, sender)
 
-  // const symbol = client.getActiveOrderedSymbols()[0]
+  const symbol = client.getActiveOrderedSymbols()[0]
 
-  // console.log(buffer)
-  // console.log("Initial State")
-  // console.log(buffer)
+  console.log(buffer)
+  console.log("Initial State")
+  console.log(buffer)
 
-  // await printMarketState(client.getMarket(symbol))
-  // await printUserState(client, symbol, sender)
+  await printMarketState(client.getMarket(symbol))
+  await printUserState(client, symbol, sender)
   // const assetBalance = await client.getUserBalance(
   //   client
   //     .getMarket(symbol)
