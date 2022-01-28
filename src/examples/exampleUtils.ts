@@ -12,10 +12,7 @@ export async function printMarketState(market: Market) {
 }
 
 export async function printUserState(client: Client, symbol: string, address: string) {
-  // console.log("PRINT USER STATE IN EXAMPLEUTILS.TS\n")
-  // console.log(await client.getUserState(address))
   let userState = await client.getUserState(address)
-  // console.log(userState)
   for (let [key, value] of Object.entries(userState["manager"])) {
     console.log(key, "=", value)
   }
@@ -28,7 +25,7 @@ export async function printUserState(client: Client, symbol: string, address: st
     (await client.getUserBalance(asset.getUnderlyingAssetId())) / 10 ** asset.getUnderlyingAssetInfo()["decimals"]
   )
   console.log(
-    "user_balance_bank_assert =",
+    "user_balance_bank_asset =",
     (await client.getUserBalance(asset.getBankAssetId())) / 10 ** asset.getBankAssetInfo()["decimals"]
   )
 }

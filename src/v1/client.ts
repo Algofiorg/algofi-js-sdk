@@ -185,7 +185,7 @@ export class Client {
       address = this.userAddress
     }
     result["manager"] = await this.manager.getUserState(address)
-    console.log(result["manager"])
+    // console.log(result["manager"])
     let storageAddress = await this.manager.getStorageAddress(address)
 
     for (let symbol of this.activeOrderedSymbols) {

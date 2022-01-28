@@ -35,8 +35,12 @@ export class Manager {
   }
 
   async getStorageAddress(address: string): Promise<string> {
+    // console.log(this.algod, address, this.managerAppId)
     let userManagerState = await readLocalState(this.algod, address, this.managerAppId)
+    // console.log(userManagerState)
+    // console.log(managerStrings.user_storage_address)
     let rawStorageAddress = get(userManagerState, managerStrings.user_storage_address, null)
+    // console.log(rawStorageAddress)
 
     if (!rawStorageAddress) {
       throw new Error("No storage address found")

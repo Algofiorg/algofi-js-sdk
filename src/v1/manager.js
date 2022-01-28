@@ -76,10 +76,14 @@ var Manager = /** @class */ (function () {
             var userManagerState, rawStorageAddress;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, (0, utils_1.readLocalState)(this.algod, address, this.managerAppId)];
+                    case 0: return [4 /*yield*/, (0, utils_1.readLocalState)(this.algod, address, this.managerAppId)
+                        // console.log(userManagerState)
+                        // console.log(managerStrings.user_storage_address)
+                    ];
                     case 1:
                         userManagerState = _a.sent();
                         rawStorageAddress = (0, utils_1.get)(userManagerState, contractStrings_1.managerStrings.user_storage_address, null);
+                        // console.log(rawStorageAddress)
                         if (!rawStorageAddress) {
                             throw new Error("No storage address found");
                         }

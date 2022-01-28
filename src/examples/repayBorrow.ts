@@ -2,7 +2,7 @@ import { newAlgofiMainnetClient, newAlgofiTestnetClient } from "../v1/client"
 import { Algodv2, mnemonicToSecretKey } from "algosdk"
 import { printMarketState, printUserState } from "./exampleUtils"
 
-export async function borrowExample(
+export async function repayBorrowExample(
   mnemonic: string = "biology engine verify maze coral cotton swear laptop surge vital surround entire glance dial oblige bleak friend royal round region divorce elephant law above local"
 ) {
   let user = mnemonicToSecretKey(mnemonic)
@@ -37,7 +37,7 @@ export async function borrowExample(
   }
 
   console.log(buffer)
-  console.log("Processing borrow transaction")
+  console.log("Processing repay_borrow transaction")
   console.log(buffer)
   console.log("Processing transaction for asset =", symbol)
 
@@ -45,7 +45,11 @@ export async function borrowExample(
   txn.signWithPrivateKey(undefined, key)
   await txn.submit(client.algod, true)
 
-  txn = await client.prepareBorrowTransactions(symbol, Math.floor(100), sender)
+  txn = await client.prepareBorrowTransactions(symbol, Math.floor(1000), sender)
+  txn.signWithPrivateKey(undefined, key)
+  await txn.submit(client.algod, true)
+
+  txn = await client.prepareRepayBorrowTransactions(symbol, Math.floor(1000), sender)
   txn.signWithPrivateKey(undefined, key)
   await txn.submit(client.algod, true)
 

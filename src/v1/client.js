@@ -243,10 +243,11 @@ var Client = /** @class */ (function () {
                         }
                         _a = result;
                         _b = "manager";
-                        return [4 /*yield*/, this.manager.getUserState(address)];
+                        return [4 /*yield*/, this.manager.getUserState(address)
+                            // console.log(result["manager"])
+                        ];
                     case 1:
                         _a[_b] = _f.sent();
-                        console.log(result["manager"]);
                         return [4 /*yield*/, this.manager.getStorageAddress(address)];
                     case 2:
                         storageAddress = _f.sent();

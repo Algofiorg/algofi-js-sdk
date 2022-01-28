@@ -37,20 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var algosdk_1 = require("algosdk");
-var addCollateral_1 = require("./addCollateral");
-// async function getUnderlyingBorrowed(block: number = null): Promise<number> {
-//   if (block) {
-//     try {
-//       let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
-//       data = data["application"]["params"]["global-state"]
-//       return searchGlobalState(data, marketStrings.underlying_borrowed)
-//     } catch (e) {
-//       throw new Error("Issue getting data")
-//     }
-//   } else {
-//     return this.underlyingBorrowed
-//   }
-// }
+var removeCollateral_1 = require("./removeCollateral");
 var algodClient = new algosdk_1.Algodv2("", "https://api.testnet.algoexplorer.io", "");
 var indexerClient = new algosdk_1.Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "");
 function foo() {
@@ -58,28 +45,39 @@ function foo() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: 
-                // console.log(await indexerClient.lookupApplications(67288478).do())
-                return [4 /*yield*/, (0, addCollateral_1.addCollateralExample)()
-                    // let market = await Market.init(algodClient, indexerClient, 67288478)
-                    // let a = await market.getUnderlyingBorrowed()
-                    // console.log(a)
-                    // // console.log(
-                    // //   await indexerClient
-                    // //     .searchAccounts()
-                    // //     .assetID(408947)
-                    // //     .do()
-                    // // )
-                    // console.log(
-                    //   await readGlobalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 67288478)
-                    // await readLocalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 51422788)
-                    // )
-                    // console.log(await algodClient.getAssetByID(408947).do())
-                    // console.log(await algodClient.accountInformation("XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ").do())
-                    // getUnderlyingBorrowed()
-                    // console.log(getApplicationAddress(67288478))
+                // // Uncomment to run add collateral example
+                // await addCollateralExample()
+                // // Uncomment to run borrow example
+                // await borrowExample()
+                // // Uncomment to run burn example
+                // await burnExample() 
+                // // Uncomment to run liquidate example
+                // NOT TESTED YET BC NOONE LIQUIDATABLE READILY AVAILABLE
+                // // Uncomment to run mint example
+                // await mintExample()
+                // // Uncomment to run mint to collateral example
+                // await mintToCollateralExample()
+                // Uncomment to run remove collateral example
+                // running into one issue
+                return [4 /*yield*/, (0, removeCollateral_1.removeCollateralExample)()
+                    // // Uncomment to run repay borrow example
+                    // await repayBorrowExample()
                 ];
                 case 1:
-                    // console.log(await indexerClient.lookupApplications(67288478).do())
+                    // // Uncomment to run add collateral example
+                    // await addCollateralExample()
+                    // // Uncomment to run borrow example
+                    // await borrowExample()
+                    // // Uncomment to run burn example
+                    // await burnExample() 
+                    // // Uncomment to run liquidate example
+                    // NOT TESTED YET BC NOONE LIQUIDATABLE READILY AVAILABLE
+                    // // Uncomment to run mint example
+                    // await mintExample()
+                    // // Uncomment to run mint to collateral example
+                    // await mintToCollateralExample()
+                    // Uncomment to run remove collateral example
+                    // running into one issue
                     _a.sent();
                     return [2 /*return*/];
             }
@@ -87,4 +85,3 @@ function foo() {
     });
 }
 foo();
-// console.log(Buffer.from("9CSRPB4ckcpYmXRaUqRSe3dOV2HWDyUu/nKAXOrpmws=", "base64").toString())

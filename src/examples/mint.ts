@@ -1,9 +1,9 @@
-import { AlgofiMainnetClient, AlgofiTestnetClient } from "../v1/client"
+import { newAlgofiMainnetClient, newAlgofiTestnetClient } from "../v1/client"
 import { Algodv2, mnemonicToSecretKey } from "algosdk"
 import { printMarketState, printUserState } from "./exampleUtils"
 
 export async function mintExample(
-  mnemonic: string = "still exist rifle milk magic fog raw senior grunt claw female talent giggle fatigue truly guard region wife razor put delay arrow napkin ability demise"
+  mnemonic: string = "biology engine verify maze coral cotton swear laptop surge vital surround entire glance dial oblige bleak friend royal round region divorce elephant law above local"
 ) {
   let user = mnemonicToSecretKey(mnemonic)
   let sender = user.addr
@@ -15,18 +15,17 @@ export async function mintExample(
   // currently hardcoding a test account
   const IS_MAINNET = false
   const client = IS_MAINNET
-    ? await AlgofiMainnetClient(undefined, undefined, sender)
-    : await AlgofiTestnetClient(undefined, undefined, sender)
+    ? await newAlgofiMainnetClient(undefined, undefined, sender)
+    : await newAlgofiTestnetClient(undefined, undefined, sender)
 
   const symbol = client.getActiveOrderedSymbols()[0]
 
   console.log(buffer)
   console.log("Initial State")
   console.log(buffer)
-  console.log(client.markets)
 
-  printMarketState(client.getMarket(symbol))
-  printUserState(client, symbol, sender)
+  await printMarketState(client.getMarket(symbol))
+  await printUserState(client, symbol, sender)
   const assetBalance = await client.getUserBalance(
     client
       .getMarket(symbol)
@@ -38,16 +37,17 @@ export async function mintExample(
   }
 
   console.log(buffer)
-  console.log("Processing add_collateral transaction")
+  console.log("Processing mint transaction")
   console.log(buffer)
+  console.log("Processing transaction for asset =", symbol)
 
-  let txn = await client.prepareMintTransactions(symbol, assetBalance * 0.1, sender)
-  txn.signWithPrivateKey(key)
-  await txn.submit(client.algodClient, true)
+  let txn = await client.prepareMintTransactions(symbol, Math.floor(assetBalance * 0.1), sender)
+  txn.signWithPrivateKey(undefined, key)
+  await txn.submit(client.algod, true)
 
   console.log(buffer)
   console.log("Final State")
   console.log(buffer)
-  printMarketState(client.getMarket(symbol))
-  printUserState(client, symbol, sender)
+  await printMarketState(client.getMarket(symbol))
+  await printUserState(client, symbol, sender)
 }

@@ -73,12 +73,9 @@ function printUserState(client, symbol, address) {
         var userState, _i, _a, _b, key, value, _c, _d, _e, key, value, asset, _f, _g, _h, _j, _k, _l;
         return __generator(this, function (_m) {
             switch (_m.label) {
-                case 0: return [4 /*yield*/, client.getUserState(address)
-                    // console.log(userState)
-                ];
+                case 0: return [4 /*yield*/, client.getUserState(address)];
                 case 1:
                     userState = _m.sent();
-                    // console.log(userState)
                     for (_i = 0, _a = Object.entries(userState["manager"]); _i < _a.length; _i++) {
                         _b = _a[_i], key = _b[0], value = _b[1];
                         console.log(key, "=", value);
@@ -94,7 +91,7 @@ function printUserState(client, symbol, address) {
                 case 2:
                     _g.apply(_f, _h.concat([(_m.sent()) / Math.pow(10, asset.getUnderlyingAssetInfo()["decimals"])]));
                     _k = (_j = console).log;
-                    _l = ["user_balance_bank_assert ="];
+                    _l = ["user_balance_bank_asset ="];
                     return [4 /*yield*/, client.getUserBalance(asset.getBankAssetId())];
                 case 3:
                     _k.apply(_j, _l.concat([(_m.sent()) / Math.pow(10, asset.getBankAssetInfo()["decimals"])]));

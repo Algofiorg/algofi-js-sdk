@@ -1,48 +1,46 @@
-import { Indexer, Algodv2, getApplicationAddress } from "algosdk"
-import { readGlobalState, readLocalState, searchGlobalState } from "../v1/utils"
+import { Indexer, Algodv2 } from "algosdk"
+import { removeCollateral } from "../v0"
 import { addCollateralExample } from "./addCollateral"
-import { formatState } from "../v1/utils"
-import { marketStrings } from "../v1/contractStrings"
-import { Market } from "../v1/market"
+import { borrowExample } from "./borrow"
+import { burnExample } from "./burn"
+import { mintExample } from "./mint"
+import { mintToCollateralExample } from "./mintToCollateral"
+import { removeCollateralExample } from "./removeCollateral"
+import { repayBorrowExample } from "./repayBorrow"
 
-// async function getUnderlyingBorrowed(block: number = null): Promise<number> {
-//   if (block) {
-//     try {
-//       let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
-//       data = data["application"]["params"]["global-state"]
-//       return searchGlobalState(data, marketStrings.underlying_borrowed)
-//     } catch (e) {
-//       throw new Error("Issue getting data")
-//     }
-//   } else {
-//     return this.underlyingBorrowed
-//   }
-// }
 
 let algodClient = new Algodv2("", "https://api.testnet.algoexplorer.io", "")
 let indexerClient = new Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "")
 async function foo() {
-  // console.log(await indexerClient.lookupApplications(67288478).do())
-  await addCollateralExample()
-  // let market = await Market.init(algodClient, indexerClient, 67288478)
-  // let a = await market.getUnderlyingBorrowed()
-  // console.log(a)
-  // // console.log(
-  // //   await indexerClient
-  // //     .searchAccounts()
-  // //     .assetID(408947)
-  // //     .do()
-  // // )
-  // console.log(
-  //   await readGlobalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 67288478)
-  // await readLocalState(algodClient, "XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ", 51422788)
-  // )
-  // console.log(await algodClient.getAssetByID(408947).do())
-  // console.log(await algodClient.accountInformation("XLHCUMHYRPZJ6NXGP4XAMZKHF2HE67Q7MXLP7IGOIZIAEBNUVQ3FEGPCWQ").do())
-  // getUnderlyingBorrowed()
-  // console.log(getApplicationAddress(67288478))
+
+  // // Uncomment to run add collateral example
+  // await addCollateralExample()
+
+  // // Uncomment to run borrow example
+  // await borrowExample()
+
+  // // Uncomment to run burn example
+  // await burnExample() 
+
+  // // Uncomment to run liquidate example
+  // NOT TESTED YET BC NOONE LIQUIDATABLE READILY AVAILABLE
+
+  // // Uncomment to run mint example
+  // await mintExample()
+
+  // // Uncomment to run mint to collateral example
+  // await mintToCollateralExample()
+
+  // Uncomment to run remove collateral example
+  // running into one issue
+  await removeCollateralExample()
+
+  // // Uncomment to run repay borrow example
+  // await repayBorrowExample()
+
+
+
 }
 
 foo()
 
-// console.log(Buffer.from("9CSRPB4ckcpYmXRaUqRSe3dOV2HWDyUu/nKAXOrpmws=", "base64").toString())
