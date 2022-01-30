@@ -15,11 +15,10 @@ export function prepareManagerAppOptinTransactions(
   storageAddress: string,
   suggestedParams: SuggestedParams
 ): TransactionGroup {
-  //have to convert opt_in_min_balance * 1e6 to an integer
   let txnPayment = makePaymentTxnWithSuggestedParams(
     sender,
     storageAddress,
-    OPT_IN_MIN_BALANCE * 1e6,
+    Math.floor(OPT_IN_MIN_BALANCE * 1e6),
     undefined,
     undefined,
     suggestedParams
@@ -32,7 +31,6 @@ export function prepareManagerAppOptinTransactions(
 
   let txnUserOptinManager = makeApplicationOptInTxn(sender, suggestedParams, managerAppId)
 
-  //need to make sure getApplicationAddress is ok and similar to python implementation
   let appAddress = getApplicationAddress(managerAppId)
   let txnStorageOptinManager = makeApplicationOptInTxn(
     storageAddress,

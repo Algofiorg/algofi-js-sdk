@@ -1,4 +1,3 @@
-import { Algodv2, Indexer, SuggestedParams, waitForConfirmation } from "algosdk"
 import {
   getInitRound,
   getOrderedSymbols,
@@ -8,22 +7,23 @@ import {
   get,
   TransactionGroup
 } from "./utils"
+import { prepareClaimStakingRewardsTransactions, prepareStakeTransactions, prepareUnstakeTransactions } from "./staking"
+import { prepareRemoveCollateralUnderlyingTransactions } from "./removeCollateralUnderlying"
+import { Algodv2, Indexer, SuggestedParams, waitForConfirmation } from "algosdk"
+import { prepareMintToCollateralTransactions } from "./mintToCollateral"
+import { prepareRemoveCollateralTransactions } from "./removeCollateral"
+import { prepareAddCollateralTransactions } from "./addCollateral"
+import { prepareClaimRewardsTransactions } from "./claimRewards"
+import { prepareRepayBorrowTransactions } from "./repayBorrow"
+import { prepareManagerAppOptinTransactions } from "./optin"
+import { prepareLiquidateTransactions } from "./liquidate"
+import { prepareBorrowTransactions } from "./borrow"
+import { StakingContract } from "./stakingContract"
+import { prepareBurnTransactions } from "./burn"
+import { prepareMintTransactions } from "./mint"
 import { Manager } from "./manager"
 import { Market } from "./market"
-import { StakingContract } from "./stakingContract"
-import { prepareManagerAppOptinTransactions } from "./optin"
-import { prepareAddCollateralTransactions } from "./addCollateral"
-import { prepareLiquidateTransactions } from "./liquidate"
 import { Asset } from "./asset"
-import { prepareClaimStakingRewardsTransactions, prepareStakeTransactions, prepareUnstakeTransactions } from "./staking"
-import { prepareBorrowTransactions } from "./borrow"
-import { prepareBurnTransactions } from "./burn"
-import { prepareClaimRewardsTransactions } from "./claimRewards"
-import { prepareMintTransactions } from "./mint"
-import { prepareMintToCollateralTransactions } from "./mintToCollateral"
-import { prepareRemoveCollateralUnderlyingTransactions } from "./removeCollateralUnderlying"
-import { prepareRemoveCollateralTransactions } from "./removeCollateral"
-import { prepareRepayBorrowTransactions } from "./repayBorrow"
 
 export interface Markets {
   [key: string]: Market

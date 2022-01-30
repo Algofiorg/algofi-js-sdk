@@ -43,7 +43,6 @@ export function getInitTxns(
 
   const enc = new TextEncoder()
 
-  //Not sure if we have to encode a note here which is a random number
   let txn0 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,

@@ -1,9 +1,9 @@
+import { PARAMETER_SCALE_FACTOR, REWARDS_SCALE_FACTOR, SCALE_FACTOR } from "./config"
 import algosdk from "algosdk"
 import { marketStrings, managerStrings } from "./contractStrings"
-import { getGlobalState, readLocalState } from "./utils"
+import { getGlobalState, readLocalState } from "./utils" 
 import { Market } from "./market"
 import { Manager } from "./manager"
-import { PARAMETER_SCALE_FACTOR, REWARDS_SCALE_FACTOR, SCALE_FACTOR } from "./config"
 import { get } from "./utils"
 
 export class RewardsProgram {
@@ -28,7 +28,6 @@ export class RewardsProgram {
   }
 
   //Getters
-
   getRewardsAssetIds(): number[] {
     const result = []
     if (this.rewardsAssetId > 1) {

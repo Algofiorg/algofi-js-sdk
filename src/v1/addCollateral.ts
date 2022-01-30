@@ -5,6 +5,25 @@ import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
 
+/**
+ * Returns a :class:`TransactionGroup` object representing an add collateral group
+ * transaction against the algofi protocol. Sender adds bank assets to collateral by sending 
+ * them to the account address of the market application that generates the bank assets.
+ *
+ * @param   {string}           sender
+ * @param   {SuggestedParams}  suggestedParams
+ * @param   {string}           storageAccount
+ * @param   {number}           amount
+ * @param   {number}           bankAssetId
+ * @param   {number}           managerAppId
+ * @param   {number}           marketAppId
+ * @param   {string}           marketAddress
+ * @param   {list}             supportedMarketAppIds
+ * @param   {list}             supportedOracleAppIds
+ *
+ * @return  {TransactionGroup}  TransactionGroup representing an add collateral group transaction
+ */
+
 export function prepareAddCollateralTransactions(
   sender: string,
   suggestedParams: SuggestedParams,

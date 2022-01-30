@@ -93,10 +93,6 @@ export class Asset {
     if (this.oracleAppId === null) {
       throw Error("no oracle app id for asset")
     }
-    // console.log("THIS.ORACLE PRICE FIELD", this.oraclePriceField)
-    // console.log(await getGlobalState(this.algod, this.oracleAppId))
-    // getGlobalState seems to be woroking correctly
-    // for some reason this.oraclePriceField is in base64 still
     return (await getGlobalState(this.algod, this.oracleAppId))[Buffer.from(this.oraclePriceField, "base64").toString()]
   }
 
@@ -105,20 +101,14 @@ export class Asset {
   }
 
   async getPrice(): Promise<number> {
-    // oracleAppId is being returned correctly
     if (this.oracleAppId == null) {
       throw Error("no oracle app id for asset")
     }
     const raw_price = await this.getRawPrice()
-    // console.log("RAW PRICE", raw_price)
-    // console.log("UNDERLYING DECIMALS", this.getUnderlyingDecimals()) 
-    // console.log("ORACLE PRICE SCALE FACTOR", this.getOraclePriceScaleFactor())
-    // both underlying deicmals and oracle price scale factor return things that seeem correct
     return (raw_price * 10 ** this.getUnderlyingDecimals()) / (this.getOraclePriceScaleFactor() * 1e3)
   }
 
   async toUSD(amount: number): Promise<number> {
-    //price is incorrect, amount is passed in correctly
     const price = await this.getPrice()
     return (amount * price) / 10 ** this.getUnderlyingDecimals()
   }

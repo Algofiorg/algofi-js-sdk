@@ -1,5 +1,5 @@
-import { makeApplicationNoOpTxn, SuggestedParams } from "algosdk"
 import { TransactionGroup, Transactions, intToBytes } from "./utils"
+import { makeApplicationNoOpTxn, SuggestedParams } from "algosdk"
 import { managerStrings } from "./contractStrings"
 import { getInitTxns } from "./prepend"
 
