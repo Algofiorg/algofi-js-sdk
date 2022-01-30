@@ -57,11 +57,11 @@ export function prepareMarketAppOptinTransactions(
   ])
 }
 
-//not sure if there is a built in asset opt in transaction for js
-// export function prepareAssetOptinTransactions(
-//   assetId: number,
-//   sender: string,
-//   suggestedParams: SuggestedParams
-// ): TransactionGroup {
-//   return new TransactionGroup([makeAssetTransferTxnWithSuggestedParams(sender)])
-// }
+export function prepareAssetOptinTransactions(
+  assetId: number,
+  sender: string,
+  suggestedParams: SuggestedParams
+): TransactionGroup {
+  let txn = makeAssetTransferTxnWithSuggestedParams(sender, sender, undefined, undefined, 0, undefined, assetId, suggestedParams)
+  return new TransactionGroup([txn])
+}

@@ -94,6 +94,8 @@ export async function signAndSubmitTransaction(
   return await waitForConfirmation(client, txid)
 }
 
+
+
 export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
   const response = await algodClient.status().do()
   let lastround = response["last-round"]
@@ -108,6 +110,14 @@ export async function waitForConfirmation(algodClient: Algodv2, txId: string): P
     await algodClient.statusAfterBlock(lastround).do()
   }
 }
+
+/**
+ * Function to get local state for a given address and application
+ *
+ * @param   {int}            num
+ *
+ * @return  {dict<string,int>}  dictionary of user local state
+ */
 
 export function intToBytes(num: number): Uint8Array {
   return encodeUint64(num)

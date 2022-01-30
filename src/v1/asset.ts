@@ -20,14 +20,9 @@ export class Asset {
     oraclePriceScaleFactor: number = null
   ) {
     this.algod = algodClient
-
-    // asset info
     this.underlyingAssetId = underlyingAssetId
-
-    //underlying asset id info is initialized later in init
     this.bankAssetId = bankAssetId
-
-    // oracle info
+    
     if (oracleAppId !== null) {
       if (oraclePriceField === null) {
         throw Error("oracle price field must be specified")
