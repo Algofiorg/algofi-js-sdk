@@ -3,18 +3,12 @@ import {
   generateAccount,
   secretKeyToMnemonic,
   encodeUint64,
-  Algod,
   SuggestedParams,
-  makePaymentTxn,
-  makePaymentTxnWithSuggestedParams
+  makePaymentTxnWithSuggestedParams,
+  Algodv2,
+  assignGroupID
 } from "algosdk"
-import { Algodv2, assignGroupID } from "algosdk"
 import { contracts } from "./contracts"
-
-//Constants
-const PARAMETER_SCALE_FACTOR = 1e3
-const SCALE_FACDTOR = 1e9
-const REWARDS_SCALE_FACTOR = 1e14
 
 export enum Transactions {
   MINT = 1,
@@ -29,13 +23,109 @@ export enum Transactions {
   CLAIM_REWARDS = 10
 }
 
+/**
+ * Wait for the specified transaction to complete
+ *
+ * @param algodClient algod client
+ * @param txId transaction id of transaction we are waiting for
+ */
+export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
+  const response = await algodClient.status().do()
+  let lastround = response["last-round"]
+  while (true) {
+    const pendingInfo = await algodClient.pendingTransactionInformation(txId).do()
+    if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
+      console.log(`Transaction ${txId} confirmed in round ${pendingInfo["confirmed-round"]}`)
+      break
+    }
+    lastround += 1
+    await algodClient.statusAfterBlock(lastround).do()
+  }
+}
+
+export class TransactionGroup {
+  transactions: Transaction[]
+  signedTransactions: Uint8Array[]
+  constructor(transactions: Transaction[]) {
+    this.transactions = assignGroupID(transactions)
+    const signedTransactions = []
+    for (const _ of this.transactions) {
+      signedTransactions.push(null)
+    }
+    this.signedTransactions = signedTransactions
+  }
+
+  /**
+   * Signs the transactions with specified private key and saves to class state
+   *
+   * @param address - account address of the user
+   * @param privateKey - private key of user
+   */
+  signWithPrivateKey(address: string, privateKey: Uint8Array): void {
+    for (const [i, txn] of Object.entries(this.transactions)) {
+      this.signedTransactions[i] = txn.signTxn(privateKey)
+    }
+  }
+
+  /**
+   * Signs the transactions with specified private keys and saves to class state
+   *
+   * @param privateKeys - private keys
+   */
+  signWithPrivateKeys(privateKeys: Uint8Array[]): void {
+    if (privateKeys.length !== this.transactions.length) {
+      throw new Error("Different number of private keys and transactions")
+    }
+    for (const [i, txn] of Object.entries(this.transactions)) {
+      this.signedTransactions[i] = txn.signTxn(privateKeys[i])
+    }
+  }
+
+  //formatter is saving this as txid:txid instead of "txid":txid
+  /**
+   * Submits the signed transactions to the network using the algod client
+   *
+   * @param algod - algod client
+   * @param wait - wait for txn to complete; defaults to false
+   * @returns
+   */
+  async submit(algod: Algodv2, wait: boolean = false) {
+    let txid: any
+    try {
+      txid = await algod.sendRawTransaction(this.signedTransactions).do()
+    } catch (e) {
+      throw new Error(e)
+    }
+    if (wait) {
+      return await waitForConfirmation(algod, txid.txId)
+    }
+    return {
+      txid: txid.txId
+    }
+  }
+}
+
+/**
+ * Return a random integer between 0 and max
+ *
+ * @param max - max integer that we want to return
+ * @returns random integer between 0 and max
+ */
 export function getRandomInt(max: number): number {
   return Math.floor(Math.random() * max)
 }
 
-export function get(object: {}, key: any, default_value: any): any {
-  var result = object[key]
-  return typeof result !== "undefined" ? result : default_value
+/**
+ * Return the value for the associated key in the object passed in , or defaultValue if not found
+ *
+ * @param object object to parse
+ * @param key key to find value for
+ * @param defaultValue default value to default to when we can't find key
+ * @returns the value for the associated key in the object passed in , or defaultValue if not found
+ */
+export function get(object: {}, key: any, defaultValue: any): any {
+  const result = object[key]
+  return typeof result !== "undefined" ? result : defaultValue
 }
 
 //I'm not sure how to implement this function, but it isn't used anywhere else in the py sdk so
@@ -94,29 +184,12 @@ export async function signAndSubmitTransaction(
   return await waitForConfirmation(client, txid)
 }
 
-export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
-  const response = await algodClient.status().do()
-  let lastround = response["last-round"]
-  while (true) {
-    const pendingInfo = await algodClient.pendingTransactionInformation(txId).do()
-    if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
-      //Got the completed Transaction
-      console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"])
-      break
-    }
-    lastround++
-    await algodClient.statusAfterBlock(lastround).do()
-  }
-}
-
 /**
- * Function to get local state for a given address and application
+ * Return a byte representation of the passed in number
  *
- * @param   {int}            num
- *
- * @return  {dict<string,int>}  dictionary of user local state
+ * @param num number to convert to bytes
+ * @returns a byte representation of the passed in number
  */
-
 export function intToBytes(num: number): Uint8Array {
   return encodeUint64(num)
 }
@@ -146,11 +219,18 @@ print(decoded)
 
 //but bytes object has no property encode, which makes sense because if you are in bytes then you hva ealready encoded it into bytes
 //and want to decode it into a charset
+
+/**
+ * Return a formatted version of state after taking care of decoding and unecessary key values
+ *
+ * @param state state we are trying to format
+ * @returns a formatted version of state after taking care of decoding and unecessary key values
+ */
 export function formatState(state: {}[]): {} {
-  let formatted = {}
-  for (let item of state) {
-    let key = item["key"]
-    let value = item["value"]
+  const formatted = {}
+  for (const item of state) {
+    const key = item["key"]
+    const value = item["value"]
     let formattedKey: string
     let formattedValue: string
     try {
@@ -172,6 +252,14 @@ export function formatState(state: {}[]): {} {
   return formatted
 }
 
+/**
+ * Returns dict of local state for address for application with id appId
+ *
+ * @param client - algod clietn
+ * @param address - address of account for which to get state
+ * @param appId - is of the application
+ * @returns dict of local state of address for application with id appId
+ */
 export async function readLocalState(client: Algodv2, address: string, appId: number): Promise<{ [key: string]: any }> {
   const results = await client.accountInformation(address).do()
   for (const localState of results["apps-local-state"]) {
@@ -185,10 +273,18 @@ export async function readLocalState(client: Algodv2, address: string, appId: nu
   return {}
 }
 
+/**
+ * Returns dict of global state for application with id appId. Address must be that of the creator.
+ *
+ * @param client - algod client
+ * @param address - creator address
+ * @param appId - id of the application
+ * @returns dict of global state for application with id appId
+ */
 export async function readGlobalState(client: Algodv2, address: string, appId: number): Promise<{}> {
   const results = await client.accountInformation(address).do()
   const appsCreated = results["created-apps"]
-  for (let app of appsCreated) {
+  for (const app of appsCreated) {
     if (app["id"] === appId) {
       return formatState(app["params"]["global-state"])
     }
@@ -196,18 +292,37 @@ export async function readGlobalState(client: Algodv2, address: string, appId: n
   return {}
 }
 
-//need to make sure that getApplicationByID is the same thing as client.application_info(app_id) for pysdk
+/**
+ * Returns dict of global state for application with the given appId
+ *
+ * @param algodClient - algod client
+ * @param appId - id of the application
+ * @returns dict of global state for application with id appId
+ */
 export async function getGlobalState(algodClient: Algodv2, appId: number): Promise<{}> {
-  let application = await algodClient.getApplicationByID(appId).do()
+  const application = await algodClient.getApplicationByID(appId).do()
   const stateDict = formatState(application["params"]["global-state"])
-  // console.log("STATEDICT", stateDict)
   return stateDict
 }
 
+/**
+ * Returns list of supported staking contracts for the specified chain. Pulled from hardcoded values in contracts.ts.
+ *
+ * @param chain - network to query data for
+ * @returns list of supported staking contracts
+ */
 export function getStakingContracts(chain: string): {} {
   return contracts[chain]["STAKING_CONTRACTS"]
 }
 
+/**
+ * Returns list of supported symbols for the specified chain. Pulled from hardcoded values in contracts.ts.
+ *
+ * @param chain - network to query data for
+ * @param max - max assets?
+ * @param maxAtomicOptIn - list of supported symbols for algofi's protocol on chain
+ * @returns
+ */
 export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomicOptIn: boolean = false): string[] {
   let supportedMarketCount: number
   if (max) {
@@ -220,45 +335,80 @@ export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomic
   return contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount)
 }
 
+/**
+ * Returns app id of manager for the specified chain. Pulled from hardcoded values in contracts.ts.
+ *
+ * @param chain - network to query data for
+ * @returns manager app id
+ */
 export function getManagerAppId(chain: string): number {
   return contracts[chain]["managerAppId"]
 }
 
+/**
+ * Returns market app id of symbol for the specified chain. Pulled from hardcoded values in contracts.ts.
+ *
+ * @param chain - network to query data for
+ * @param symbol - symbol to get market data for
+ * @returns market app id
+ */
 export function getMarketAppId(chain: string, symbol: string): number {
   return contracts[chain]["SYMBOL_INFO"][symbol]["marketAppId"]
 }
 
+/**
+ * Returns init round of algofi protocol for a specified chain. Pulled from hardcoded values in contracts.ts.
+ *
+ * @param chain - network to query data for
+ * @returns init round of algofi protocol on specified chain
+ */
 export function getInitRound(chain: string): number {
   return contracts[chain]["initRound"]
 }
 
+/**
+ * Returns a transaction group object representing a payment group transaction
+ * for a given sender, receiver, amount and ability to rekey.
+ *
+ * @param sender - account address for sender
+ * @param suggestedParams - suggested transaction params
+ * @param receiver - account address for the receiver
+ * @param amount - amount of algos to send
+ * @returns
+ */
 export function preparePaymentTransaction(
   sender: string,
   suggestedParams: SuggestedParams,
   receiver: string,
-  amount: number,
-  rekey_to: string = null
+  amount: number
 ): TransactionGroup {
-  let txn = makePaymentTxnWithSuggestedParams(sender, receiver, amount, undefined, undefined, suggestedParams)
-  let txnGroup = new TransactionGroup([txn])
+  const txn = makePaymentTxnWithSuggestedParams(sender, receiver, amount, undefined, undefined, suggestedParams)
+  const txnGroup = new TransactionGroup([txn])
   return txnGroup
 }
 
+/**
+ * Returns a three element list with a new key, address and passphrase.
+ *
+ * @returns a three element list with a new key, address and passphrase.
+ */
 export function getNewAccount(): any[] {
-  //this is actually not asynchronous
-  let newAccount = generateAccount()
-
-  //tested that these work
-  let key = newAccount.sk
-  let address = newAccount.addr
-
-  //this works as well
-  let passphrase = secretKeyToMnemonic(key)
+  const newAccount = generateAccount()
+  const key = newAccount.sk
+  const address = newAccount.addr
+  const passphrase = secretKeyToMnemonic(key)
   return [key, address, passphrase]
 }
 
+/**
+ * Returns value from the encoded global state dict of an application
+ *
+ * @param globalState - global state of an application
+ * @param searchKey - utf8 key of a value to search for
+ * @returns value for the given key
+ */
 export function searchGlobalState(globalState: {}, searchKey: any): any {
-  for (let field of Object.keys(globalState)) {
+  for (const field of Object.keys(globalState)) {
     let value = field["value"]
     let key = field["key"]
     if (searchKey === Buffer.from(key, "base64").toString()) {
@@ -272,52 +422,4 @@ export function searchGlobalState(globalState: {}, searchKey: any): any {
     }
   }
   throw new Error("Key not found")
-}
-
-export class TransactionGroup {
-  transactions: Transaction[]
-  signedTransactions: Uint8Array[]
-  constructor(transactions: Transaction[]) {
-    this.transactions = assignGroupID(transactions)
-    let signedTransactions = []
-    for (let _ of this.transactions) {
-      signedTransactions.push(null)
-    }
-    this.signedTransactions = signedTransactions
-  }
-
-  //figure out how to notate types of privateKey
-  //Also address is not used but I can take it out later
-  signWithPrivateKey(address: string, privateKey: Uint8Array): void {
-    for (let [i, txn] of Object.entries(this.transactions)) {
-      this.signedTransactions[i] = txn.signTxn(privateKey)
-    }
-  }
-
-  signWithPrivateKeys(privateKeys: Uint8Array[]): void {
-    if (privateKeys.length !== this.transactions.length) {
-      throw new Error("Different number of private keys and transactions")
-    }
-    for (let [i, txn] of Object.entries(this.transactions)) {
-      this.signedTransactions[i] = txn.signTxn(privateKeys[i])
-    }
-  }
-
-  //formatter is saving this as txid:txid instead of "txid":txid
-  async submit(algod: Algodv2, wait: boolean = false) {
-    let txid: any
-    try {
-      txid = await algod.sendRawTransaction(this.signedTransactions).do()
-      // console.log("TXID", txid)
-      //Figure out catching and throwing errors as other aliases
-    } catch (e) {
-      throw new Error(e)
-    }
-    if (wait) {
-      return await waitForConfirmation(algod, txid.txId)
-    }
-    return {
-      txid: txid.txId
-    }
-  }
 }
