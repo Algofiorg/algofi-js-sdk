@@ -3,7 +3,7 @@ import { Transactions, getRandomInt, intToBytes } from "./utils"
 import { managerStrings } from "./contractStrings"
 
 const NUM_DUMMY_TXNS = 9
-let dummyTxnNumToWord = {
+const dummyTxnNumToWord = {
   1: "one",
   2: "two",
   3: "three",
@@ -16,6 +16,22 @@ let dummyTxnNumToWord = {
   10: "ten"
 }
 
+/**
+ * Returns a transaction group object representing the initial transactions
+ * executed by the algofi protocol during a standard group transaction. The transactions are
+ * (1) fetch market variables, (2) update prices, (3) update protocol data, and (4) degenerate ("dummy")
+ * transactions to increase the number of cost units allowed (currently each transactions affords 700
+ * additional cost units).
+ *
+ * @param transactionType - transactions enum representing the group transaction the init transactions are used for
+ * @param sender - account address for the sender
+ * @param suggestedParams - suggested transaction params
+ * @param managerAppId - id of the manager application
+ * @param supportedMarketAppIds - list of supported market application ids
+ * @param supportedOracleAppIds - list of supported oracle application ids
+ * @param storageAccount - account address for the storage account
+ * @returns account address for the storage account
+ */
 export function getInitTxns(
   transactionType: Transactions,
   sender: string,
@@ -26,8 +42,8 @@ export function getInitTxns(
   storageAccount: string
 ): Transaction[] {
   //We need to do a deep copy here, here it is just a shallow copy
-  let suggestedParamsModified = suggestedParams
-  let listTxnTypes = [
+  const suggestedParamsModified = suggestedParams
+  const listTxnTypes = [
     Transactions.MINT,
     Transactions.BURN,
     Transactions.REMOVE_COLLATERAL,
@@ -43,7 +59,7 @@ export function getInitTxns(
 
   const enc = new TextEncoder()
 
-  let txn0 = makeApplicationNoOpTxn(
+  const txn0 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     managerAppId,
@@ -54,7 +70,7 @@ export function getInitTxns(
     intToBytes(getRandomInt(1000000))
   )
 
-  let txn1 = makeApplicationNoOpTxn(
+  const txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParamsModified,
     managerAppId,
@@ -63,7 +79,7 @@ export function getInitTxns(
     supportedOracleAppIds
   )
 
-  let txn2 = makeApplicationNoOpTxn(
+  const txn2 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     managerAppId,
@@ -72,15 +88,14 @@ export function getInitTxns(
     supportedMarketAppIds
   )
 
-  let dummyTxns = []
+  const dummyTxns = []
 
-  //need to confirm this is correct
   for (let i = 1; i < NUM_DUMMY_TXNS + 1; i++) {
-    let txn = makeApplicationNoOpTxn(
+    const txn = makeApplicationNoOpTxn(
       sender,
       suggestedParams,
       managerAppId,
-      [enc.encode("dummy_" + dummyTxnNumToWord[i])],
+      [enc.encode(`dummy_${dummyTxnNumToWord[i]}`)],
       undefined,
       supportedMarketAppIds
     )
