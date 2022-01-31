@@ -57,45 +57,98 @@ export class Asset {
     return asset
   }
 
+  /**
+   * Returns underlying asset id
+   *
+   * @returns underlying asset id
+   */
   getUnderlyingAssetId(): number {
     return this.underlyingAssetId
   }
 
+  /**
+   * Returns underlying asset info
+   *
+   * @returns underlying asset info as a dictionary
+   */
   getUnderlyingAssetInfo(): {} {
     return this.underlyingAssetInfo
   }
 
+  /**
+   * Returns bank asset id
+   *
+   * @returns bank asset id
+   */
   getBankAssetId(): number {
     return this.bankAssetId
   }
 
+  /**
+   * Returns bank asset info
+   *
+   * @returns bank asset info as a dictionary
+   */
   getBankAssetInfo(): {} {
     return this.bankAssetInfo
   }
 
+  /**
+   * Returns oracle app id
+   *
+   * @returns oracle app id
+   */
   getOracleAppId(): number {
     return this.oracleAppId
   }
 
+  /**
+   * Returns oracle price field
+   *
+   * @returns oracle price field
+   */
   getOraclePriceField(): string {
     return this.oraclePriceField
   }
 
+  /**
+   * Returns oracle price scale factor
+   *
+   * @returns oracle price scale factor
+   */
   getOraclePriceScaleFactor(): number {
     return this.oraclePriceScaleFactor
   }
 
+  /**
+   * Returns the current raw oracle price
+   *
+   * @returns oracle price
+   */
   async getRawPrice(): Promise<number> {
     if (this.oracleAppId === null) {
       throw Error("no oracle app id for asset")
     }
-    return (await getGlobalState(this.algod, this.oracleAppId))[Buffer.from(this.oraclePriceField, "base64").toString()]
+    const price = (await getGlobalState(this.algod, this.oracleAppId))[
+      Buffer.from(this.oraclePriceField, "base64").toString()
+    ]
+    return price
   }
 
+  /**
+   * Returns decimals of asset
+   *
+   * @returns decimals
+   */
   getUnderlyingDecimals(): number {
     return this.underlyingAssetInfo.decimals
   }
 
+  /**
+   * Returns the current oracle price
+   *
+   * @returns oracle price
+   */
   async getPrice(): Promise<number> {
     if (this.oracleAppId == null) {
       throw Error("no oracle app id for asset")
@@ -104,6 +157,12 @@ export class Asset {
     return (rawPrice * 10 ** this.getUnderlyingDecimals()) / (this.getOraclePriceScaleFactor() * 1e3)
   }
 
+  /**
+   * Returns the usd value of the underlying amount (base units)
+   *
+   * @param amount - integer amount of base underlying units
+   * @returns usd value
+   */
   async toUSD(amount: number): Promise<number> {
     const price = await this.getPrice()
     return (amount * price) / 10 ** this.getUnderlyingDecimals()
