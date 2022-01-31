@@ -11,6 +11,24 @@ import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
 
+/**
+ * Returns a transaction group object representing a repay borrow
+ * group transaction against the algofi protocol. The sender repays assets to the
+ * market of the borrow asset after which the market application decreases the
+ * outstanding borrow amount for the sender.
+ *
+ * @param sender - account address for sender
+ * @param suggestedParams - suggested transaction params
+ * @param storageAccount - storage account address for sender
+ * @param amount - amoutn of borrow asset to repay
+ * @param managerAppId - id of the manager application
+ * @param marketAppId - id of the market application of the borrow asset
+ * @param marketAddress - account address for the market application
+ * @param supportedMarketAppIds - list of supported market application ids
+ * @param supportedOracleAppIds - list of supported oracle application ids
+ * @param assetId - asset id of the borrow asset, defaults to algo
+ * @returns transaction group object representing a repay borrow group transaction
+ */
 export function prepareRepayBorrowTransactions(
   sender: string,
   suggestedParams: SuggestedParams,
@@ -23,7 +41,7 @@ export function prepareRepayBorrowTransactions(
   supportedOracleAppIds: number[],
   assetId: number = null
 ): TransactionGroup {
-  let prefixTransactions = getInitTxns(
+  const prefixTransactions = getInitTxns(
     Transactions.REPAY_BORROW,
     sender,
     suggestedParams,
@@ -33,9 +51,9 @@ export function prepareRepayBorrowTransactions(
     storageAccount
   )
 
-  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [enc.encode(managerStrings.repay_borrow)])
+  const txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [enc.encode(managerStrings.repay_borrow)])
 
-  let txn1 = makeApplicationNoOpTxn(
+  const txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     marketAppId,
