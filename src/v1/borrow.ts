@@ -1,7 +1,6 @@
 import { SuggestedParams, makeApplicationNoOpTxn } from "algosdk"
-import { Transactions, intToBytes } from "./utils"
+import { Transactions, intToBytes, TransactionGroup } from "./utils"
 import { managerStrings } from "./contractStrings"
-import { TransactionGroup } from "./utils"
 import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
@@ -17,7 +16,7 @@ export function prepareBorrowTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
-  let prefixTransactions = getInitTxns(
+  const prefixTransactions = getInitTxns(
     Transactions.BORROW,
     sender,
     suggestedParams,
@@ -26,12 +25,12 @@ export function prepareBorrowTransactions(
     supportedOracleAppIds,
     storageAccount
   )
-  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
+  const txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
     enc.encode(managerStrings.borrow),
     intToBytes(amount)
   ])
 
-  let txn1 = makeApplicationNoOpTxn(
+  const txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     marketAppId,

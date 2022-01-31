@@ -38,8 +38,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.borrowExample = void 0;
 var client_1 = require("../v1/client");
-var algosdk_1 = require("algosdk");
 var exampleUtils_1 = require("./exampleUtils");
+var algosdk_1 = require("algosdk");
 function borrowExample(mnemonic) {
     if (mnemonic === void 0) { mnemonic = "biology engine verify maze coral cotton swear laptop surge vital surround entire glance dial oblige bleak friend royal round region divorce elephant law above local"; }
     return __awaiter(this, void 0, void 0, function () {

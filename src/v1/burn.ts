@@ -18,7 +18,7 @@ export function prepareBurnTransactions(
   supportedMarketAppIds: number[],
   supportedOracleAppIds: number[]
 ): TransactionGroup {
-  let prefixTransactions = getInitTxns(
+  const prefixTransactions = getInitTxns(
     Transactions.BURN,
     sender,
     suggestedParams,
@@ -27,8 +27,8 @@ export function prepareBurnTransactions(
     supportedOracleAppIds,
     storageAccount
   )
-  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [enc.encode(managerStrings.burn)])
-  let txn1 = makeApplicationNoOpTxn(
+  const txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [enc.encode(managerStrings.burn)])
+  const txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     marketAppId,
@@ -37,7 +37,7 @@ export function prepareBurnTransactions(
     [managerAppId],
     [assetId]
   )
-  let txn2 = makeAssetTransferTxnWithSuggestedParams(
+  const txn2 = makeAssetTransferTxnWithSuggestedParams(
     sender,
     marketAddress,
     undefined,

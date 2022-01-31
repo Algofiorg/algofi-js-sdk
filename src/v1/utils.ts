@@ -95,7 +95,6 @@ export async function signAndSubmitTransaction(
 }
 
 
-
 export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
   const response = await algodClient.status().do()
   let lastround = response["last-round"]

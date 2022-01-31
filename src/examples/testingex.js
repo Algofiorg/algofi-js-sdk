@@ -37,50 +37,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var algosdk_1 = require("algosdk");
-var removeCollateral_1 = require("./removeCollateral");
 var algodClient = new algosdk_1.Algodv2("", "https://api.testnet.algoexplorer.io", "");
 var indexerClient = new algosdk_1.Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "");
 function foo() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: 
-                // // Uncomment to run add collateral example
-                // await addCollateralExample()
-                // // Uncomment to run borrow example
-                // await borrowExample()
-                // // Uncomment to run burn example
-                // await burnExample() 
-                // // Uncomment to run liquidate example
-                // NOT TESTED YET BC NOONE LIQUIDATABLE READILY AVAILABLE
-                // // Uncomment to run mint example
-                // await mintExample()
-                // // Uncomment to run mint to collateral example
-                // await mintToCollateralExample()
-                // Uncomment to run remove collateral example
-                // running into one issue
-                return [4 /*yield*/, (0, removeCollateral_1.removeCollateralExample)()
-                    // // Uncomment to run repay borrow example
-                    // await repayBorrowExample()
-                ];
-                case 1:
-                    // // Uncomment to run add collateral example
-                    // await addCollateralExample()
-                    // // Uncomment to run borrow example
-                    // await borrowExample()
-                    // // Uncomment to run burn example
-                    // await burnExample() 
-                    // // Uncomment to run liquidate example
-                    // NOT TESTED YET BC NOONE LIQUIDATABLE READILY AVAILABLE
-                    // // Uncomment to run mint example
-                    // await mintExample()
-                    // // Uncomment to run mint to collateral example
-                    // await mintToCollateralExample()
-                    // Uncomment to run remove collateral example
-                    // running into one issue
-                    _a.sent();
-                    return [2 /*return*/];
-            }
+            return [2 /*return*/];
         });
     });
 }

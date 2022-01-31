@@ -14,7 +14,7 @@ export function prepareClaimRewardsTransactions(
   supportedOracleAppIds: number[],
   foreignAssets: number[]
 ) {
-  let prefixTransactions = getInitTxns(
+  const prefixTransactions = getInitTxns(
     Transactions.CLAIM_REWARDS,
     sender,
     suggestedParams,
@@ -24,7 +24,7 @@ export function prepareClaimRewardsTransactions(
     storageAccount
   )
 
-  let txn0 = makeApplicationNoOpTxn(
+  const txn0 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     managerAppId,

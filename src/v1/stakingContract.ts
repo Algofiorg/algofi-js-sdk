@@ -1,6 +1,5 @@
 import { RewardsProgram } from "./rewardsProgram"
 import { Algodv2, Indexer } from "algosdk"
-import { StringToNum } from "./client"
 import { Manager } from "./manager"
 import { Market } from "./market"
 import { Asset } from "./asset"
@@ -11,7 +10,7 @@ export class StakingContract {
   manager: Manager
   market: Market
 
-  constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, stakingContractInfo: StringToNum) {
+  constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, stakingContractInfo: { [key: string]: number }) {
     this.algodClient = algodClient
     this.historicalIndexerClient = historicalIndexerClient
     this.manager = new Manager(this.algodClient, stakingContractInfo["managerAppId"])
@@ -20,7 +19,7 @@ export class StakingContract {
   static async init(
     algodClient: Algodv2,
     historicalIndexerClient: Indexer,
-    stakingContractInfo: StringToNum
+    stakingContractInfo: { [key: string]: number }
   ): Promise<StakingContract> {
     let stakingContract = new StakingContract(algodClient, historicalIndexerClient, stakingContractInfo)
     stakingContract.market = await Market.init(algodClient, historicalIndexerClient, stakingContractInfo["marketAppId"])

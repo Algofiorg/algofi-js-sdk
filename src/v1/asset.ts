@@ -1,5 +1,5 @@
-import { getGlobalState } from "./utils"
 import { Algodv2 } from "algosdk"
+import { getGlobalState } from "./utils"
 
 export class Asset {
   algod: Algodv2
@@ -8,7 +8,7 @@ export class Asset {
   oracleAppId: number
   oraclePriceField: string
   oraclePriceScaleFactor: number
-  underlyingAssetInfo: {}
+  underlyingAssetInfo: { [key: string]: any }
   bankAssetInfo: {}
 
   constructor(
@@ -22,7 +22,7 @@ export class Asset {
     this.algod = algodClient
     this.underlyingAssetId = underlyingAssetId
     this.bankAssetId = bankAssetId
-    
+
     if (oracleAppId !== null) {
       if (oraclePriceField === null) {
         throw Error("oracle price field must be specified")
@@ -34,6 +34,7 @@ export class Asset {
     this.oraclePriceField = oraclePriceField
     this.oraclePriceScaleFactor = oraclePriceScaleFactor
   }
+
   static async init(
     algodClient: Algodv2,
     underlyingAssetId: number,
@@ -42,7 +43,7 @@ export class Asset {
     oraclePriceField: string = null,
     oraclePriceScaleFactor: number = null
   ): Promise<Asset> {
-    let asset = new Asset(
+    const asset = new Asset(
       algodClient,
       underlyingAssetId,
       bankAssetId,
@@ -51,7 +52,7 @@ export class Asset {
       oraclePriceScaleFactor
     )
     asset.underlyingAssetInfo =
-    underlyingAssetId != 1 ? (await asset.algod.getAssetByID(underlyingAssetId).do())["params"] : { "decimals": 6 }
+      underlyingAssetId !== 1 ? (await asset.algod.getAssetByID(underlyingAssetId).do())["params"] : { decimals: 6 }
     asset.bankAssetInfo = (await asset.algod.getAssetByID(bankAssetId).do())["params"]
     return asset
   }
@@ -92,15 +93,15 @@ export class Asset {
   }
 
   getUnderlyingDecimals(): number {
-    return this.underlyingAssetInfo["decimals"]
+    return this.underlyingAssetInfo.decimals
   }
 
   async getPrice(): Promise<number> {
     if (this.oracleAppId == null) {
       throw Error("no oracle app id for asset")
     }
-    const raw_price = await this.getRawPrice()
-    return (raw_price * 10 ** this.getUnderlyingDecimals()) / (this.getOraclePriceScaleFactor() * 1e3)
+    const rawPrice = await this.getRawPrice()
+    return (rawPrice * 10 ** this.getUnderlyingDecimals()) / (this.getOraclePriceScaleFactor() * 1e3)
   }
 
   async toUSD(amount: number): Promise<number> {
