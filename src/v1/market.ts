@@ -39,28 +39,24 @@ export class Market {
     this.historicalIndexer = historicalIndexerClient
 
     this.marketAppId = marketAppId
-    //possibly incorrect but I feel like i've tested this before
     this.marketAddress = getApplicationAddress(this.marketAppId)
   }
 
   static async init(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number): Promise<Market> {
-    let market = new Market(algodClient, historicalIndexerClient, marketAppId)
-    // I'm not sure if I was looking at a different file or something but this seems to be the right way to do it
-    // await market.initializeMarketState()
+    const market = new Market(algodClient, historicalIndexerClient, marketAppId)
     await market.updateGlobalState()
     return market
   }
 
+  /**
+   * Method to fetch most recent market global state
+   */
   async updateGlobalState(): Promise<void> {
-    let marketState = await getGlobalState(this.algod, this.marketAppId)
+    const marketState = await getGlobalState(this.algod, this.marketAppId)
 
     this.marketCounter = marketState[marketStrings.manager_market_counter_var]
-
-    // market asset info
     this.underlyingAssetId = get(marketState, marketStrings.asset_id, null)
     this.bankAssetId = get(marketState, marketStrings.bank_asset_id, null)
-
-    // market parameters
     this.oracleAppId = get(marketState, marketStrings.oracle_app_id, null)
     this.oraclePriceField = get(marketState, marketStrings.oracle_price_field, null)
     this.oraclePriceScaleFactor = get(marketState, marketStrings.oracle_price_scale_factor, null)
@@ -73,8 +69,6 @@ export class Market {
     this.utilizationOptimal = get(marketState, marketStrings.utilization_optimal, null)
     this.marketSupplyCapInDollars = get(marketState, marketStrings.market_supply_cap_in_dollars, null)
     this.marketBorrowCapInDollars = get(marketState, marketStrings.market_borrow_cap_in_dollars, null)
-
-    // balance info
     this.activeCollateral = get(marketState, marketStrings.active_collateral, 0)
     this.bankCirculation = get(marketState, marketStrings.bank_circulation, 0)
     this.bankToUnderlyingExchange = get(marketState, marketStrings.bank_to_underlying_exchange, 0)
@@ -96,35 +90,75 @@ export class Market {
       : null
   }
 
+  /**
+   * Returns the app id for this market
+   *
+   * @returns market app id
+   */
   getMarketAppId(): number {
     return this.marketAppId
   }
 
+  /**
+   * Returns the market address for this market
+   *
+   * @returns market address
+   */
   getMarketAddress(): string {
     return this.marketAddress
   }
 
+  /**
+   * Returns the market counter for this market
+   *
+   * @returns market counter
+   */
   getMarketCounter(): number {
     return this.marketCounter
   }
 
+  /**
+   * Returns asset object for this market
+   *
+   * @returns asset
+   */
   getAsset(): Asset {
     return this.asset
   }
 
+  /**
+   * Returns active collateral for this market
+   *
+   * @returns active collateral
+   */
   getActiveCollateral(): number {
     return this.activeCollateral
   }
 
+  /**
+   * Returns bank circulation for this market
+   *
+   * @returns bank circulation
+   */
   getBankCirculation(): number {
     return this.bankCirculation
   }
 
+  /**
+   * Returns bank to underlying exchange for this market
+   *
+   * @returns bank to underlying exchange
+   */
   getBankToUnderlyingExchange(): number {
     return this.bankToUnderlyingExchange
   }
 
-  //need to figure out the js equivalent of historical_indexer.applications
+  /**
+   * Returns underlying borrowed for this market
+   *
+   * @param block - specific block to get underlying borrowe for
+   * @returns
+   */
   async getUnderlyingBorrowed(block: number = null): Promise<number> {
     if (block) {
       try {
@@ -138,9 +172,22 @@ export class Market {
       return this.underlyingBorrowed
     }
   }
+
+  /**
+   * Returns outstanding borrow shares for this market
+   *
+   * @returns outstanding borrow shares
+   */
   getOutstandingBorrowShares(): number {
     return this.outstandingBorrowShares
   }
+
+  /**
+   * Returns underlying cash for this market
+   *
+   * @param block - block to get underlying cash for
+   * @returns underlying cash
+   */
   async getUnderlyingCash(block = null): Promise<number> {
     if (block) {
       try {
@@ -154,6 +201,13 @@ export class Market {
       return this.underlyingCash
     }
   }
+
+  /**
+   * Returns underlying reserves for this market
+   *
+   * @param block - block to get underlying reserves for
+   * @returns underlying reserves
+   */
   async getUnderlyingReserves(block = null): Promise<number> {
     if (block) {
       try {
@@ -168,6 +222,12 @@ export class Market {
     }
   }
 
+  /**
+   * Returns total borrow interest rate for this market
+   *
+   * @param block - block to get total borrow interest rate for
+   * @returns total borrow interest rate
+   */
   async getTotalBorrowInterestRate(block = null): Promise<number> {
     if (block) {
       try {
@@ -181,32 +241,48 @@ export class Market {
       return this.totalBorrowInterestRate
     }
   }
+
+  /**
+   * Returns collateral factor for this market
+   * @returns collateral factor
+   */
   getCollateralFactor(): number {
     return this.collateralFactor
   }
+
+  /**
+   * Returns liquidation incentive for this market
+   *
+   * @returns liquidation incentive
+   */
   getLiquidationIncentive(): number {
     return this.liquidationIncentive
   }
 
-  // User functions
-  async getStorageState(storageAddress: string): Promise<{}> {
-    let result = {}
-    let userState = await readLocalState(this.algod, storageAddress, this.marketAppId)
-    // console.log("USER STATE", userState)
-    // userState is being returned correctly
-    let asset = this.getAsset()
-    result["active_collateral_bank"] = get(userState, marketStrings.user_active_collateral, 0)
-    result["active_collateral_underlying"] =
-      Math.floor((result["active_collateral_bank"] * this.bankToUnderlyingExchange) / SCALE_FACTOR)
+  /**
+   * Returns the market local state for address
+   *
+   * @param storageAddress - storage addres to get info for
+   * @returns market local state for address
+   */
+  async getStorageState(storageAddress: string): Promise<{ [key: string]: any }> {
+    const result = {}
+    const userState = await readLocalState(this.algod, storageAddress, this.marketAppId)
+    const asset = this.getAsset()
 
-    // console.log("RESULT", result)
-    // result so far is correct
+    result["active_collateral_bank"] = get(userState, marketStrings.user_active_collateral, 0)
+    result["active_collateral_underlying"] = Math.floor(
+      (result["active_collateral_bank"] * this.bankToUnderlyingExchange) / SCALE_FACTOR
+    )
+
     result["active_collateral_usd"] = await asset.toUSD(result["active_collateral_underlying"])
 
     result["active_collateral_max_borrow_usd"] =
       (result["active_collateral_usd"] * this.collateralFactor) / PARAMETER_SCALE_FACTOR
     result["borrow_shares"] = get(userState, marketStrings.user_borrow_shares, 0)
-    result["borrow_underlying"] = Math.floor((this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares)
+    result["borrow_underlying"] = Math.floor(
+      (this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares
+    )
 
     result["borrow_usd"] = await asset.toUSD(result["borrow_underlying"])
 
