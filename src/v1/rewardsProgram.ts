@@ -1,10 +1,9 @@
-import { PARAMETER_SCALE_FACTOR, REWARDS_SCALE_FACTOR, SCALE_FACTOR } from "./config"
 import algosdk from "algosdk"
-import { marketStrings, managerStrings } from "./contractStrings"
-import { getGlobalState, readLocalState } from "./utils" 
+import { PARAMETER_SCALE_FACTOR, REWARDS_SCALE_FACTOR, SCALE_FACTOR } from "./config"
+import { managerStrings } from "./contractStrings"
+import { getGlobalState, readLocalState, get } from "./utils"
 import { Market } from "./market"
 import { Manager } from "./manager"
-import { get } from "./utils"
 
 export class RewardsProgram {
   algod: algosdk.Algodv2
@@ -27,7 +26,11 @@ export class RewardsProgram {
     this.rewardsSecondaryAssetId = get(managerState, managerStrings.rewards_secondary_asset_id, 0)
   }
 
-  //Getters
+  /**
+   * Return a list of current rewards assets
+   *
+   * @returns rewards asset list
+   */
   getRewardsAssetIds(): number[] {
     const result = []
     if (this.rewardsAssetId > 1) {
@@ -38,32 +41,82 @@ export class RewardsProgram {
     }
     return result
   }
+
+  /**
+   * Return latest rewards time
+   *
+   * @returns latest rewards time
+   */
   getLatestRewardsTime(): number {
     return this.latestRewardsTime
   }
+
+  /**
+   * Return rewards program number
+   *
+   * @returns rewards program number
+   */
   getRewardsProgramNumber(): number {
     return this.rewardsProgramNumber
   }
+
+  /**
+   * Return rewards amount
+   *
+   * @returns rewards amount
+   */
   getRewardsAmount(): number {
     return this.rewardsAmount
   }
+
+  /**
+   * Return rewards per second
+   *
+   * @returns rewards per second
+   */
   getRewardsPerSecond(): number {
     return this.rewardsPerSecond
   }
+
+  /**
+   * Return rewards asset id
+   *
+   * @returns rewards asset id
+   */
   getRewardsAssetId(): number {
     return this.rewardsAssetId
   }
+
+  /**
+   * Returns rewards secondary ratio
+   *
+   * @returns rewards secondary ratio
+   */
   getRewardsSecondaryRatio(): number {
     return this.rewardsSecondaryRatio
   }
+
+  /**
+   * Return rewards secondary asset id
+   *
+   * @returns rewards secondary asset id
+   */
   getRewardsSecondaryAssetId(): number {
     return this.rewardsSecondaryAssetId
   }
 
+  /**
+   * Return the projected claimable rewards for a given storage address
+   *
+   * @param storageAddress - storage address of unrealized rewards
+   * @param manager - manager for unrealized rewards
+   * @param markets - list of markets for unrealized rewards
+   * @returns two element list of primary and secondary unrealized rewards
+   */
   async getStorageUnrealizedRewards(storageAddress: string, manager: Manager, markets: Market[]): Promise<number[]> {
-    let managerState = await getGlobalState(this.algod, manager.getManagerAppId())
-    let managerStorageState = await readLocalState(this.algod, storageAddress, manager.getManagerAppId())
-    let onCurrentProgram =
+    const managerState = await getGlobalState(this.algod, manager.getManagerAppId())
+    const managerStorageState = await readLocalState(this.algod, storageAddress, manager.getManagerAppId())
+    const onCurrentProgram =
       this.getRewardsProgramNumber() === get(managerStorageState, managerStrings.user_rewards_program_number, 0)
     let totalUnrealizedRewards = onCurrentProgram ? get(managerStorageState, managerStrings.user_pending_rewards, 0) : 0
     let totalSecondaryUnrealizedRewards = onCurrentProgram
@@ -71,45 +124,45 @@ export class RewardsProgram {
       : 0
 
     let totalBorrowUsd = 0
-    for (let market of markets) {
+    for (const market of markets) {
       totalBorrowUsd += await market.getAsset().toUSD(await market.getUnderlyingBorrowed())
     }
     //need to figure out time module in javascript
     let timeElapsed: number
-    let rewardsIssued = this.getRewardsAmount() > 0 ? timeElapsed * this.getRewardsPerSecond() : 0
-    // Need to conver this into an integer
+    const rewardsIssued = this.getRewardsAmount() > 0 ? timeElapsed * this.getRewardsPerSecond() : 0
+    // Need to convert this into an integer
     let projectedLatestRewardsCoefficient = Math.floor(rewardsIssued * REWARDS_SCALE_FACTOR)
 
-    for (let market of markets) {
+    for (const market of markets) {
       // Get coefficients
       // Figure out bytes
       let marketCounterPrefix: string //market.get_market_counter().to_bytes(8, byteorder = "big").decode('utf-8')
-      let coefficient = get(managerState, marketCounterPrefix + managerStrings.counter_indexed_rewards_coefficient, 0)
+      const coefficient = get(managerState, marketCounterPrefix + managerStrings.counter_indexed_rewards_coefficient, 0)
 
       // Ask about defuault value for get function here
-      let userCoefficient: number = onCurrentProgram
+      const userCoefficient: number = onCurrentProgram
         ? get(managerStorageState, marketCounterPrefix + managerStrings.counter_to_user_rewards_coefficient_initial, 0)
         : 0
-      let underlyingBorrowed = await market.getUnderlyingBorrowed()
-      let marketUnderlyingTvl =
+      const underlyingBorrowed = await market.getUnderlyingBorrowed()
+      const marketUnderlyingTvl =
         underlyingBorrowed + (market.getActiveCollateral() * market.getBankToUnderlyingExchange()) / SCALE_FACTOR
 
       // need to make this into an integer
-      let projectedCoefficient: number =
+      const projectedCoefficient: number =
         coefficient +
         (rewardsIssued * REWARDS_SCALE_FACTOR * (await market.getAsset().toUSD(await market.getUnderlyingBorrowed()))) /
           (totalBorrowUsd * marketUnderlyingTvl)
 
-      let marketStorageState = await market.getStorageState(storageAddress)
+      const marketStorageState = await market.getStorageState(storageAddress)
 
       // need to make this into an integer
-      let unrealizedRewards =
+      const unrealizedRewards =
         ((projectedCoefficient - userCoefficient) *
           (marketStorageState["active_collateral_underlying"] + marketStorageState["borrow_underlying"])) /
         REWARDS_SCALE_FACTOR
 
       // need to make this into an integer
-      let secondaryUnrealizedRewards = (unrealizedRewards * this.getRewardsSecondaryRatio()) / PARAMETER_SCALE_FACTOR
+      const secondaryUnrealizedRewards = (unrealizedRewards * this.getRewardsSecondaryRatio()) / PARAMETER_SCALE_FACTOR
 
       totalUnrealizedRewards += unrealizedRewards
       totalSecondaryUnrealizedRewards += secondaryUnrealizedRewards
