@@ -11,6 +11,26 @@ import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
 
+/**
+ * Returns a transaction group object representing a mint group
+ * transaction against the algofi protocol. bAssets are not automatically
+ * posted to collateral as in `prepare_mint_to_collateral_transactions`.
+ * Sender sends assets to the account of the asset market application which
+ * then sends an amount of market bank assets to the user.
+ *
+ * @param sender - account address for the sender
+ * @param suggestedParams - suggested transaction params
+ * @param storageAccount - storage account address for sender
+ * @param amount - amount of asset to supply for minting bank assets
+ * @param bankAssetId - asset id of the bank asset to be minted
+ * @param managerAppId - id of the manager application
+ * @param marketAppId - id of the market application for the bank asset
+ * @param marketAddress - account address for the market application
+ * @param supportedMarketAppIds - list of supported market application ids
+ * @param supportedOracleAppIds - list of supported oracle application ids
+ * @param assetId - asset id of the asset being supplied, defaults to algo
+ * @returns transaction group object representing a mint group transaction
+ */
 export function prepareMintTransactions(
   sender: string,
   suggestedParams: SuggestedParams,
@@ -24,7 +44,7 @@ export function prepareMintTransactions(
   supportedOracleAppIds: number[],
   assetId: number = null
 ): TransactionGroup {
-  let prefixTransactions = getInitTxns(
+  const prefixTransactions = getInitTxns(
     Transactions.MINT,
     sender,
     suggestedParams,
@@ -34,9 +54,9 @@ export function prepareMintTransactions(
     storageAccount
   )
 
-  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [enc.encode(managerStrings.mint)])
+  const txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [enc.encode(managerStrings.mint)])
 
-  let txn1 = makeApplicationNoOpTxn(
+  const txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     marketAppId,
