@@ -5,6 +5,25 @@ import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
 
+/**
+ * Returns a transaction group object representing a burn group
+ * transaction against the algofi protocol. Sender burns bank assets by sending them
+ * to the account address of the market application for the bank asset which in turn
+ * converts them to their underlying asset and sends back.
+ *
+ * @param sender - account address for the sender
+ * @param suggestedParams - suggested transaction params
+ * @param storageAccount - storage account address for sender
+ * @param amount - amount of bank asset to burn
+ * @param assetId - asset id of the bank asset's underlying asset
+ * @param bankAssetId - id of the bank asset to burn
+ * @param managerAppId - id of the manager application
+ * @param marketAppId - id of the amrekt application for the bank asset
+ * @param marketAddress - account address for the market application
+ * @param supportedMarketAppIds - list of supported market application ids
+ * @param supportedOracleAppIds - list of supported oracle app ids
+ * @returns transaction group object representing a burn group transaction
+ */
 export function prepareBurnTransactions(
   sender: string,
   suggestedParams: SuggestedParams,

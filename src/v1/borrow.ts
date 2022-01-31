@@ -6,7 +6,7 @@ import { getInitTxns } from "./prepend"
 const enc = new TextEncoder()
 
 /**
- * Returns a :class:`TransactionGroup` object representing an borrow group
+ * Returns a transaction group object representing an borrow group
  * transaction against the algofi protocol. Protocol sends requested borrow asset
  * to the sender account provided sufficient collateral has been posted
  *
