@@ -32,7 +32,7 @@ const enc = new TextEncoder()
  * @param supportedMarketAppIds - list of supported market application ids
  * @param supportedOracleAppIds - list of supported oracle application ids
  * @param collateralBankAssetId - id of the collateral bank asset
- * @param borrowAssetId - id of the borrow asset, defaults to none (algo)
+ * @param borrowAssetId - id of the borrow asset, defaults to algo
  * @returns transaction group object representing a liquidate group transaction
  */
 export function prepareLiquidateTransactions(

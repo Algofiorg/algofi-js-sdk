@@ -11,6 +11,24 @@ import { getInitTxns } from "./prepend"
 
 const enc = new TextEncoder()
 
+/**
+ * Returns a transaction group object representing a mint to collateral group
+ * transaction against the algofi protocol. Functionality equivalent to mint + add_collateral.
+ * The sender sends assets to the account of the asset market application which then calculates
+ * and credits the user with an amount of collateral.
+ *
+ * @param sender - account address for the sender
+ * @param suggestedParams - suggested transaction params
+ * @param storageAccount - storage account address for sender
+ * @param amount - amount of asset to supply for minting collateral
+ * @param managerAppId - id of the manager application
+ * @param marketAppId - id of the asset market application
+ * @param marketAddress - account address for the market application
+ * @param supportedMarketAppIds - list of supported market application ids
+ * @param supportedOracleAppIds - list of supported oracle application ids
+ * @param assetId - asset id of the asset being supplied, defaults to algo
+ * @returns transaction group representing a mitn to collateral group transaction
+ */
 export function prepareMintToCollateralTransactions(
   sender: string,
   suggestedParams: SuggestedParams,
@@ -23,7 +41,7 @@ export function prepareMintToCollateralTransactions(
   supportedOracleAppIds: number[],
   assetId: number = null
 ): TransactionGroup {
-  let prefixTransactions = getInitTxns(
+  const prefixTransactions = getInitTxns(
     Transactions.MINT_TO_COLLATERAL,
     sender,
     suggestedParams,
@@ -33,11 +51,11 @@ export function prepareMintToCollateralTransactions(
     storageAccount
   )
 
-  let txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
+  const txn0 = makeApplicationNoOpTxn(sender, suggestedParams, managerAppId, [
     enc.encode(managerStrings.mint_to_collateral)
   ])
 
-  let txn1 = makeApplicationNoOpTxn(
+  const txn1 = makeApplicationNoOpTxn(
     sender,
     suggestedParams,
     marketAppId,
