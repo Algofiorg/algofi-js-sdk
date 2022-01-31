@@ -69,8 +69,6 @@ export class Client {
     this.maxOrderedSymbols = getOrderedSymbols(this.chain, true)
     this.maxAtomicOptInOrderedSymbols = getOrderedSymbols(this.chain, undefined, true)
 
-    this.manager = new Manager(this.algod, getManagerAppId(this.chain))
-
     this.stakingContractInfo = getStakingContracts(this.chain)
     this.stakingContracts = {}
     for (const title of Object.keys(this.stakingContractInfo)) {
@@ -98,6 +96,7 @@ export class Client {
         getMarketAppId(client.chain, symbol)
       )
     }
+    client.manager = await Manager.init(client.algod, getManagerAppId(client.chain))
     return client
   }
 

@@ -94,7 +94,6 @@ export async function signAndSubmitTransaction(
   return await waitForConfirmation(client, txid)
 }
 
-
 export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
   const response = await algodClient.status().do()
   let lastround = response["last-round"]
@@ -173,10 +172,9 @@ export function formatState(state: {}[]): {} {
   return formatted
 }
 
-//Figure out if we are returning the same file as the python sdk
-export async function readLocalState(client: Algodv2, address: string, appId: number): Promise<{}> {
-  let results = await client.accountInformation(address).do()
-  for (let localState of results["apps-local-state"]) {
+export async function readLocalState(client: Algodv2, address: string, appId: number): Promise<{ [key: string]: any }> {
+  const results = await client.accountInformation(address).do()
+  for (const localState of results["apps-local-state"]) {
     if (localState["id"] === appId) {
       if (!Object.keys(localState).includes("key-value")) {
         return {}
@@ -319,7 +317,7 @@ export class TransactionGroup {
       return await waitForConfirmation(algod, txid.txId)
     }
     return {
-      "txid": txid.txId
+      txid: txid.txId
     }
   }
 }

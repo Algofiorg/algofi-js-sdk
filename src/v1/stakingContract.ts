@@ -13,7 +13,6 @@ export class StakingContract {
   constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, stakingContractInfo: { [key: string]: number }) {
     this.algodClient = algodClient
     this.historicalIndexerClient = historicalIndexerClient
-    this.manager = new Manager(this.algodClient, stakingContractInfo["managerAppId"])
   }
 
   static async init(
@@ -21,7 +20,8 @@ export class StakingContract {
     historicalIndexerClient: Indexer,
     stakingContractInfo: { [key: string]: number }
   ): Promise<StakingContract> {
-    let stakingContract = new StakingContract(algodClient, historicalIndexerClient, stakingContractInfo)
+    const stakingContract = new StakingContract(algodClient, historicalIndexerClient, stakingContractInfo)
+    stakingContract.manager = await Manager.init(stakingContract.algodClient, stakingContractInfo["managerAppId"])
     stakingContract.market = await Market.init(algodClient, historicalIndexerClient, stakingContractInfo["marketAppId"])
     await stakingContract.updateGlobalState()
     return stakingContract

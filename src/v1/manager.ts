@@ -14,60 +14,114 @@ export class Manager {
     this.algod = algodClient
     this.managerAppId = managerAppId
     this.managerAddress = getApplicationAddress(this.managerAppId)
-    this.updateGlobalState()
   }
 
+  static async init(algodClient: Algodv2, managerAppId: number) {
+    const manager = new Manager(algodClient, managerAppId)
+    await manager.updateGlobalState()
+    return manager
+  }
+
+  /**
+   * Method to fetch most recent manager global state
+   */
   async updateGlobalState(): Promise<void> {
-    let managerState = await getGlobalState(this.algod, this.managerAppId)
+    const managerState = await getGlobalState(this.algod, this.managerAppId)
     this.rewardsProgram = new RewardsProgram(this.algod, managerState)
   }
 
+  /**
+   * Return manager app id
+   *
+   * @returns manager app id
+   */
   getManagerAppId(): number {
     return this.managerAppId
   }
 
+  /**
+   * Return manager address
+   *
+   * @returns manager address
+   */
   getManagerAddress(): string {
     return this.managerAddress
   }
 
+  /**
+   * Returns rewards program
+   *
+   * @returns rewards program
+   */
   getRewardsProgram(): RewardsProgram {
     return this.rewardsProgram
   }
 
+  /**
+   * Reeturns the storage addres for the client user
+   *
+   * @param address - address to get info for
+   * @returns storage account address for user
+   */
   async getStorageAddress(address: string): Promise<string> {
-    // console.log(this.algod, address, this.managerAppId)
-    let userManagerState = await readLocalState(this.algod, address, this.managerAppId)
-    // console.log(userManagerState)
-    // console.log(managerStrings.user_storage_address)
-    let rawStorageAddress = get(userManagerState, managerStrings.user_storage_address, null)
-    // console.log(rawStorageAddress)
+    const userManagerState = await readLocalState(this.algod, address, this.managerAppId)
+    const rawStorageAddress = get(userManagerState, managerStrings.user_storage_address, null)
 
     if (!rawStorageAddress) {
       throw new Error("No storage address found")
     }
-    //still need to figure out if this is correct
     return encodeAddress(Buffer.from(rawStorageAddress.trim(), "base64"))
   }
 
+  /**
+   * Returns the market local state for the provided address
+   *
+   * @param address - address to get info for
+   * @returns market local state for address
+   */
   async getUserState(address: string): Promise<{}> {
-    return await this.getStorageState(await this.getStorageAddress(address))
+    const userState = await this.getStorageState(await this.getStorageAddress(address))
+    return userState
   }
 
+  /**
+   * Returns the market local state for storage address
+   *
+   * @param storageAddress - storage address to get info for
+   * @returns market local state for storage address
+   */
   async getStorageState(storageAddress): Promise<{}> {
-    let result = {}
-    let userState = await readLocalState(this.algod, storageAddress, this.managerAppId)
+    const result = {}
+    const userState = await readLocalState(this.algod, storageAddress, this.managerAppId)
     result["user_global_max_borrow_in_dollars"] = get(userState, managerStrings.user_global_max_borrow_in_dollars, 0)
     result["user_global_borrowed_in_dollars"] = get(userState, managerStrings.user_global_borrowed_in_dollars, 0)
     return result
   }
 
-  //fix the type of the return of this function later
+  /**
+   * Returns projected unrealized rewards for a user address
+   *
+   * @param address - address to get unrealized rewards for
+   * @param markets - list of markets
+   * @returns two element list of primary and secondary unrealized rewards
+   */
   async getUserUnrealizedRewards(address: string, markets: Market[]): Promise<any[]> {
     return this.getStorageUnrealizedRewards(await this.getStorageAddress(address), markets)
   }
 
-  //make sure that this is async still
+  /**
+   * Returns projected unrealized rewards for storage address
+   *
+   * @param storageAddress - storage address to get unrealized rewards for
+   * @param markets - list of markets
+   * @returns two element list of primary and secondary unrealized rewards
+   */
   async getStorageUnrealizedRewards(storageAddress: string, markets: Market[]): Promise<any[]> {
-    return await this.getRewardsProgram().getStorageUnrealizedRewards(storageAddress, this, markets)
+    const storageUnrealizedRewards = await this.getRewardsProgram().getStorageUnrealizedRewards(
+      storageAddress,
+      this,
+      markets
+    )
+    return storageUnrealizedRewards
   }
 }
