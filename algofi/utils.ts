@@ -26,13 +26,8 @@ export enum Transactions {
 /**
  * Wait for the specified transaction to complete
  *
- * #### Example
- * ```typescript
- * const health = await algodClient.healthCheck().do();
- * ```
- *
- * @param algodClient algod client
- * @param txId transaction id of transaction we are waiting for
+ * @param algodClient - algod client
+ * @param txId - transaction id of transaction we are waiting for
  * [Response data schema details](https://developer.algorand.org/docs/rest-apis/algod/v2/#get-health)
  */
 export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
@@ -52,6 +47,13 @@ export async function waitForConfirmation(algodClient: Algodv2, txId: string): P
 export class TransactionGroup {
   transactions: Transaction[]
   signedTransactions: Uint8Array[]
+
+  /**
+   * This is the constructor for the TransactionGroup class.
+   * You pass in a list of transactions and get back a TransactionGroup object
+   *
+   * @param transactions - list of transactions
+   */
   constructor(transactions: Transaction[]) {
     this.transactions = assignGroupID(transactions)
     const signedTransactions = []
@@ -124,9 +126,9 @@ export function getRandomInt(max: number): number {
 /**
  * Return the value for the associated key in the object passed in , or defaultValue if not found
  *
- * @param object object to parse
- * @param key key to find value for
- * @param defaultValue default value to default to when we can't find key
+ * @param object - object to parse
+ * @param key - key to find value for
+ * @param defaultValue - default value to default to when we can't find key
  * @returns the value for the associated key in the object passed in , or defaultValue if not found
  */
 export function get(object: {}, key: any, defaultValue: any): any {
@@ -137,7 +139,7 @@ export function get(object: {}, key: any, defaultValue: any): any {
 /**
  * Return a byte representation of the passed in number
  *
- * @param num number to convert to bytes
+ * @param num - number to convert to bytes
  * @returns a byte representation of the passed in number
  */
 export function intToBytes(num: number): Uint8Array {
@@ -147,14 +149,14 @@ export function intToBytes(num: number): Uint8Array {
 /**
  * Return a formatted version of state after taking care of decoding and unecessary key values
  *
- * @param state state we are trying to format
+ * @param state - state we are trying to format
  * @returns a formatted version of state after taking care of decoding and unecessary key values
  */
-export function formatState(state: {}[]): {} {
+export function formatState(state: { [key: string]: any }[]): {} {
   const formatted = {}
   for (const item of state) {
-    const key = item["key"]
-    const value = item["value"]
+    const { key } = item
+    const { value } = item
     let formattedKey: string
     let formattedValue: string
     try {
@@ -162,15 +164,15 @@ export function formatState(state: {}[]): {} {
     } catch (e) {
       formattedKey = Buffer.from(key).toString()
     }
-    if (value["type"] === 1) {
-      if (value["bytes"] !== "") {
-        formattedValue = value["bytes"]
+    if (value.type === 1) {
+      if (value.bytes !== "") {
+        formattedValue = value.bytes
       } else {
-        formattedValue = Buffer.from(value["bytes"], "base64").toString()
+        formattedValue = Buffer.from(value.bytes, "base64").toString()
       }
       formatted[formattedKey] = formattedValue
     } else {
-      formatted[formattedKey] = value["uint"]
+      formatted[formattedKey] = value.uint
     }
   }
   return formatted
@@ -187,7 +189,7 @@ export function formatState(state: {}[]): {} {
 export async function readLocalState(client: Algodv2, address: string, appId: number): Promise<{ [key: string]: any }> {
   const results = await client.accountInformation(address).do()
   for (const localState of results["apps-local-state"]) {
-    if (localState["id"] === appId) {
+    if (localState.id === appId) {
       if (!Object.keys(localState).includes("key-value")) {
         return {}
       }
@@ -209,8 +211,8 @@ export async function readGlobalState(client: Algodv2, address: string, appId: n
   const results = await client.accountInformation(address).do()
   const appsCreated = results["created-apps"]
   for (const app of appsCreated) {
-    if (app["id"] === appId) {
-      return formatState(app["params"]["global-state"])
+    if (app.id === appId) {
+      return formatState(app.params["global-state"])
     }
   }
   return {}
@@ -225,7 +227,7 @@ export async function readGlobalState(client: Algodv2, address: string, appId: n
  */
 export async function getGlobalState(algodClient: Algodv2, appId: number): Promise<{}> {
   const application = await algodClient.getApplicationByID(appId).do()
-  const stateDict = formatState(application["params"]["global-state"])
+  const stateDict = formatState(application.params["global-state"])
   return stateDict
 }
 
@@ -236,7 +238,7 @@ export async function getGlobalState(algodClient: Algodv2, appId: number): Promi
  * @returns list of supported staking contracts
  */
 export function getStakingContracts(chain: string): {} {
-  return contracts[chain]["STAKING_CONTRACTS"]
+  return contracts[chain].STAKING_CONTRACTS
 }
 
 /**
@@ -250,13 +252,13 @@ export function getStakingContracts(chain: string): {} {
 export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomicOptIn: boolean = false): string[] {
   let supportedMarketCount: number
   if (max) {
-    supportedMarketCount = contracts[chain]["maxMarketCount"]
+    supportedMarketCount = contracts[chain].maxMarketCount
   } else if (maxAtomicOptIn) {
-    supportedMarketCount = contracts[chain]["maxAtomicOptInMarketCount"]
+    supportedMarketCount = contracts[chain].maxAtomicOptInMarketCount
   } else {
-    supportedMarketCount = contracts[chain]["supportedMarketCount"]
+    supportedMarketCount = contracts[chain].supportedMarketCount
   }
-  return contracts[chain]["SYMBOLS"].slice(0, supportedMarketCount)
+  return contracts[chain].SYMBOLS.slice(0, supportedMarketCount)
 }
 
 /**
@@ -266,7 +268,7 @@ export function getOrderedSymbols(chain: string, max: boolean = false, maxAtomic
  * @returns manager app id
  */
 export function getManagerAppId(chain: string): number {
-  return contracts[chain]["managerAppId"]
+  return contracts[chain].managerAppId
 }
 
 /**
@@ -277,7 +279,7 @@ export function getManagerAppId(chain: string): number {
  * @returns market app id
  */
 export function getMarketAppId(chain: string, symbol: string): number {
-  return contracts[chain]["SYMBOL_INFO"][symbol]["marketAppId"]
+  return contracts[chain].SYMBOL_INFO[symbol].marketAppId
 }
 
 /**
@@ -287,7 +289,7 @@ export function getMarketAppId(chain: string, symbol: string): number {
  * @returns init round of algofi protocol on specified chain
  */
 export function getInitRound(chain: string): number {
-  return contracts[chain]["initRound"]
+  return contracts[chain].initRound
 }
 
 /**
@@ -331,15 +333,15 @@ export function getNewAccount(): any[] {
  * @param searchKey - utf8 key of a value to search for
  * @returns value for the given key
  */
-export function searchGlobalState(globalState: {}, searchKey: any): any {
-  for (const field of Object.keys(globalState)) {
-    let value = field["value"]
-    let key = field["key"]
+export function searchGlobalState(globalState: { [key: string]: any }[], searchKey: any): any {
+  for (const field of globalState) {
+    let { value } = field
+    const { key } = field
     if (searchKey === Buffer.from(key, "base64").toString()) {
-      if (value["type"] == 2) {
-        value = value["uint"]
+      if (value.type == 2) {
+        value = value.uint
       } else {
-        value = value["bytes"]
+        value = value.bytes
       }
 
       return value

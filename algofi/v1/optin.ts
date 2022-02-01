@@ -6,6 +6,7 @@ import {
   makeAssetTransferTxnWithSuggestedParams
 } from "algosdk"
 import { TransactionGroup, getRandomInt, intToBytes } from "../utils"
+
 const OPT_IN_MIN_BALANCE = 3.5695
 
 /**

@@ -10,19 +10,55 @@ export class StakingContract {
   manager: Manager
   market: Market
 
-  constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, stakingContractInfo: { [key: string]: number }) {
+  /**
+   * This is the constructor for the StakingContract class.
+   *
+   * **Note, do not call this to create a new staking contract**. Instead call
+   * the static method init as there are asynchronous set up steps in
+   * creating an staking contract and a constructor can only return an instance of
+   * the class and not a promise.
+   *
+   * #### Example
+   * ```typescript
+   * //Correct way to instantiate new staking contract
+   * const newStakingContract = await StakingContract.init(algodClient, historicalIndexerClient, stakingContractInfo)
+   *
+   * //Incorrect way to instantiate new staking contract
+   * const newStakingContract = new StakingContract(algodClient, historicalIndexerClient)
+   * ```
+   * @param algodClient - algod client
+   * @param historicalIndexerClient - historical indexer client
+   */
+  constructor(algodClient: Algodv2, historicalIndexerClient: Indexer) {
     this.algodClient = algodClient
     this.historicalIndexerClient = historicalIndexerClient
   }
 
+  /**
+   * This is the function that should be called when creating a new staking contract.
+   * You pass everything you would to the constructor with an additional staking contract info
+   * dictionary, but to this function instead and this returns the new and created staking contract.
+   *
+   * #### Example
+   * ```typescript
+   * //Correct way to instantiate new staking contract
+   * const newStakingContract = await StakingContract.init(algodClient, historicalIndexerClient, stakingContractInfo)
+   *
+   * //Incorrect way to instantiate new staking contract
+   * const newStakingContract = new StakingContract(algodClient, historicalIndexerClient)
+   * ```
+   * @param algodClient - algod client
+   * @param historicalIndexerClient - historical indexer client
+   * @param stakingContractInfo - dictionary of information on staking contract
+   */
   static async init(
     algodClient: Algodv2,
     historicalIndexerClient: Indexer,
     stakingContractInfo: { [key: string]: number }
   ): Promise<StakingContract> {
-    const stakingContract = new StakingContract(algodClient, historicalIndexerClient, stakingContractInfo)
-    stakingContract.manager = await Manager.init(stakingContract.algodClient, stakingContractInfo["managerAppId"])
-    stakingContract.market = await Market.init(algodClient, historicalIndexerClient, stakingContractInfo["marketAppId"])
+    const stakingContract = new StakingContract(algodClient, historicalIndexerClient)
+    stakingContract.manager = await Manager.init(stakingContract.algodClient, stakingContractInfo.managerAppId)
+    stakingContract.market = await Market.init(algodClient, historicalIndexerClient, stakingContractInfo.marketAppId)
     await stakingContract.updateGlobalState()
     return stakingContract
   }
@@ -144,7 +180,7 @@ export class StakingContract {
    * @param address - address to get info for
    * @returns staking contract local state for address
    */
-  async getUserState(address: string): Promise<{}> {
+  async getUserState(address: string): Promise<{ [key: string]: any }> {
     const storageAddress = await this.getStorageAddress(address)
     if (!storageAddress) {
       throw new Error("no storage address found")
@@ -159,19 +195,19 @@ export class StakingContract {
    * @param storageAddress -storage address to get info for
    * @returns staking contract local state for address
    */
-  async getStorageState(storageAddress: string): Promise<{}> {
-    const result = {}
+  async getStorageState(storageAddress: string): Promise<{ [key: string]: any }> {
+    const result: { [key: string]: any } = {}
     const [
       unrealizedRewards,
       secondaryUnrealizedRewards
     ] = await this.getManager().getStorageUnrealizedRewards(storageAddress, [this.getMarket()])
 
-    result["unrealized_rewards"] = unrealizedRewards
-    result["secondary_unrealized_rewards"] = secondaryUnrealizedRewards
+    result.unrealized_rewards = unrealizedRewards
+    result.secondary_unrealized_rewards = secondaryUnrealizedRewards
 
     const userMarketState = await this.getMarket().getStorageState(storageAddress)
-    result["staked_bank"] = userMarketState["active_collateral_bank"]
-    result["stake_underlying"] = userMarketState["active_collateral_underlying"]
+    result.staked_bank = userMarketState.active_collateral_bank
+    result.stake_underlying = userMarketState.active_collateral_underlying
 
     return result
   }

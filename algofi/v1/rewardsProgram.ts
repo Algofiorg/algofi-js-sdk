@@ -15,6 +15,12 @@ export class RewardsProgram {
   rewardsSecondaryRatio: number
   rewardsSecondaryAssetId: number
 
+  /**
+   * Constructor for RewardsProgram class
+   *
+   * @param algodClient - algod client
+   * @param managerState - state of manager application we are interested in
+   */
   constructor(algodClient: algosdk.Algodv2, managerState: {}) {
     this.algod = algodClient
     this.latestRewardsTime = get(managerState, managerStrings.latest_rewards_time, 0)
