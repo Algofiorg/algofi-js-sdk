@@ -34,6 +34,27 @@ export class Market {
   asset: Asset
   historicalIndexer: Indexer
 
+  /**
+   * This is the constructor for the Market class.
+   *
+   * **Note, do not call this to create a new market**. Instead call
+   * the static method init as there are asynchronous set up steps in
+   * creating an market and a constructor can only return an instance of
+   * the class and not a promise.
+   *
+   * #### Example
+   * ```typescript
+   * //Correct way to instantiate new market
+   * const newMarket = await Market.init(algodClient, historicalIndexerClient, marketAppId)
+   *
+   * //Incorrect way to instantiate new market
+   * const newMarket = new Market(algodClient, historicalIndexerClient, marketAppId)
+   * ```
+   *
+   * @param algodClient - algod client
+   * @param historicalIndexerClient - historical indexer client
+   * @param marketAppId - application id of the market we are interested in
+   */
   constructor(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number) {
     this.algod = algodClient
     this.historicalIndexer = historicalIndexerClient
@@ -42,6 +63,25 @@ export class Market {
     this.marketAddress = getApplicationAddress(this.marketAppId)
   }
 
+  /**
+   * This is the function that should be called when creating a new market.
+   * You pass everything you would to the constructor, but to this function
+   * instead and this returns the new and created market.
+   *
+   * #### Example
+   * ```typescript
+   * //Correct way to instantiate new market
+   * const newMarket = await Market.init(algodClient, historicalIndexerClient, marketAppId)
+   *
+   * //Incorrect way to instantiate new market
+   * const newMarket = new Market(algodClient, historicalIndexerClient, marketAppId)
+   * ```
+   *
+   * @param algodClient - algod client
+   * @param historicalIndexerClient - historical indexer client
+   * @param marketAppId - application id of the market we are interested in
+   * @returns a new instance of the market class fully constructed
+   */
   static async init(algodClient: Algodv2, historicalIndexerClient: Indexer, marketAppId: number): Promise<Market> {
     const market = new Market(algodClient, historicalIndexerClient, marketAppId)
     await market.updateGlobalState()
@@ -266,25 +306,25 @@ export class Market {
    * @returns market local state for address
    */
   async getStorageState(storageAddress: string): Promise<{ [key: string]: any }> {
-    const result = {}
+    const result: { [key: string]: any } = {}
     const userState = await readLocalState(this.algod, storageAddress, this.marketAppId)
     const asset = this.getAsset()
 
-    result["active_collateral_bank"] = get(userState, marketStrings.user_active_collateral, 0)
-    result["active_collateral_underlying"] = Math.floor(
-      (result["active_collateral_bank"] * this.bankToUnderlyingExchange) / SCALE_FACTOR
+    result.active_collateral_bank = get(userState, marketStrings.user_active_collateral, 0)
+    result.active_collateral_underlying = Math.floor(
+      (result.active_collateral_bank * this.bankToUnderlyingExchange) / SCALE_FACTOR
     )
 
-    result["active_collateral_usd"] = await asset.toUSD(result["active_collateral_underlying"])
+    result.active_collateral_usd = await asset.toUSD(result.active_collateral_underlying)
 
-    result["active_collateral_max_borrow_usd"] =
-      (result["active_collateral_usd"] * this.collateralFactor) / PARAMETER_SCALE_FACTOR
-    result["borrow_shares"] = get(userState, marketStrings.user_borrow_shares, 0)
-    result["borrow_underlying"] = Math.floor(
-      (this.underlyingBorrowed * result["borrow_shares"]) / this.outstandingBorrowShares
+    result.active_collateral_max_borrow_usd =
+      (result.active_collateral_usd * this.collateralFactor) / PARAMETER_SCALE_FACTOR
+    result.borrow_shares = get(userState, marketStrings.user_borrow_shares, 0)
+    result.borrow_underlying = Math.floor(
+      (this.underlyingBorrowed * result.borrow_shares) / this.outstandingBorrowShares
     )
 
-    result["borrow_usd"] = await asset.toUSD(result["borrow_underlying"])
+    result.borrow_usd = await asset.toUSD(result.borrow_underlying)
 
     return result
   }
