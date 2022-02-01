@@ -128,11 +128,11 @@ export class Manager {
    * @param storageAddress - storage address to get info for
    * @returns market local state for storage address
    */
-  async getStorageState(storageAddress): Promise<{}> {
-    const result = {}
+  async getStorageState(storageAddress: string): Promise<{}> {
+    const result: { [key:string]: any } = {}
     const userState = await readLocalState(this.algod, storageAddress, this.managerAppId)
-    result["user_global_max_borrow_in_dollars"] = get(userState, managerStrings.user_global_max_borrow_in_dollars, 0)
-    result["user_global_borrowed_in_dollars"] = get(userState, managerStrings.user_global_borrowed_in_dollars, 0)
+    result.user_global_max_borrow_in_dollars = get(userState, managerStrings.user_global_max_borrow_in_dollars, 0)
+    result.user_global_borrowed_in_dollars = get(userState, managerStrings.user_global_borrowed_in_dollars, 0)
     return result
   }
 
