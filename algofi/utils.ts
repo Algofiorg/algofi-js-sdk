@@ -28,7 +28,6 @@ export enum Transactions {
  *
  * @param algodClient - algod client
  * @param txId - transaction id of transaction we are waiting for
- * [Response data schema details](https://developer.algorand.org/docs/rest-apis/algod/v2/#get-health)
  */
 export async function waitForConfirmation(algodClient: Algodv2, txId: string): Promise<void> {
   const response = await algodClient.status().do()
@@ -108,7 +107,7 @@ export class TransactionGroup {
       return await waitForConfirmation(algod, txid.txId)
     }
     return {
-      txid: txid.txId
+      "txid": txid.txId
     }
   }
 }

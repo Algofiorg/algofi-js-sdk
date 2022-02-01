@@ -15,8 +15,8 @@ async function foo() {
   // // Uncomment to run add collateral example
   // await addCollateralExample()
 
-  // Uncomment to run borrow example
-  await borrowExample()
+  // // Uncomment to run borrow example
+  // await borrowExample()
 
   // // Uncomment to run burn example
   // await burnExample() 

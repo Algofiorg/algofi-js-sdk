@@ -1198,10 +1198,11 @@ var Client = /** @class */ (function () {
         });
     };
     /**
+     * Submits and waits for a transaction group to finish if specified
      *
-     * @param transactionGroup
-     * @param wait
-     * @returns
+     * @param transactionGroup - signed transaction group
+     * @param wait - boolean to tell whether you want to wait or not
+     * @returns a dictionary with the txid of the group transaction
      */
     Client.prototype.submit = function (transactionGroup, wait) {
         if (wait === void 0) { wait = false; }

@@ -82,7 +82,6 @@ var Asset = /** @class */ (function () {
         this.oraclePriceField = oraclePriceField;
         this.oraclePriceScaleFactor = oraclePriceScaleFactor;
     }
-    //SHOULD BE "decimals":6
     /**
      * This is the function that should be called when creating a new asset.
      * You pass everything you would to the constructor, but to this function
@@ -122,7 +121,7 @@ var Asset = /** @class */ (function () {
                         _b = (_d.sent()).params;
                         return [3 /*break*/, 3];
                     case 2:
-                        _b = { decimals: 6 };
+                        _b = { "decimals": 6 };
                         _d.label = 3;
                     case 3:
                         _a.underlyingAssetInfo = _b;

@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var algosdk_1 = require("algosdk");
-var borrow_1 = require("./borrow");
+var repayBorrow_1 = require("./repayBorrow");
 var algodClient = new algosdk_1.Algodv2("", "https://api.testnet.algoexplorer.io", "");
 var indexerClient = new algosdk_1.Indexer("", "https://algoindexer.testnet.algoexplorerapi.io", "");
 function foo() {
@@ -47,8 +47,25 @@ function foo() {
                 case 0: 
                 // // Uncomment to run add collateral example
                 // await addCollateralExample()
-                // Uncomment to run borrow example
-                return [4 /*yield*/, (0, borrow_1.borrowExample)()
+                // // Uncomment to run borrow example
+                // await borrowExample()
+                // // Uncomment to run burn example
+                // await burnExample() 
+                // // Uncomment to run liquidate example
+                // NOT TESTED YET BC NOONE LIQUIDATABLE READILY AVAILABLE
+                // // Uncomment to run mint example
+                // await mintExample()
+                // // Uncomment to run mint to collateral example
+                // await mintToCollateralExample()
+                // // Uncomment to run remove collateral example
+                // await removeCollateralExample()
+                // Uncomment to run repay borrow example
+                return [4 /*yield*/, (0, repayBorrow_1.repayBorrowExample)()];
+                case 1:
+                    // // Uncomment to run add collateral example
+                    // await addCollateralExample()
+                    // // Uncomment to run borrow example
+                    // await borrowExample()
                     // // Uncomment to run burn example
                     // await burnExample() 
                     // // Uncomment to run liquidate example
@@ -59,13 +76,7 @@ function foo() {
                     // await mintToCollateralExample()
                     // // Uncomment to run remove collateral example
                     // await removeCollateralExample()
-                    // // Uncomment to run repay borrow example
-                    // await repayBorrowExample()
-                ];
-                case 1:
-                    // // Uncomment to run add collateral example
-                    // await addCollateralExample()
-                    // Uncomment to run borrow example
+                    // Uncomment to run repay borrow example
                     _a.sent();
                     return [2 /*return*/];
             }
