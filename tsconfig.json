@@ -10,5 +10,5 @@
     "sourceMap": true,
     "downlevelIteration": true
   },
-  "include": ["src/index.ts"]
+  "include": ["algofi/index.ts"]
 }
