@@ -243,7 +243,7 @@ export function getStakingContracts(chain: string): {} {
  * Returns list of supported symbols for the specified chain. Pulled from hardcoded values in contracts.ts.
  *
  * @param chain - network to query data for
- * @param max - max assets?
+ * @param max - max assets
  * @param maxAtomicOptIn - list of supported symbols for algofi's protocol on chain
  * @returns
  */
