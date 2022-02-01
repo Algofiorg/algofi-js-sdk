@@ -88,7 +88,6 @@ export class TransactionGroup {
     }
   }
 
-  //formatter is saving this as txid:txid instead of "txid":txid
   /**
    * Submits the signed transactions to the network using the algod client
    *
@@ -151,7 +150,7 @@ export function intToBytes(num: number): Uint8Array {
  * @param state - state we are trying to format
  * @returns a formatted version of state after taking care of decoding and unecessary key values
  */
-export function formatState(state: { [key: string]: any }[]): {} {
+export function formatState(state: { [key: string]: any }[]): { [key:string]: any } {
   const formatted = {}
   for (const item of state) {
     const { key } = item
