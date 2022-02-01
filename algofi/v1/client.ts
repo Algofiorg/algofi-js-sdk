@@ -705,14 +705,15 @@ export class Client {
    * @returns mint transaction group
    */
   async prepareMintTransactions(symbol: string, amount: number, address: string = null): Promise<TransactionGroup> {
-    if (!address) {
-      address = this.userAddress
+    let addr = address
+    if (!addr) {
+      addr = this.userAddress
     }
     const market = this.getMarket(symbol)
     return prepareMintTransactions(
-      address,
+      addr,
       await this.getDefaultParams(),
-      await this.manager.getStorageAddress(address),
+      await this.manager.getStorageAddress(addr),
       amount,
       market.getAsset().getBankAssetId(),
       this.manager.getManagerAppId(),

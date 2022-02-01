@@ -95,7 +95,7 @@ export class TransactionGroup {
    * @param wait - wait for txn to complete; defaults to false
    * @returns
    */
-  async submit(algod: Algodv2, wait: boolean = false) {
+  async submit(algod: Algodv2, wait: boolean = false): Promise<{ [key:string]: number }> {
     let txid: any
     try {
       txid = await algod.sendRawTransaction(this.signedTransactions).do()
@@ -103,7 +103,7 @@ export class TransactionGroup {
       throw new Error(e)
     }
     if (wait) {
-      return await waitForConfirmation(algod, txid.txId)
+      await waitForConfirmation(algod, txid.txId)
     }
     return {
       "txid": txid.txId
