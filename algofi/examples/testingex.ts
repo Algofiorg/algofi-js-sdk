@@ -1,5 +1,4 @@
 import { Indexer, Algodv2 } from "algosdk"
-import { removeCollateral } from "../v0"
 import { addCollateralExample } from "./addCollateral"
 import { borrowExample } from "./borrow"
 import { burnExample } from "./burn"
@@ -16,8 +15,8 @@ async function foo() {
   // // Uncomment to run add collateral example
   // await addCollateralExample()
 
-  // // Uncomment to run borrow example
-  // await borrowExample()
+  // Uncomment to run borrow example
+  await borrowExample()
 
   // // Uncomment to run burn example
   // await burnExample() 

@@ -968,10 +968,11 @@ export class Client {
   }
 
   /**
-   *
-   * @param transactionGroup
-   * @param wait
-   * @returns
+   * Submits and waits for a transaction group to finish if specified
+   * 
+   * @param transactionGroup - signed transaction group
+   * @param wait - boolean to tell whether you want to wait or not
+   * @returns a dictionary with the txid of the group transaction
    */
   async submit(transactionGroup: Uint8Array, wait: boolean = false): Promise<{}> {
     let txid: string

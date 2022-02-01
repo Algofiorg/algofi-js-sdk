@@ -59,7 +59,6 @@ export class Asset {
     this.oraclePriceScaleFactor = oraclePriceScaleFactor
   }
 
-  //SHOULD BE "decimals":6
   /**
    * This is the function that should be called when creating a new asset.
    * You pass everything you would to the constructor, but to this function
@@ -99,7 +98,7 @@ export class Asset {
       oraclePriceScaleFactor
     )
     asset.underlyingAssetInfo =
-      underlyingAssetId !== 1 ? (await asset.algod.getAssetByID(underlyingAssetId).do()).params : { decimals: 6 }
+      underlyingAssetId !== 1 ? (await asset.algod.getAssetByID(underlyingAssetId).do()).params : { "decimals": 6 }
     asset.bankAssetInfo = (await asset.algod.getAssetByID(bankAssetId).do()).params
     return asset
   }
