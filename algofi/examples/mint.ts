@@ -1,13 +1,13 @@
+import { mnemonicToSecretKey } from "algosdk"
 import { newAlgofiMainnetClient, newAlgofiTestnetClient } from "../v1/client"
 import { printMarketState, printUserState } from "./exampleUtils"
-import { mnemonicToSecretKey } from "algosdk"
 
 export async function mintExample(
   mnemonic: string = "biology engine verify maze coral cotton swear laptop surge vital surround entire glance dial oblige bleak friend royal round region divorce elephant law above local"
 ) {
-  let user = mnemonicToSecretKey(mnemonic)
-  let sender = user.addr
-  let key = user.sk
+  const user = mnemonicToSecretKey(mnemonic)
+  const sender = user.addr
+  const key = user.sk
 
   const buffer = "----------------------------------------------------------------------------------------------------"
 
@@ -33,7 +33,7 @@ export async function mintExample(
       .getUnderlyingAssetId()
   )
   if (assetBalance === 0) {
-    throw new Error("User has no balance of asset " + symbol)
+    throw new Error(`User has no balance of asset ${symbol}`)
   }
 
   console.log(buffer)
@@ -41,7 +41,7 @@ export async function mintExample(
   console.log(buffer)
   console.log("Processing transaction for asset =", symbol)
 
-  let txn = await client.prepareMintTransactions(symbol, Math.floor(assetBalance * 0.1), sender)
+  const txn = await client.prepareMintTransactions(symbol, Math.floor(assetBalance * 0.1), sender)
   txn.signWithPrivateKey(undefined, key)
   await txn.submit(client.algod, true)
 

@@ -983,7 +983,7 @@ export class Client {
     if (wait) {
       return waitForConfirmation(this.algod, txid, 10)
     }
-    return { txid: txid }
+    return { "txid": txid }
   }
 }
 
@@ -992,8 +992,8 @@ export class Client {
  *
  * @param algodClient - Algod client for interacting with the network
  * @param indexerClient - Indexer client for interacting with the network
- * @param userAddress - addres of the user
- * @returns
+ * @param userAddress - address of the user
+ * @returns a new and fuilly constructed algofi testnet client
  */
 export async function newAlgofiTestnetClient(
   algodClient: Algodv2 = null,
@@ -1018,8 +1018,8 @@ export async function newAlgofiTestnetClient(
  *
  * @param algodClient - Algod client for interacting with the network
  * @param indexerClient - Indexer client for interacting with the network
- * @param userAddress - addres of the user
- * @returns
+ * @param userAddress - address of the user
+ * @returns a new and fully constructed algofi mainnet client
  */
 export async function newAlgofiMainnetClient(
   algodClient: Algodv2 = null,

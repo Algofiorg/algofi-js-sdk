@@ -1,7 +1,7 @@
 import algosdk from "algosdk"
 import { PARAMETER_SCALE_FACTOR, REWARDS_SCALE_FACTOR, SCALE_FACTOR } from "./config"
 import { managerStrings } from "../contractStrings"
-import { getGlobalState, readLocalState, get } from "../utils"
+import { getGlobalState, readLocalState, get, intToBytes } from "../utils"
 import { Market } from "./market"
 import { Manager } from "./manager"
 
@@ -133,42 +133,35 @@ export class RewardsProgram {
     for (const market of markets) {
       totalBorrowUsd += await market.getAsset().toUSD(await market.getUnderlyingBorrowed())
     }
-    //need to figure out time module in javascript
-    let timeElapsed: number
+
+    const date = new Date()
+    const timeElapsed = Math.floor((date.getTime() / 1000) - this.getLatestRewardsTime())
     const rewardsIssued = this.getRewardsAmount() > 0 ? timeElapsed * this.getRewardsPerSecond() : 0
-    // Need to convert this into an integer
-    let projectedLatestRewardsCoefficient = Math.floor(rewardsIssued * REWARDS_SCALE_FACTOR)
 
     for (const market of markets) {
-      // Get coefficients
-      // Figure out bytes
-      let marketCounterPrefix: string //market.get_market_counter().to_bytes(8, byteorder = "big").decode('utf-8')
+      const marketCounterPrefix = Buffer.from(intToBytes(market.getMarketCounter())).toString("utf-8")
       const coefficient = get(managerState, marketCounterPrefix + managerStrings.counter_indexed_rewards_coefficient, 0)
 
       // Ask about defuault value for get function here
       const userCoefficient: number = onCurrentProgram
-        ? get(managerStorageState, marketCounterPrefix + managerStrings.counter_to_user_rewards_coefficient_initial, 0)
+        ? managerStorageState[marketCounterPrefix + managerStrings.counter_to_user_rewards_coefficient_initial]
         : 0
-      const underlyingBorrowed = await market.getUnderlyingBorrowed()
-      const marketUnderlyingTvl =
-        underlyingBorrowed + (market.getActiveCollateral() * market.getBankToUnderlyingExchange()) / SCALE_FACTOR
 
-      // need to make this into an integer
-      const projectedCoefficient: number =
-        coefficient +
-        (rewardsIssued * REWARDS_SCALE_FACTOR * (await market.getAsset().toUSD(await market.getUnderlyingBorrowed()))) /
-          (totalBorrowUsd * marketUnderlyingTvl)
+      const marketUnderlyingTvl =
+        (await market.getUnderlyingBorrowed()) + (market.getActiveCollateral() * market.getBankToUnderlyingExchange()) / SCALE_FACTOR
+
+     
+      const projectedCoefficient = coefficient + Math.floor(rewardsIssued * REWARDS_SCALE_FACTOR * (await market.getAsset().toUSD(await market.getUnderlyingBorrowed())) / (totalBorrowUsd * marketUnderlyingTvl))
 
       const marketStorageState = await market.getStorageState(storageAddress)
 
-      // need to make this into an integer
-      const unrealizedRewards =
-        ((projectedCoefficient - userCoefficient) *
-          (marketStorageState["active_collateral_underlying"] + marketStorageState["borrow_underlying"])) /
-        REWARDS_SCALE_FACTOR
+      const unrealizedRewards = Math.floor(
+      (projectedCoefficient - userCoefficient) * 
+      (marketStorageState.active_collateral_underlying + marketStorageState.borrow_underlying) / 
+      REWARDS_SCALE_FACTOR 
+      )
 
-      // need to make this into an integer
-      const secondaryUnrealizedRewards = (unrealizedRewards * this.getRewardsSecondaryRatio()) / PARAMETER_SCALE_FACTOR
+      const secondaryUnrealizedRewards = Math.floor((unrealizedRewards * this.getRewardsSecondaryRatio()) / PARAMETER_SCALE_FACTOR)
 
       totalUnrealizedRewards += unrealizedRewards
       totalSecondaryUnrealizedRewards += secondaryUnrealizedRewards
