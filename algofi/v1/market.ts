@@ -202,9 +202,8 @@ export class Market {
   async getUnderlyingBorrowed(block: number = null): Promise<number> {
     if (block) {
       try {
-        let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
-        data = data["application"]["params"]["global-state"]
-        return searchGlobalState(data, marketStrings.underlying_borrowed)
+        const data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
+        return searchGlobalState(data.application.params["global-state"], marketStrings.underlying_borrowed)
       } catch (e) {
         throw new Error("Issue getting data")
       }
@@ -231,9 +230,8 @@ export class Market {
   async getUnderlyingCash(block = null): Promise<number> {
     if (block) {
       try {
-        let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
-        data = data["application"]["params"]["global-state"]
-        return searchGlobalState(data, marketStrings.underlying_cash)
+        const data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
+        return searchGlobalState(data.application.params["global-state"], marketStrings.underlying_cash)
       } catch (e) {
         throw new Error("Issue getting data")
       }
@@ -251,9 +249,8 @@ export class Market {
   async getUnderlyingReserves(block = null): Promise<number> {
     if (block) {
       try {
-        let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
-        data = data["application"]["params"]["global-state"]
-        return searchGlobalState(data, marketStrings.underlying_reserves)
+        const data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
+        return searchGlobalState(data.application.params["global-state"], marketStrings.underlying_reserves)
       } catch (e) {
         throw new Error("Issue getting data")
       }
@@ -271,9 +268,8 @@ export class Market {
   async getTotalBorrowInterestRate(block = null): Promise<number> {
     if (block) {
       try {
-        let data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
-        data = data["application"]["params"]["global-state"]
-        return searchGlobalState(data, marketStrings.total_borrow_interest_rate)
+        const data = await this.historicalIndexer.lookupApplications(this.marketAppId).do()
+        return searchGlobalState(data.application.params["global-state"], marketStrings.total_borrow_interest_rate)
       } catch (e) {
         throw new Error("Issue getting data")
       }

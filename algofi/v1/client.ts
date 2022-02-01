@@ -87,14 +87,6 @@ export class Client {
     this.maxOrderedSymbols = getOrderedSymbols(this.chain, true)
     this.maxAtomicOptInOrderedSymbols = getOrderedSymbols(this.chain, undefined, true)
     this.stakingContractInfo = getStakingContracts(this.chain)
-    this.stakingContracts = {}
-    for (const title of Object.keys(this.stakingContractInfo)) {
-      this.stakingContracts[title] = new StakingContract(
-        this.algod,
-        this.historicalIndexer,
-        this.stakingContractInfo[title]
-      )
-    }
   }
 
   /**
@@ -132,6 +124,14 @@ export class Client {
         algodClient,
         historicalIndexerClient,
         getMarketAppId(client.chain, symbol)
+      )
+    }
+    client.stakingContracts = {}
+    for (const title of Object.keys(client.stakingContractInfo)) {
+      client.stakingContracts[title] = await StakingContract.init(
+        client.algod,
+        client.historicalIndexer,
+        client.stakingContractInfo[title]
       )
     }
     client.manager = await Manager.init(client.algod, getManagerAppId(client.chain))
@@ -249,12 +249,12 @@ export class Client {
    */
   async getUserState(address: string = null): Promise<{ [key: string]: any }> {
     let addr = address
-    const result = {}
+    const result: { [key: string]: any } = {}
     if (!addr) {
       addr = this.userAddress
     }
 
-    result["manager"] = await this.manager.getUserState(addr)
+    result.manager = await this.manager.getUserState(addr)
     const storageAddress = await this.manager.getStorageAddress(addr)
 
     for (const symbol of this.activeOrderedSymbols) {
@@ -271,11 +271,11 @@ export class Client {
    */
   async getStorageState(storageAddress: string = null): Promise<{ [key: string]: any }> {
     let addr = storageAddress
-    const result = {}
+    const result: { [key: string]: any } = {}
     if (!addr) {
       addr = await this.manager.getStorageAddress(this.userAddress)
     }
-    result["manager"] = this.manager.getStorageState(addr)
+    result.manager = this.manager.getStorageState(addr)
     for (const symbol of this.activeOrderedSymbols) {
       result[symbol] = this.markets[symbol].getStorageState(addr)
     }
