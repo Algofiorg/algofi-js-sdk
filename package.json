@@ -1,7 +1,7 @@
 {
   "name": "@algofi/v0",
   "version": "1.3.7",
-  "description": "The official JavaScript SDK for Algofi",
+  "description": "The official JavaScript SDK for the Algofi Lending Protocol",
   "main": "dist/index.js",
   "files": [
     "dist/"
@@ -9,7 +9,7 @@
   "module": "dist/algofi.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/com/owen-colegrove/algofi-js-sdk.git"
+    "url": "git://github.com/Algofiorg/algofi-js-sdk.git"
   },
   "keywords": [
     "algofi",
