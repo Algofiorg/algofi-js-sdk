@@ -1,7 +1,7 @@
 {
   "name": "@algofi/v0",
   "version": "1.5.0",
-  "description": "The official JavaScript SDK for Algofi",
+  "description": "The official JavaScript SDK for the Algofi Lending Protocol",
   "main": "dist/index.js",
   "files": [
     "dist/"
@@ -9,7 +9,7 @@
   "module": "dist/algofi.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/com/owen-colegrove/algofi-js-sdk.git"
+    "url": "git://github.com/Algofiorg/algofi-js-sdk.git"
   },
   "keywords": [
     "algofi",
@@ -27,7 +27,14 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.25",
-    "tsdx": "^0.14.1"
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
+    "eslint": "^8.8.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-tsdoc": "^0.2.14",
+    "tsdx": "^0.14.1",
+    "typedoc": "^0.22.11"
   },
   "engines": {
     "node": ">=10"
