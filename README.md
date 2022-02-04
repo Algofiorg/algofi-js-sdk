@@ -12,8 +12,10 @@ npm install
 cd test && npm install && cd ..
 ```
 
-To generate docs, cd into the root folder and do npx typedoc algofi/index.ts
+## Generate Documentation
 
-# algofi-js-sdk
+To generate docs, cd into the root folder and run
 
-# algofi-js-sdk
+```
+npx typedoc algofi/index.ts
+```
