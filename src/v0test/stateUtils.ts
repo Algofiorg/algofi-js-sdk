@@ -437,6 +437,8 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
       globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
   }
 
+  const globalTvl = globalResults["active_collateral_extrapolatedUSD"] + globalResults["underlying_borrowed_extrapolatedUSD"];
+
   // calculate market APY
   let rewards_active =
     globalResults["manager"][managerStrings.rewards_start_time] > 0 &&
@@ -444,15 +446,12 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
   let rewards_per_year = globalResults["manager"][managerStrings.rewards_per_second] * 60 * 60 * 24 * 365
 
   // TODO account for reward free markets
+  let marketTvl = 0;
   for (const assetName of orderedAssets) {
     if (rewards_active) {
-      globalResults[assetName]["reward_rate_per_1000USD"] =
-        (rewards_per_year *
-          1000 *
-          (globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] /
-            globalResults["underlying_borrowed_extrapolatedUSD"])) /
-        (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
-          globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
+      marketTvl = (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
+      globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
+      globalResults[assetName]["reward_rate_per_1000USD"] = (rewards_per_year * (marketTvl / globalTvl) * 1000) / marketTvl;
     } else {
       globalResults[assetName]["reward_rate_per_1000USD"] = 0
     }
