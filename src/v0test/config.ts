@@ -50,7 +50,7 @@ export const assetDictionary = {
     marketCounter: 3,
     managerAppId: 51422788,
     decimals: 8,
-    bankAssetDecimals: 6,
+    bankAssetDecimals: 8,
     marketAppId: 51422146,
     marketAddress: "O7SVUP64TIS2TX4L74KRHO5ZLFYJVWMTID2U2E5IHS2RG7CYSEXJQ4VNXY",
     bankAssetId: 51422938,
