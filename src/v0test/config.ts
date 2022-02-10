@@ -49,7 +49,7 @@ export const assetDictionary = {
   goBTC: {
     marketCounter: 3,
     managerAppId: 51422788,
-    decimals: 6,
+    decimals: 8,
     bankAssetDecimals: 6,
     marketAppId: 51422146,
     marketAddress: "O7SVUP64TIS2TX4L74KRHO5ZLFYJVWMTID2U2E5IHS2RG7CYSEXJQ4VNXY",
@@ -61,7 +61,7 @@ export const assetDictionary = {
   goETH: {
     marketCounter: 4,
     managerAppId: 51422788,
-    decimals: 6,
+    decimals: 8,
     marketAppId: 51422149,
     marketAddress: "ZBW5PTDNHI4VLBZPJQSIA6QW3BCOGXYYVNG5VHHQ63XQKHT56DP7QOCYHE",
     bankAssetId: 51422939,
