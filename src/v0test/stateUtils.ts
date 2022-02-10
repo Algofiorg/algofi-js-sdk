@@ -451,7 +451,7 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
     if (rewards_active) {
       marketTvl = (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
       globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
-      globalResults[assetName]["reward_rate_per_1000USD"] = (rewards_per_year * marketTvl * 1000) / globalTvl;
+      globalResults[assetName]["reward_rate_per_1000USD"] = (rewards_per_year * (marketTvl / globalTvl) * 1000) / marketTvl;
     } else {
       globalResults[assetName]["reward_rate_per_1000USD"] = 0
     }
