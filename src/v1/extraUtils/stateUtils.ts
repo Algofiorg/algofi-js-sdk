@@ -450,10 +450,7 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
   for (const assetName of orderedAssets) {
     if (rewards_active) {
       globalResults[assetName]["reward_rate_per_1000USD"] =
-        (rewards_per_year *
-          1000 *
-          (globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] /
-            globalResults["underlying_borrowed_extrapolatedUSD"])) /
+        (rewards_per_year * 1000) /
         (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
           globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
     } else {
