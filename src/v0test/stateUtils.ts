@@ -438,6 +438,8 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
     globalResults["manager"][managerStrings.rewards_start_time] > 0 &&
     globalResults["manager"][managerStrings.rewards_amount] > 0;
 
+  const rewardsOrderedAssets = ["ALGO", "STBL", "USDC", "goBTC", "goETH"];
+
   let rewards_dist_bitmap;
   var marketWeights = [];
   if (rewards_active) {
@@ -462,9 +464,8 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
     }
   }
 
-
-  for (let i=0; i<orderedAssets.length; i++) {
-    const assetName = orderedAssets[i];
+  for (let i = 0; i < rewardsOrderedAssets.length; i++) {
+    const assetName = rewardsOrderedAssets[i];
     if (assetName != "STBL") {
       globalResults["underlying_supplied_extrapolatedUSD"] +=
         globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
@@ -487,8 +488,8 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
   // TODO account for reward free markets
   let marketTvl = 0;
   let marketWeightedTvl = 0;
-  for (let i=0; i<orderedAssets.length; i++) {
-    const assetName = orderedAssets[i];
+  for (let i = 0; i < rewardsOrderedAssets.length; i++) {
+    const assetName = rewardsOrderedAssets[i];
     if (rewards_active) {
       marketTvl = (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
       globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
