@@ -418,6 +418,10 @@ export async function extrapolateUserData(userResults: {}, globalResults: {}, as
   return extrapolatedData
 }
 
+function dec2bin(dec) {
+  return (dec >>> 0).toString(2);
+}
+
 /**
  * Function to extrapolate data from user data
  *
@@ -429,8 +433,41 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
   globalResults["underlying_supplied_extrapolatedUSD"] = 0
   globalResults["underlying_borrowed_extrapolatedUSD"] = 0
   globalResults["active_collateral_extrapolatedUSD"] = 0
+  globalResults["active_collateral_weighted_extrapolatedUSD"] = 0
+  globalResults["underlying_borrowed_weighted_extrapolatedUSD"] = 0
+  globalResults["marketWeights"] = 0;
 
-  for (const assetName of orderedAssets) {
+  let rewards_active =
+    globalResults["manager"][managerStrings.rewards_start_time] > 0 &&
+    globalResults["manager"][managerStrings.rewards_amount] > 0;
+
+  let rewards_dist_bitmap;
+  var marketWeights = [];
+  if (rewards_active) {
+    rewards_dist_bitmap = globalResults["manager"][managerStrings.rewards_distributions_by_market];
+    // if bitmap = 0, then assign 1 to each active market;
+    if (rewards_dist_bitmap == 0) {
+      for (const assetName of orderedAssets) {
+        marketWeights.push(1);
+      }
+    } else {
+      let rewardsDistributionMarket = dec2bin(globalResults["manager"][managerStrings.rewards_distributions_by_market]);
+        const initBinLength = rewardsDistributionMarket.length;
+        const binLength = Math.ceil(rewardsDistributionMarket.length / 4) * 4;
+        for (let i = 0; i < binLength - initBinLength; i++) {
+          rewardsDistributionMarket = "0"+rewardsDistributionMarket;
+        }
+        let binChunk;
+        for (let i=0; i < orderedAssets.length; i++) {
+          binChunk = rewardsDistributionMarket.substring(rewardsDistributionMarket.length-4*(i+1), rewardsDistributionMarket.length-4*i);
+          marketWeights.push(parseInt(binChunk,2));
+        }
+    }
+  }
+
+
+  for (let i=0; i<orderedAssets.length; i++) {
+    const assetName = orderedAssets[i];
     if (assetName != "STBL") {
       globalResults["underlying_supplied_extrapolatedUSD"] +=
         globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
@@ -438,23 +475,29 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
     globalResults["active_collateral_extrapolatedUSD"] += globalResults[assetName]["active_collateral_extrapolatedUSD"]
     globalResults["underlying_borrowed_extrapolatedUSD"] +=
       globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
+    if (rewards_active) {
+      globalResults["active_collateral_weighted_extrapolatedUSD"] +=
+      globalResults[assetName]["active_collateral_extrapolatedUSD"] * marketWeights[i];
+      globalResults["underlying_borrowed_weighted_extrapolatedUSD"] +=
+      globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] * marketWeights[i];
+    }
   }
 
-  const globalTvl = globalResults["active_collateral_extrapolatedUSD"] + globalResults["underlying_borrowed_extrapolatedUSD"];
-
+  const globalWeightedTvl = globalResults["active_collateral_weighted_extrapolatedUSD"] + globalResults["underlying_borrowed_weighted_extrapolatedUSD"];
   // calculate market APY
-  let rewards_active =
-    globalResults["manager"][managerStrings.rewards_start_time] > 0 &&
-    globalResults["manager"][managerStrings.rewards_amount] > 0
   let rewards_per_year = globalResults["manager"][managerStrings.rewards_per_second] * 60 * 60 * 24 * 365
 
   // TODO account for reward free markets
   let marketTvl = 0;
-  for (const assetName of orderedAssets) {
+  let marketWeightedTvl = 0;
+  for (let i=0; i<orderedAssets.length; i++) {
+    const assetName = orderedAssets[i];
     if (rewards_active) {
       marketTvl = (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
       globalResults[assetName]["underlying_borrowed_extrapolatedUSD"])
-      globalResults[assetName]["reward_rate_per_1000USD"] = (rewards_per_year * (marketTvl / globalTvl) * 1000) / marketTvl;
+      marketWeightedTvl = (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
+      globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]) * marketWeights[i];
+      globalResults[assetName]["reward_rate_per_1000USD"] = (rewards_per_year * (marketWeightedTvl / globalWeightedTvl) * 1000) / marketTvl;
     } else {
       globalResults[assetName]["reward_rate_per_1000USD"] = 0
     }
