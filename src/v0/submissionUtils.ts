@@ -436,7 +436,7 @@ export async function buildOptOutTransaction(
     const txn0 = algosdk.makeApplicationNoOpTxnFromObject({
       from: senderAccount,
       appIndex: optOutManagerAppId,
-      appArgs: [enc.encode("opt_out")],
+      appArgs: [enc.encode("oo")],
       foreignApps: [managerAppId],
       foreignAssets: [],
       accounts: [stoarageAccount],
