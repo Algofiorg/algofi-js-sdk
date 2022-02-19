@@ -88,7 +88,7 @@ export const assetDictionary = {
     oracleAppId: 451327550,
     oracleFieldName: "price"
   },
-  "TM-STBL-STAKE": {
+  "STBL-STAKE": {
     decimals: 6,
     marketCounter: 5,
     marketAppId: 482608867,
