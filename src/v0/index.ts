@@ -755,7 +755,7 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
     }
   }
 
-  const lpAssets = ["TM-STBL-ALGO-LP", "TM-STBL-USDC-LP", "TM-STBL-USDC-LP-V2", "TM-STBL-YLDY-LP"];
+  const lpAssets = ["TM-STBL-ALGO-LP", "TM-STBL-USDC-LP", "TM-STBL-USDC-LP-V2", "TM-STBL-YLDY-LP", "AF-STBL-ALGO-LP", "AF-STBL-USDC-LP"];
   for (var lpAsset of lpAssets) {
     if (lpAsset in balances) {
       userResults[lpAsset] = balances[lpAsset]
