@@ -146,6 +146,8 @@ export const assetDictionary = {
     marketAddress: "3VNLTSYGAMVBRSCSAF7PP7KSBAV5AQQIUM2TJXIDVOXX573AW7LMH6RARY",
     underlyingAssetId: 468695586,
     bankAssetId: 514624374,
+    creatorAddress: "EJMPGJJX4NHRF3Z7DM373ODLLZF6R3RV76PJ3GZGQKWGC5LFKIEOUG34MQ",
+    oracleAppId: 451327550,
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
@@ -157,6 +159,8 @@ export const assetDictionary = {
     marketAddress: "5VJBR6QI27YEFNMPITUDSOWRM54GZGH3D2OU6HIZFMTWWAIOKDQ7NF72D4",
     underlyingAssetId: 607645566,
     bankAssetId: 611811838,
+    creatorAddress: "LEAUT3X2YMLY7EEPS7VVLFSKXEMH5FLAJ7GNCFXZV7O5JYHJVQXGGR3MYU",
+    oracleAppId: 451327550,
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
@@ -168,6 +172,8 @@ export const assetDictionary = {
     marketAddress: "WVCIYSN25IQYEOZUI3AM4DWHNEYFCPRYWEZD34SEYPSJ4VSMB5S5WPCLKQ",
     underlyingAssetId: 609172718,
     bankAssetId: 611871906,
+    creatorAddress: "LEAUT3X2YMLY7EEPS7VVLFSKXEMH5FLAJ7GNCFXZV7O5JYHJVQXGGR3MYU",
+    oracleAppId: 451327550,
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
