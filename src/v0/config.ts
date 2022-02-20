@@ -17,10 +17,12 @@ export const orderedAssetsAndPlaceholders = [
   "FRTN",
   "FVTN",
   "SXTN",
-  "STBL-ALGO-LP",
-  "STBL-USDC-LP",
-  "STBL-USDC-LP-V2",
-  "STBL-YLDY-LP"
+  "TM-STBL-ALGO-LP",
+  "TM-STBL-USDC-LP",
+  "TM-STBL-USDC-LP-V2",
+  "TM-STBL-YLDY-LP",
+  "AF-STBL-USDC-LP",
+  "AF-STBL-ALGO-LP"
 ]
 
 export const protocolManagerAppId = 465818260
@@ -98,7 +100,7 @@ export const assetDictionary = {
     oracleAppId: 451327550,
     oracleFieldName: "price"
   },
-  "STBL-ALGO-LP": {
+  "TM-STBL-ALGO-LP": {
     decimals: 6,
     managerAppId: 514458901,
     managerAddress: "JZYVXQLRZ2TEI6XMIQN5KEHEVA5EA3LQVZUS24SGKLVIBQZTRSP3PTCRJQ",
@@ -110,7 +112,7 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
-  "STBL-USDC-LP": {
+  "TM-STBL-USDC-LP": {
     decimals: 6,
     marketAppId: 485244022,
     managerAppId: 485247444,
@@ -123,7 +125,7 @@ export const assetDictionary = {
     underlyingAssetId: 467020179,
     oracleFieldName: "price"
   },
-  "STBL-USDC-LP-V2": {
+  "TM-STBL-USDC-LP-V2": {
     decimals: 6,
     managerAppId: 553869413,
     managerAddress: "4SNLE5W7UOTDJZG6RNEVB35R7FU2O2RQSHKZYDFZ3BLRHKOG3T3GRF5SYE",
@@ -136,8 +138,7 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
-
-  "STBL-YLDY-LP": {
+  "TM-STBL-YLDY-LP": {
     decimals: 6,
     managerAppId: 514601080,
     managerAddress: "S53YDCHH3JGJKZWLNLUFDAQKSUZCAWOVNYHWAGMVCOFK2NNROS7NCLDK64",
@@ -145,6 +146,28 @@ export const assetDictionary = {
     marketAddress: "3VNLTSYGAMVBRSCSAF7PP7KSBAV5AQQIUM2TJXIDVOXX573AW7LMH6RARY",
     underlyingAssetId: 468695586,
     bankAssetId: 514624374,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
+  },
+  "AF-STBL-ALGO-LP": {
+    decimals: 6,
+    managerAppId: 611804624,
+    managerAddress: "SKH3QKDUT2BWIZD7WODZMQCR4IKAUVW2NR67UZNSXFH7MXOGASOB3IFCNE",
+    marketAppId: 611801333,
+    marketAddress: "5VJBR6QI27YEFNMPITUDSOWRM54GZGH3D2OU6HIZFMTWWAIOKDQ7NF72D4",
+    underlyingAssetId: 607645566,
+    bankAssetId: 611811838,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
+  },
+  "AF-STBL-USDC-LP": {
+    decimals: 6,
+    managerAppId: 611869320,
+    managerAddress: "PR7HILT7NENYR7SBMGOXDNZLRV5LCED4IUSHQ7N3DNAUKUH3G3BNRXTZTM",
+    marketAppId: 611867642,
+    marketAddress: "WVCIYSN25IQYEOZUI3AM4DWHNEYFCPRYWEZD34SEYPSJ4VSMB5S5WPCLKQ",
+    underlyingAssetId: 609172718,
+    bankAssetId: 611871906,
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },

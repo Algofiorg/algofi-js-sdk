@@ -110,13 +110,13 @@ export async function getBalanceInfo(algodClient: Algodv2, address: string): Pro
       }
     }
     if (asset["asset-id"] == 468634109) {
-      balanceInfo["STBL-ALGO-LP"] = Number(asset["amount"])
+      balanceInfo["TM-STBL-ALGO-LP"] = Number(asset["amount"])
     }
     if (asset["asset-id"] == 467020179) {
-      balanceInfo["STBL-USDC-LP"] = Number(asset["amount"])
+      balanceInfo["TM-STBL-USDC-LP"] = Number(asset["amount"])
     }
     if (asset["asset-id"] == 468695586) {
-      balanceInfo["STBL-YLDY-LP"] = Number(asset["amount"])
+      balanceInfo["TM-STBL-YLDY-LP"] = Number(asset["amount"])
     }
   }
 

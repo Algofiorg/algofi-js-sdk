@@ -403,10 +403,10 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
     // initialize user market results
     userResults[assetName] = {}
     userResults[bAssetName] = {}
-    userResults["STBL-ALGO-LP"] = balances[""]
-    userResults["STBL-USDC-LP"] = balances[""]
-    userResults["STBL-USDC-LP-V2"] = balances[""]
-    userResults["STBL-YLDY-LP"] = balances[""]
+    userResults["TM-STBL-ALGO-LP"] = balances[""]
+    userResults["TM-STBL-USDC-LP"] = balances[""]
+    userResults["TM-STBL-USDC-LP-V2"] = balances[""]
+    userResults["TM-STBL-YLDY-LP"] = balances[""]
     // set balances
     userResults[assetName]["balance"] = balances[assetName]
     userResults[bAssetName]["balance"] = balances[bAssetName]
