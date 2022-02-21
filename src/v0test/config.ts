@@ -152,9 +152,6 @@ let orderedSupportedMarketAppIds = []
 let marketCounterToAssetName = {}
 let assetIdToAssetName = {}
 for (const assetName of orderedAssets) {
-  console.log("assetName=", assetName)
-  console.log("assetDictionary[assetName]=", assetDictionary[assetName])
-
   orderedOracleAppIds.push(assetDictionary[assetName]["oracleAppId"])
   orderedSupportedMarketAppIds.push(assetDictionary[assetName]["marketAppId"])
   marketCounterToAssetName[assetDictionary[assetName]["marketCounter"]] = assetName
