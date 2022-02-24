@@ -528,6 +528,8 @@ export async function updateGlobalUserTotals(
   userResults["maxBorrowUSD"] = 0
   userResults["unrealized_rewards"] = 0
   userResults["portfolio_reward_rate_per_1000USD"] = 0
+  userResults["portfolio_borrow_reward_rate_per_1000USD"] = 0
+  userResults["portfolio_lend_reward_rate_per_1000USD"] = 0
   userResults["portfolio_lend_interest_rate_earned"] = 0
   userResults["portfolio_borrow_interest_rate"] = 0
 
@@ -557,6 +559,12 @@ export async function updateGlobalUserTotals(
       (globalResults[assetName]["reward_rate_per_1000USD"] *
         (userResults[assetName]["borrowUSD"] + userResults[assetName]["collateralUSD"])) /
       (userResults["borrowUSD"] + userResults["collateralUSD"])
+    userResults["portfolio_borrow_reward_rate_per_1000USD"] +=
+      (globalResults[assetName]["reward_rate_per_1000USD"] * userResults[assetName]["borrowUSD"]) /
+      (userResults["borrowUSD"])
+    userResults["portfolio_lend_reward_rate_per_1000USD"] +=
+      (globalResults[assetName]["reward_rate_per_1000USD"] * userResults[assetName]["collateralUSD"]) /
+      (userResults["collateralUSD"])
     userResults["portfolio_lend_interest_rate_earned"] +=
       (globalResults[assetName]["total_lend_interest_rate_earned"] * userResults[assetName]["collateralUSD"]) /
       userResults["collateralUSD"]
