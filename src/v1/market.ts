@@ -114,9 +114,7 @@ export class Market {
   getUnderlyingBorrowed = async () => {
     try {
       let data = await this.algodClient.getApplicationByID(this.marketAppId).do()
-      console.log("raw data =", data)
       data = data["params"]["global-state"]
-      console.log("data =", data)
       return searchGlobalState(data, marketStrings.underlying_borrowed)
     } catch (err) {
       throw Error("Issue getting data")

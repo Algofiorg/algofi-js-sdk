@@ -323,7 +323,7 @@ export async function extrapolateMarketData(globalData: {}, prices: {}, assetNam
     extrapolatedData["underlying_reserves_extrapolated"]
 
   // total_lend_interest_rate_earned = (total interest less reserve factor) / (total supply)
-  const ALGO_STAKING_APY = Number(0.0065 * 1e9)
+  const ALGO_STAKING_APY = Number(0.0007 * 1e9)
   const borrowUtil =
     globalData[marketStrings.underlying_borrowed] / extrapolatedData["underlying_supplied_extrapolated"]
   extrapolatedData["total_lend_interest_rate_earned"] =
@@ -575,6 +575,8 @@ export async function updateGlobalUserTotals(
   userResults["maxBorrowUSD"] = 0
   userResults["unrealized_rewards"] = 0
   userResults["portfolio_reward_rate_per_1000USD"] = 0
+  userResults["portfolio_borrow_reward_rate_per_1000USD"] = 0
+  userResults["portfolio_lend_reward_rate_per_1000USD"] = 0
   userResults["portfolio_lend_interest_rate_earned"] = 0
   userResults["portfolio_borrow_interest_rate"] = 0
 
@@ -604,6 +606,12 @@ export async function updateGlobalUserTotals(
       (globalResults[assetName]["reward_rate_per_1000USD"] *
         (userResults[assetName]["borrowUSD"] + userResults[assetName]["collateralUSD"])) /
       (userResults["borrowUSD"] + userResults["collateralUSD"])
+    userResults["portfolio_borrow_reward_rate_per_1000USD"] +=
+      (globalResults[assetName]["reward_rate_per_1000USD"] * userResults[assetName]["borrowUSD"]) /
+      (userResults["borrowUSD"])
+    userResults["portfolio_lend_reward_rate_per_1000USD"] +=
+      (globalResults[assetName]["reward_rate_per_1000USD"] * userResults[assetName]["collateralUSD"]) /
+      (userResults["collateralUSD"])
     userResults["portfolio_lend_interest_rate_earned"] +=
       (globalResults[assetName]["total_lend_interest_rate_earned"] * userResults[assetName]["collateralUSD"]) /
       userResults["collateralUSD"]

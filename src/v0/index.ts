@@ -823,3 +823,25 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
 
   return [userResults, globalResults]
 }
+
+/**
+ * Function to get the list of inner transactions for a given application transaction
+ * 
+ * @param   {Algodv2}   algodClient
+ * @param   {string}  txId
+ *
+ * @return  {dict<string,n>[]}  innerTxnsList - list of inner transactions with their relevant information
+*/
+export async function getInnerTransactionList(algodClient: Algodv2, txId: string): Promise<{}> {
+  const pending = await algodClient.pendingTransactionInformation(txId).do();
+  const innerTxnsJSON = pending["inner-txns"];
+  let innerTxnsList = [];
+  for (var innerTxn of innerTxnsJSON) {
+    try {
+      innerTxnsList.push(innerTxn.txn.txn);
+    } catch {
+      console.log("unable to push inner txn onto stack");
+    }
+  }
+  return innerTxnsList;
+}
