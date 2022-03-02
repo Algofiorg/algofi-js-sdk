@@ -22,7 +22,8 @@ export const orderedAssetsAndPlaceholders = [
   "TM-STBL-USDC-LP-V2",
   "TM-STBL-YLDY-LP",
   "AF-STBL-USDC-LP",
-  "AF-STBL-ALGO-LP"
+  "AF-STBL-ALGO-LP",
+  "AF-XET-STBL-LP"
 ]
 
 export const protocolManagerAppId = 465818260
@@ -177,6 +178,20 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
+  "AF-XET-STBL-LP": {
+    decimals: 6,
+    managerAppId: 635813909,
+    managerAddress: "PQT7UC2IXUECGVVW2ZSP3JUU23TQCECI2ULLPZ4VRXVQZWAXFPR66NDJ4A",
+    marketAppId: 635812850,
+    marketAddress: "OPGEPS7ZW6PIH4JU3WHIYCMME5N4NTOCOZKXOCWYBLURGSLEIQE5ZSBX6Q",
+    underlyingSymbol: 635256863,
+    bankSymbol: 635830471,
+    creatorAddress: "LEAUT3X2YMLY7EEPS7VVLFSKXEMH5FLAJ7GNCFXZV7O5JYHJVQXGGR3MYU",
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
+  },
+
   BANK: {
     decimals: 6,
     underlyingAssetId: 51642940
