@@ -188,7 +188,10 @@ export const assetDictionary = {
     marketAppId: 635812850,
     marketAddress: "OPGEPS7ZW6PIH4JU3WHIYCMME5N4NTOCOZKXOCWYBLURGSLEIQE5ZSBX6Q",
     underlyingAssetId: 635256863,
-    bankAssetId: 635830471
+    bankAssetId: 635830471,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
   },
   "AF-goBTC-STBL-LP": {
     decimals: 6,
@@ -198,7 +201,10 @@ export const assetDictionary = {
     marketAppId: 635860537,
     marketAddress: "KKZHMTU22UO43EAG7SJGUGDKZNI65CVNRROF3NZ35S23SUZWGODESAOF4Y",
     underlyingAssetId: 635846733,
-    bankAssetId: 635866896
+    bankAssetId: 635866896,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
   },
   "AF-goETH-STBL-LP": {
     decimals: 6,
@@ -208,7 +214,10 @@ export const assetDictionary = {
     marketAppId: 635864509,
     marketAddress: "6LIQSNKB3WH226AXLLZU7OL6WXTY7S62N66OYHLVGGBENDUDU3ATKIGDAQ",
     underlyingAssetId: 635854339,
-    bankAssetId: 635877693
+    bankAssetId: 635877693,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
   },
   BANK: {
     decimals: 6,
