@@ -130,6 +130,12 @@ export async function getBalanceInfo(algodClient: Algodv2, address: string): Pro
     if (asset["asset-id"] == 635256863) {
       balanceInfo["AF-XET-STBL-LP"] = Number(asset["amount"])
     }
+    if (asset["asset-id"] == 635846733) {
+      balanceInfo["AF-goBTC-STBL-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 635854339) {
+      balanceInfo["AF-goETH-STBL-LP"] = Number(asset["amount"])
+    }
   }
 
   return balanceInfo
@@ -608,10 +614,10 @@ export async function updateGlobalUserTotals(
       (userResults["borrowUSD"] + userResults["collateralUSD"])
     userResults["portfolio_borrow_reward_rate_per_1000USD"] +=
       (globalResults[assetName]["reward_rate_per_1000USD"] * userResults[assetName]["borrowUSD"]) /
-      (userResults["borrowUSD"])
+      userResults["borrowUSD"]
     userResults["portfolio_lend_reward_rate_per_1000USD"] +=
       (globalResults[assetName]["reward_rate_per_1000USD"] * userResults[assetName]["collateralUSD"]) /
-      (userResults["collateralUSD"])
+      userResults["collateralUSD"]
     userResults["portfolio_lend_interest_rate_earned"] +=
       (globalResults[assetName]["total_lend_interest_rate_earned"] * userResults[assetName]["collateralUSD"]) /
       userResults["collateralUSD"]

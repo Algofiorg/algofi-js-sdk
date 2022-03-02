@@ -29,7 +29,7 @@ import {
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR,
-  foreignAppIds,
+  foreignAppIds
 } from "./config"
 import { Base64Encoder } from "./encoder"
 export {
@@ -89,7 +89,6 @@ export async function optInMarkets(algodClient: Algodv2, address: string): Promi
   return txns
 }
 
-
 /**
  * Function to get opt in transactions for algofi supported assets
  *
@@ -101,12 +100,12 @@ export async function optInMarkets(algodClient: Algodv2, address: string): Promi
  *
  * @return  {Transaction[]}   create transactions to opt in to Staker and rekey storage address to manager contract
  */
- export async function optInStaker(
+export async function optInStaker(
   algodClient: Algodv2,
   stakeAsset: string,
   address: string,
   storageAddress: string,
-  storageAddressFundingAmount: number,
+  storageAddressFundingAmount: number
 ) {
   const params = await getParams(algodClient)
 
@@ -146,7 +145,7 @@ export async function optInMarkets(algodClient: Algodv2, address: string): Promi
       foreignApps: [assetDictionary[stakeAsset]["marketAppId"]],
       accounts: undefined,
       foreignAssets: undefined,
-      rekeyTo: undefined,
+      rekeyTo: undefined
     })
   )
 
@@ -755,12 +754,22 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
     }
   }
 
-  const lpAssets = ["TM-STBL-ALGO-LP", "TM-STBL-USDC-LP", "TM-STBL-USDC-LP-V2", "TM-STBL-YLDY-LP", "AF-STBL-ALGO-LP", "AF-STBL-USDC-LP"];
+  const lpAssets = [
+    "TM-STBL-ALGO-LP",
+    "TM-STBL-USDC-LP",
+    "TM-STBL-USDC-LP-V2",
+    "TM-STBL-YLDY-LP",
+    "AF-STBL-ALGO-LP",
+    "AF-STBL-USDC-LP",
+    "AF-XET-STBL-LP",
+    "AF-goETH-STBL-LP",
+    "AF-goBTC-STBL-LP"
+  ]
   for (var lpAsset of lpAssets) {
     if (lpAsset in balances) {
       userResults[lpAsset] = balances[lpAsset]
     } else {
-      userResults[lpAsset] = 0;
+      userResults[lpAsset] = 0
     }
   }
   // get and set data for each market
@@ -826,22 +835,22 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
 
 /**
  * Function to get the list of inner transactions for a given application transaction
- * 
+ *
  * @param   {Algodv2}   algodClient
  * @param   {string}  txId
  *
  * @return  {dict<string,n>[]}  innerTxnsList - list of inner transactions with their relevant information
-*/
+ */
 export async function getInnerTransactionList(algodClient: Algodv2, txId: string): Promise<{}> {
-  const pending = await algodClient.pendingTransactionInformation(txId).do();
-  const innerTxnsJSON = pending["inner-txns"];
-  let innerTxnsList = [];
+  const pending = await algodClient.pendingTransactionInformation(txId).do()
+  const innerTxnsJSON = pending["inner-txns"]
+  let innerTxnsList = []
   for (var innerTxn of innerTxnsJSON) {
     try {
-      innerTxnsList.push(innerTxn.txn.txn);
+      innerTxnsList.push(innerTxn.txn.txn)
     } catch {
-      console.log("unable to push inner txn onto stack");
+      console.log("unable to push inner txn onto stack")
     }
   }
-  return innerTxnsList;
+  return innerTxnsList
 }

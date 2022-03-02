@@ -23,7 +23,9 @@ export const orderedAssetsAndPlaceholders = [
   "TM-STBL-YLDY-LP",
   "AF-STBL-USDC-LP",
   "AF-STBL-ALGO-LP",
-  "AF-XET-STBL-LP"
+  "AF-XET-STBL-LP",
+  "AF-goETH-STBL-LP",
+  "AF-goBTC-STBL-LP"
 ]
 
 export const protocolManagerAppId = 465818260
@@ -180,16 +182,33 @@ export const assetDictionary = {
   },
   "AF-XET-STBL-LP": {
     decimals: 6,
+    creator: "BXXGBG6U43DIUEFK23X66BCLUBS62CKJOIGDURBBIZVDGVU4YKRZ6FKLXY",
     managerAppId: 635813909,
     managerAddress: "PQT7UC2IXUECGVVW2ZSP3JUU23TQCECI2ULLPZ4VRXVQZWAXFPR66NDJ4A",
     marketAppId: 635812850,
     marketAddress: "OPGEPS7ZW6PIH4JU3WHIYCMME5N4NTOCOZKXOCWYBLURGSLEIQE5ZSBX6Q",
     underlyingSymbol: 635256863,
-    bankSymbol: 635830471,
-    creatorAddress: "LEAUT3X2YMLY7EEPS7VVLFSKXEMH5FLAJ7GNCFXZV7O5JYHJVQXGGR3MYU",
-    oracleAppId: 451327550,
-    bankAssetDecimals: 6,
-    oracleFieldName: "price"
+    bankSymbol: 635830471
+  },
+  "AF-goBTC-STBL-LP": {
+    decimals: 6,
+    creator: "BXXGBG6U43DIUEFK23X66BCLUBS62CKJOIGDURBBIZVDGVU4YKRZ6FKLXY",
+    managerAppId: 635863793,
+    managerAddress: "NU6F4TIRFAZYMFJAGX3T7DXPCSLPRXVSITT4UF57OIEM4BKECDBG3TNN2Q",
+    marketAppId: 635860537,
+    marketAddress: "KKZHMTU22UO43EAG7SJGUGDKZNI65CVNRROF3NZ35S23SUZWGODESAOF4Y",
+    underlyingSymbol: 635846733,
+    bankSymbol: 635866896
+  },
+  "AF-goETH-STBL-LP": {
+    decimals: 6,
+    creator: "BXXGBG6U43DIUEFK23X66BCLUBS62CKJOIGDURBBIZVDGVU4YKRZ6FKLXY",
+    managerAppId: 635866213,
+    managerAddress: "R4OR4QIGTMUCIJNQA4PV7SUAEBQUPDHXA7TJGTECVUBIF2M4WAF6S7JGTA",
+    marketAppId: 635864509,
+    marketAddress: "6LIQSNKB3WH226AXLLZU7OL6WXTY7S62N66OYHLVGGBENDUDU3ATKIGDAQ",
+    underlyingSymbol: 635854339,
+    bankSymbol: 635877693
   },
 
   BANK: {
@@ -250,6 +269,10 @@ export const assetDictionary = {
     marketCounter: 16,
     marketAppId: 465814807,
     marketAddress: "F253XGHUENH36WTAVWR2DE6VPAF2FV7L7H3QESM5Q7QXQTEX5T2C2HT3NU"
+  },
+  XET: {
+    decimals: 9,
+    underlyingAssetId: 283820866
   }
 }
 export const foreignAppIds = [465814065, 465814103, 465814149, 465814222, 465814278]
