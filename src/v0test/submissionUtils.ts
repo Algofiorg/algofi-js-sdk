@@ -88,7 +88,6 @@ export async function getLeadingTxs(
     }
   }
 
-
   // update prices
   // TODO why do we need these extra fees?
   params.fee = 2000

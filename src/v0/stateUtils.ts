@@ -157,16 +157,11 @@ export async function getGlobalManagerInfo(algodClient: Algodv2, stakeAsset: str
   const managerBalances = await getBalanceInfo(algodClient, managerAddress)
 
   response.params["global-state"].forEach(x => {
-    console.log("x.key=", x.key)
-
     let decodedKey = Base64Encoder.decode(x.key)
-    console.log("decodedKey=", decodedKey)
-    console.log("decodedKey.charCodeAt(7)=", decodedKey.charCodeAt(7))
 
     if (decodedKey.slice(-6) === managerStrings.price_string) {
       results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.price_string] = x.value.uint
     } else if (decodedKey.slice(-3) === managerStrings.counter_indexed_rewards_coefficient) {
-      console.log("slice found for key=", decodedKey)
       results[marketCounterToAssetName[decodedKey.charCodeAt(7)] + managerStrings.counter_indexed_rewards_coefficient] =
         x.value.uint
     } else if (decodedKey === managerStrings.rewards_asset_id) {
@@ -422,21 +417,6 @@ export async function extrapolateUserData(userResults: {}, globalResults: {}, as
 
   // extrapolated rewards
   let userMarketTVL = extrapolatedData["borrowed_extrapolated"] + extrapolatedData["collateral"]
-  console.log("extrapolatedData=", extrapolatedData)
-  console.log("assetName=", assetName)
-  console.log("managerStrings.counter_indexed_rewards_coefficient=", managerStrings.counter_indexed_rewards_coefficient)
-  console.log(
-    "managerStrings.counter_indexed_rewards_coefficient=",
-    managerStrings.counter_to_user_rewards_coefficient_initial
-  )
-  console.log(
-    "globalResults[manager][assetName + managerStrings.counter_indexed_rewards_coefficient] =",
-    globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient]
-  )
-  console.log(
-    "userResults[manager][assetName + managerStrings.counter_to_user_rewards_coefficient_initial] =",
-    userResults["manager"][assetName + managerStrings.counter_to_user_rewards_coefficient_initial]
-  )
 
   if (
     userResults["manager"][managerStrings.user_rewards_program_number] ===

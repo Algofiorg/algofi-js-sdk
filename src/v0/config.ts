@@ -187,7 +187,7 @@ export const assetDictionary = {
     managerAddress: "PQT7UC2IXUECGVVW2ZSP3JUU23TQCECI2ULLPZ4VRXVQZWAXFPR66NDJ4A",
     marketAppId: 635812850,
     marketAddress: "OPGEPS7ZW6PIH4JU3WHIYCMME5N4NTOCOZKXOCWYBLURGSLEIQE5ZSBX6Q",
-    underlyingSymbol: 635256863,
+    underlyingAssetId: 635256863,
     bankSymbol: 635830471
   },
   "AF-goBTC-STBL-LP": {
@@ -197,7 +197,7 @@ export const assetDictionary = {
     managerAddress: "NU6F4TIRFAZYMFJAGX3T7DXPCSLPRXVSITT4UF57OIEM4BKECDBG3TNN2Q",
     marketAppId: 635860537,
     marketAddress: "KKZHMTU22UO43EAG7SJGUGDKZNI65CVNRROF3NZ35S23SUZWGODESAOF4Y",
-    underlyingSymbol: 635846733,
+    underlyingAssetId: 635846733,
     bankSymbol: 635866896
   },
   "AF-goETH-STBL-LP": {
@@ -207,7 +207,7 @@ export const assetDictionary = {
     managerAddress: "R4OR4QIGTMUCIJNQA4PV7SUAEBQUPDHXA7TJGTECVUBIF2M4WAF6S7JGTA",
     marketAppId: 635864509,
     marketAddress: "6LIQSNKB3WH226AXLLZU7OL6WXTY7S62N66OYHLVGGBENDUDU3ATKIGDAQ",
-    underlyingSymbol: 635854339,
+    underlyingAssetId: 635854339,
     bankSymbol: 635877693
   },
 
