@@ -422,25 +422,12 @@ export async function extrapolateUserData(userResults: {}, globalResults: {}, as
     userResults["manager"][managerStrings.user_rewards_program_number] ===
     globalResults["manager"][managerStrings.n_rewards_programs]
   ) {
-    console.log(
-      "unrealized rewards tick=",
-      (userMarketTVL *
-        (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient] -
-          userResults["manager"][assetName + managerStrings.counter_to_user_rewards_coefficient_initial])) /
-        REWARDS_SCALE_FACTOR
-    )
     extrapolatedData["market_unrealized_rewards"] =
       (userMarketTVL *
         (globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient] -
           userResults["manager"][assetName + managerStrings.counter_to_user_rewards_coefficient_initial])) /
       REWARDS_SCALE_FACTOR
   } else {
-    console.log(
-      "unrealized rewards tick=",
-      (userMarketTVL * globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient]) /
-        REWARDS_SCALE_FACTOR
-    )
-
     extrapolatedData["market_unrealized_rewards"] =
       (userMarketTVL * globalResults["manager"][assetName + managerStrings.counter_indexed_rewards_coefficient]) /
       REWARDS_SCALE_FACTOR
