@@ -219,9 +219,18 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
-  BANK: {
+  "AF-OPUL-STBL-LP": {
     decimals: 6,
-    underlyingAssetId: 51642940
+    creator: "Z36ZXH5J7X4PMPTNDE4LSKY6UEQYIAZ57SKWH5JE4JFODFIEOKNPX2GH4U",
+    managerAppId: 637795072,
+    managerAddress: "ZJ2NAMBLJJABX2J42JUO2Z66ZQHO4FPTL42OUSEXKBTSRDD3MVO6MR6GWI",
+    marketAppId: 637793356,
+    marketAddress: "SX5YC2N2D657HCEZDQQPVMYB3PAHLFSFWXDQJS5GAGK4PYE3UD3TZTRWXA",
+    underlyingAssetId: 637802380,
+    bankAssetId: 637808564,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
   },
   SIIX: {
     marketCounter: 6,
@@ -281,6 +290,14 @@ export const assetDictionary = {
   XET: {
     decimals: 9,
     underlyingAssetId: 283820866
+  },
+  OPUL: {
+    decimals: 10,
+    underlyingAssetId: 287867876
+  },
+  BANK: {
+    decimals: 6,
+    underlyingAssetId: 51642940
   }
 }
 export const foreignAppIds = [465814065, 465814103, 465814149, 465814222, 465814278]

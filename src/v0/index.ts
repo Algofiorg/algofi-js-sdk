@@ -763,7 +763,8 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
     "AF-STBL-USDC-LP",
     "AF-XET-STBL-LP",
     "AF-goETH-STBL-LP",
-    "AF-goBTC-STBL-LP"
+    "AF-goBTC-STBL-LP",
+    "AF-OPUL-STBL-LP"
   ]
   for (var lpAsset of lpAssets) {
     if (lpAsset in balances) {
