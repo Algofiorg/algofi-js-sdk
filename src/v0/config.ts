@@ -24,6 +24,7 @@ export const orderedAssetsAndPlaceholders = [
   "AF-STBL-USDC-LP",
   "AF-STBL-ALGO-LP",
   "AF-XET-STBL-LP",
+  "AF-DEFLY-STBL-LP",
   "AF-goETH-STBL-LP",
   "AF-goBTC-STBL-LP"
 ]
@@ -193,6 +194,19 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
+  "AF-DEFLY-STBL-LP": {
+    decimals: 6,
+    creator: "7X4HZLCJOI42P2RNN4SCMFRPNG2YM4S3A34R444EETQRWIC7INCOWBR2EI",
+    managerAppId: 639747739,
+    managerAddress: "MIOKVGPKOHVZM2KRPDFRNDXYVVA5FZ3TIM5OR2QDTQ5UFB2ICWYY44VCCQ",
+    marketAppId: 639747119,
+    marketAddress: "2ZAELECBKOA3XULWXVFVL52EVILWQOWBWHQLO3KATEJEXWZHX3KJ5L46G4",
+    underlyingAssetId: 624956449,
+    bankAssetId: 639748671,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
+  },
   "AF-goBTC-STBL-LP": {
     decimals: 6,
     creator: "BXXGBG6U43DIUEFK23X66BCLUBS62CKJOIGDURBBIZVDGVU4YKRZ6FKLXY",
@@ -290,6 +304,10 @@ export const assetDictionary = {
   XET: {
     decimals: 9,
     underlyingAssetId: 283820866
+  },
+  DEFLY: {
+    decimals: 9,
+    underlyingAssetId: 470842789
   },
   OPUL: {
     decimals: 10,
