@@ -306,7 +306,7 @@ export const assetDictionary = {
     underlyingAssetId: 283820866
   },
   DEFLY: {
-    decimals: 9,
+    decimals: 6,
     underlyingAssetId: 470842789
   },
   OPUL: {
