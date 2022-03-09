@@ -194,7 +194,7 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
-  "AF-DEFLY-STBL-LP": {
+  "AF-ZONE-STBL-LP": {
     decimals: 6,
     creator: "P2HHBT77PKXS6M2ISGRHLYTRJ6D4GRG5RD3IUGIBJCTORXSNAMH7VKC5DI",
     managerAppId: 647785804,
@@ -207,7 +207,7 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
-  "AF-ZONE-STBL-LP": {
+  "AF-DEFLY-STBL-LP": {
     decimals: 6,
     creator: "7X4HZLCJOI42P2RNN4SCMFRPNG2YM4S3A34R444EETQRWIC7INCOWBR2EI",
     managerAppId: 639747739,
