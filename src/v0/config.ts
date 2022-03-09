@@ -194,6 +194,19 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
+  "AF-ZONE-STBL-LP": {
+    decimals: 6,
+    creator: "P2HHBT77PKXS6M2ISGRHLYTRJ6D4GRG5RD3IUGIBJCTORXSNAMH7VKC5DI",
+    managerAppId: 647785804,
+    managerAddress: "JE64YADSGF7XF6DMXH5SEBWUNGVPSTSS6XQDY6LR5ITG3MBGNGFAX4LKBM",
+    marketAppId: 647785158,
+    marketAddress: "FEQ6DDIY745ZNCSQ5SZUWGRLFIINT2HIVN6KLNSLQNRMG2SDWICJBYIMWY",
+    underlyingAssetId: 647801343,
+    bankAssetId: 647786241,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
+  },
   "AF-DEFLY-STBL-LP": {
     decimals: 6,
     creator: "7X4HZLCJOI42P2RNN4SCMFRPNG2YM4S3A34R444EETQRWIC7INCOWBR2EI",
@@ -304,6 +317,10 @@ export const assetDictionary = {
   XET: {
     decimals: 9,
     underlyingAssetId: 283820866
+  },
+  ZONE: {
+    decimals: 6,
+    underlyingAssetId: 444035862
   },
   DEFLY: {
     decimals: 6,

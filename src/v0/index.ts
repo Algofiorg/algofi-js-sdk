@@ -762,6 +762,7 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
     "AF-STBL-ALGO-LP",
     "AF-STBL-USDC-LP",
     "AF-XET-STBL-LP",
+    "AF-ZONE-STBL-LP",
     "AF-DEFLY-STBL-LP",
     "AF-goETH-STBL-LP",
     "AF-goBTC-STBL-LP",
