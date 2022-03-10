@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "../../algofi-protocol/contracts")
+sys.path.insert(0, "../../../algofi-protocol/contracts")
 from globals import *
 
 if __name__ == "__main__":
