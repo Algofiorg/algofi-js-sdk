@@ -792,48 +792,36 @@ export async function syncVault(
  */
 export async function sendGovTxn(
   algodClient: Algodv2,
-  asset: string,
   address: string,
   storageAddress: string,
+  targetAddress: string,
   note: string
 ): Promise<Transaction[]> {
-  let globalManagerData = await getGlobalManagerInfo(algodClient, asset)
-  let primaryRewardsAsset = globalManagerData[managerStrings.rewards_asset_id]
-  let secondaryRewardsAsset = globalManagerData[managerStrings.rewards_secondary_asset_id]
-
   // initialize encoder
   const enc = new TextEncoder()
 
   let txns = []
   // get preamble transactions
-  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress, asset)
+  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress)
   leadingTxs.forEach(txn => {
     txns.push(txn)
   })
 
-  let foreign_assets = []
-  if (primaryRewardsAsset && primaryRewardsAsset != 1) {
-    foreign_assets.push(primaryRewardsAsset)
-  }
-  if (secondaryRewardsAsset && secondaryRewardsAsset != 1) {
-    foreign_assets.push(secondaryRewardsAsset)
-  }
-
   // construct manager pseudo-function transaction
   const params = await getParams(algodClient)
   params.fee = 2000
-  const claimRewardsTxn = algosdk.makeApplicationNoOpTxnFromObject({
+  const sendGovTxn = algosdk.makeApplicationNoOpTxnFromObject({
     from: address,
-    appIndex: assetDictionary[asset]["managerAppId"],
+    appIndex: assetDictionary["ALGO"]["managerAppId"],
     appArgs: [enc.encode(managerStrings.send_governance_txn)],
     suggestedParams: params,
-    foreignAssets: foreign_assets,
-    accounts: [storageAddress],
+    accounts: [storageAddress, targetAddress],
     note: enc.encode(note),
+    foreignAssets: undefined,
     foreignApps: undefined,
     rekeyTo: undefined
   })
-  txns.push(claimRewardsTxn)
+  txns.push(sendGovTxn)
   algosdk.assignGroupID(txns)
   return txns
 }
