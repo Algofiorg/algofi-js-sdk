@@ -827,6 +827,104 @@ export async function sendGovTxn(
 }
 
 /**
+ * Function to create transaction array for algofi sending keyreg online txn operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform send_keyreg_online_txn operation
+ */
+export async function sendKeyRegTxn(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string,
+  votePK: Uint8Array,
+  selectionPK: Uint8Array,
+  stateProofPK: Uint8Array,
+  voteFirst: number,
+  voteLast: number,
+  voteKeyDilution: number
+): Promise<Transaction[]> {
+  // initialize encoder
+  const enc = new TextEncoder()
+
+  let txns = []
+  // get preamble transactions
+  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress)
+  leadingTxs.forEach(txn => {
+    txns.push(txn)
+  })
+
+  // construct manager pseudo-function transaction
+  const params = await getParams(algodClient)
+  params.fee = 2000
+  const sendGovTxn = algosdk.makeApplicationNoOpTxnFromObject({
+    from: address,
+    appIndex: assetDictionary["ALGO"]["managerAppId"],
+    appArgs: [enc.encode(managerStrings.send_keyreg_txn),
+              votePK,
+              selectionPK,
+              stateProofPK,
+              algosdk.encodeUint64(voteFirst),
+              algosdk.encodeUint64(voteLast),
+              algosdk.encodeUint64(voteKeyDilution)],
+    suggestedParams: params,
+    accounts: [storageAddress],
+    foreignAssets: undefined,
+    foreignApps: undefined,
+    rekeyTo: undefined
+  })
+  txns.push(sendGovTxn)
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
+ * Function to create transaction array for algofi sending keyreg online txn operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform send_keyreg_offline_txn operation
+ */
+export async function sendKeyRegNonparticipationTxn(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string,
+  nonparticipation: number
+): Promise<Transaction[]> {
+  // initialize encoder
+  const enc = new TextEncoder()
+
+  let txns = []
+  // get preamble transactions
+  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress)
+  leadingTxs.forEach(txn => {
+    txns.push(txn)
+  })
+
+  // construct manager pseudo-function transaction
+  const params = await getParams(algodClient)
+  params.fee = 2000
+  const sendGovTxn = algosdk.makeApplicationNoOpTxnFromObject({
+    from: address,
+    appIndex: assetDictionary["ALGO"]["managerAppId"],
+    appArgs: [enc.encode(managerStrings.send_keyreg_nonparticipation_txn),
+              algosdk.encodeUint64(nonparticipation)],
+    suggestedParams: params,
+    accounts: [storageAddress],
+    foreignAssets: undefined,
+    foreignApps: undefined,
+    rekeyTo: undefined
+  })
+  txns.push(sendGovTxn)
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
  * Funtion to get user data from the protocol as well as totals
  *
  * @param   {Algodv2}   algodClient
