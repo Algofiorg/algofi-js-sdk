@@ -368,6 +368,10 @@ export const assetDictionary = {
     decimals: 6,
     underlyingAssetId: 470842789
   },
+  USDT: {
+    decimals: 6,
+    underlyingAssetId: 312769
+  },
   OPUL: {
     decimals: 10,
     underlyingAssetId: 287867876
