@@ -107,6 +107,16 @@ export const assetDictionary = {
     oracleAppId: 451327550,
     oracleFieldName: "price"
   },
+  "DEFLY-STAKE": {
+    decimals: 6,
+    managerAppId: 641500474,
+    managerAddress: "DHXB5GQTMKJ6L2MFB5VGZ5LWD6GVJ6WJMJAQXWK75SEFZFO5YYCGCBSTZA",
+    marketAppId: 641499935,
+    marketAddress: "HNZCZYTROWA5Q7EOBGLVYRS5QR22W26OCCO2BVHGBHCRIUGG2ZSCZLRZNM",
+    underlyingAssetId: 470842789,
+    bankAssetId: 641501566,
+    oracleAppId: 451327550,
+  },
   "TM-STBL-ALGO-LP": {
     decimals: 6,
     managerAppId: 514458901,
