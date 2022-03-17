@@ -125,6 +125,9 @@ export async function getBalanceInfo(algodClient: Algodv2, address: string): Pro
       balanceInfo["AF-STBL-ALGO-LP"] = Number(asset["amount"])
     }
     if (asset["asset-id"] == 609172718) {
+      balanceInfo["AF-STBL-USDC-NANO-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 609172718) {
       balanceInfo["AF-STBL-USDC-LP"] = Number(asset["amount"])
     }
     if (asset["asset-id"] == 635256863) {
