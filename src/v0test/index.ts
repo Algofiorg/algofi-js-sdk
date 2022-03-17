@@ -889,11 +889,10 @@ export async function sendKeyRegTxn(
  *
  * @return {Transaction[]} array of transactions to be sent as group transaction to perform send_keyreg_offline_txn operation
  */
-export async function sendKeyRegNonparticipationTxn(
+export async function sendKeyRegOfflineTxn(
   algodClient: Algodv2,
   address: string,
-  storageAddress: string,
-  nonparticipation: number
+  storageAddress: string
 ): Promise<Transaction[]> {
   // initialize encoder
   const enc = new TextEncoder()
@@ -911,8 +910,7 @@ export async function sendKeyRegNonparticipationTxn(
   const sendGovTxn = algosdk.makeApplicationNoOpTxnFromObject({
     from: address,
     appIndex: assetDictionary["ALGO"]["managerAppId"],
-    appArgs: [enc.encode(managerStrings.send_keyreg_nonparticipation_txn),
-              algosdk.encodeUint64(nonparticipation)],
+    appArgs: [enc.encode(managerStrings.send_keyreg_offline_txn)],
     suggestedParams: params,
     accounts: [storageAddress],
     foreignAssets: undefined,
