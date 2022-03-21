@@ -44,7 +44,8 @@ export {
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR,
-  Base64Encoder
+  Base64Encoder,
+  foreignAppIds
 }
 
 const NO_EXTRA_ARGS = null

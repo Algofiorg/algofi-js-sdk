@@ -115,7 +115,7 @@ export const assetDictionary = {
     marketAddress: "HNZCZYTROWA5Q7EOBGLVYRS5QR22W26OCCO2BVHGBHCRIUGG2ZSCZLRZNM",
     underlyingAssetId: 470842789,
     bankAssetId: 641501566,
-    oracleAppId: 451327550,
+    oracleAppId: 451327550
   },
   "TM-STBL-ALGO-LP": {
     decimals: 6,
@@ -387,7 +387,7 @@ export const assetDictionary = {
     underlyingAssetId: 51642940
   }
 }
-export const foreignAppIds = [465814065, 465814103, 465814149, 465814222, 465814278]
+export const foreignAppIds = [465814065, 465814103, 465814149, 465814222, 465814278, 465814318]
 
 export const SECONDS_PER_YEAR = 60 * 60 * 24 * 365
 export const SCALE_FACTOR = 1e9
