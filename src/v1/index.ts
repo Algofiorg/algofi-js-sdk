@@ -44,7 +44,8 @@ export {
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR,
-  Base64Encoder
+  Base64Encoder,
+  foreignAppIds
 }
 import { Asset } from "./asset"
 import { Market } from "./market"
