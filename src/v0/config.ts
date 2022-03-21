@@ -6,7 +6,7 @@ export const orderedAssetsAndPlaceholders = [
   "goBTC",
   "goETH",
   "STBL",
-  "SIIX",
+  "vALGO",
   "SEVN",
   "EGHT",
   "NINE",
@@ -311,7 +311,7 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
-  SIIX: {
+  vALGO: {
     marketCounter: 6,
     marketAppId: 465814318,
     marketAddress: "DAUL5I34T4C4U5OMXS7YBPJIERQ2NH3O7XPZCIJEGKP4NO3LK4UWDCHAG4"
@@ -407,6 +407,8 @@ for (const assetName of orderedAssets) {
   assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
   assetIdToAssetName[assetDictionary[assetName]["bankAssetId"]] = "b" + assetName
 }
+orderedSupportedMarketAppIds.push(465814318)
+console.log("orderedSupportedMarketAppIds=", orderedSupportedMarketAppIds)
 for (const assetName of extraAssets) {
   assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
 }

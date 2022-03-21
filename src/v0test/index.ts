@@ -29,7 +29,7 @@ import {
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR,
-  foreignAppIds,
+  foreignAppIds
 } from "./config"
 import { Base64Encoder } from "./encoder"
 export {
@@ -44,7 +44,8 @@ export {
   SECONDS_PER_YEAR,
   PARAMETER_SCALE_FACTOR,
   SCALE_FACTOR,
-  Base64Encoder
+  Base64Encoder,
+  foreignAppIds
 }
 
 const NO_EXTRA_ARGS = null
@@ -89,7 +90,6 @@ export async function optInMarkets(algodClient: Algodv2, address: string): Promi
   return txns
 }
 
-
 /**
  * Function to get opt in transactions for algofi supported assets
  *
@@ -101,12 +101,12 @@ export async function optInMarkets(algodClient: Algodv2, address: string): Promi
  *
  * @return  {Transaction[]}   create transactions to opt in to Staker and rekey storage address to manager contract
  */
- export async function optInStaker(
+export async function optInStaker(
   algodClient: Algodv2,
   stakeAsset: string,
   address: string,
   storageAddress: string,
-  storageAddressFundingAmount: number,
+  storageAddressFundingAmount: number
 ) {
   const params = await getParams(algodClient)
 
@@ -146,7 +146,7 @@ export async function optInMarkets(algodClient: Algodv2, address: string): Promi
       foreignApps: [assetDictionary[stakeAsset]["marketAppId"]],
       accounts: undefined,
       foreignAssets: undefined,
-      rekeyTo: undefined,
+      rekeyTo: undefined
     })
   )
 
