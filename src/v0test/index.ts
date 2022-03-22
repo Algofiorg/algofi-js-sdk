@@ -665,6 +665,265 @@ export async function claimRewards(
 }
 
 /**
+ * Function to create transaction array for algofi vault mint_to_collateral operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform mint_to_collateral operation
+ */
+export async function sendToVault(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string,
+  amount: number,
+  assetName: string
+): Promise<Transaction[]> {
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let marketAddress = assetDictionary[assetName]["marketAddress"]
+  let bankAssetId = assetDictionary[assetName]["bankAssetId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    bankAssetId,
+    managerStrings.mint_to_collateral,
+    NO_EXTRA_ARGS,
+    marketAddress,
+    underlyingAssetId,
+    amount,
+    assetName,
+    true
+  )
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
+ * Function to create transaction array for algofi remove from vault operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform remove from vault operation
+ */
+export async function removeFromVault(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string,
+  amount: number,
+  assetName: string
+): Promise<Transaction[]> {
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    underlyingAssetId,
+    managerStrings.remove_collateral_underlying,
+    algosdk.encodeUint64(amount),
+    "",
+    0,
+    0,
+    assetName,
+    true
+  )
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
+ * Function to create transaction array for algofi sync vault operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ * @param   {int}       amount
+ * @param   {string}    assetName
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform sync vault operation
+ */
+export async function syncVault(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string,
+  assetName: string
+): Promise<Transaction[]> {
+  let marketAppId = assetDictionary[assetName]["marketAppId"]
+  let underlyingAssetId = assetDictionary[assetName]["underlyingAssetId"]
+
+  let txns = await buildUserTransaction(
+    algodClient,
+    address,
+    storageAddress,
+    marketAppId,
+    underlyingAssetId,
+    managerStrings.sync_vault,
+    null,
+    "",
+    0,
+    0,
+    assetName,
+    true
+  )
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
+ * Function to create transaction array for algofi sending governance txn operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform send_governance_txn operation
+ */
+export async function sendGovTxn(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string,
+  targetAddress: string,
+  note: string
+): Promise<Transaction[]> {
+  // initialize encoder
+  const enc = new TextEncoder()
+
+  let txns = []
+  // get preamble transactions
+  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress)
+  leadingTxs.forEach(txn => {
+    txns.push(txn)
+  })
+
+  // construct manager pseudo-function transaction
+  const params = await getParams(algodClient)
+  params.fee = 2000
+  const sendGovTxn = algosdk.makeApplicationNoOpTxnFromObject({
+    from: address,
+    appIndex: assetDictionary["ALGO"]["managerAppId"],
+    appArgs: [enc.encode(managerStrings.send_governance_txn)],
+    suggestedParams: params,
+    accounts: [storageAddress, targetAddress],
+    note: enc.encode(note),
+    foreignAssets: undefined,
+    foreignApps: undefined,
+    rekeyTo: undefined
+  })
+  txns.push(sendGovTxn)
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
+ * Function to create transaction array for algofi sending keyreg online txn operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform send_keyreg_online_txn operation
+ */
+export async function sendKeyRegTxn(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string,
+  votePK: Uint8Array,
+  selectionPK: Uint8Array,
+  stateProofPK: Uint8Array,
+  voteFirst: number,
+  voteLast: number,
+  voteKeyDilution: number
+): Promise<Transaction[]> {
+  // initialize encoder
+  const enc = new TextEncoder()
+
+  let txns = []
+  // get preamble transactions
+  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress)
+  leadingTxs.forEach(txn => {
+    txns.push(txn)
+  })
+
+  // construct manager pseudo-function transaction
+  const params = await getParams(algodClient)
+  params.fee = 2000
+  const sendGovTxn = algosdk.makeApplicationNoOpTxnFromObject({
+    from: address,
+    appIndex: assetDictionary["ALGO"]["managerAppId"],
+    appArgs: [enc.encode(managerStrings.send_keyreg_txn),
+              votePK,
+              selectionPK,
+              stateProofPK,
+              algosdk.encodeUint64(voteFirst),
+              algosdk.encodeUint64(voteLast),
+              algosdk.encodeUint64(voteKeyDilution)],
+    suggestedParams: params,
+    accounts: [storageAddress],
+    foreignAssets: undefined,
+    foreignApps: undefined,
+    rekeyTo: undefined
+  })
+  txns.push(sendGovTxn)
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
+ * Function to create transaction array for algofi sending keyreg online txn operation
+ *
+ * @param   {AlgodV2}   algodClient
+ * @param   {string}    address
+ * @param   {string}    storageAddress
+ *
+ * @return {Transaction[]} array of transactions to be sent as group transaction to perform send_keyreg_offline_txn operation
+ */
+export async function sendKeyRegOfflineTxn(
+  algodClient: Algodv2,
+  address: string,
+  storageAddress: string
+): Promise<Transaction[]> {
+  // initialize encoder
+  const enc = new TextEncoder()
+
+  let txns = []
+  // get preamble transactions
+  let leadingTxs = await getLeadingTxs(algodClient, address, storageAddress)
+  leadingTxs.forEach(txn => {
+    txns.push(txn)
+  })
+
+  // construct manager pseudo-function transaction
+  const params = await getParams(algodClient)
+  params.fee = 2000
+  const sendGovTxn = algosdk.makeApplicationNoOpTxnFromObject({
+    from: address,
+    appIndex: assetDictionary["ALGO"]["managerAppId"],
+    appArgs: [enc.encode(managerStrings.send_keyreg_offline_txn)],
+    suggestedParams: params,
+    accounts: [storageAddress],
+    foreignAssets: undefined,
+    foreignApps: undefined,
+    rekeyTo: undefined
+  })
+  txns.push(sendGovTxn)
+  algosdk.assignGroupID(txns)
+  return txns
+}
+
+/**
  * Funtion to get user data from the protocol as well as totals
  *
  * @param   {Algodv2}   algodClient
@@ -754,15 +1013,22 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
       globalResults["manager"][key] = value
     }
   }
+
+  const lpAssets = [
+  ]
+  for (var lpAsset of lpAssets) {
+    if (lpAsset in balances) {
+      userResults[lpAsset] = balances[lpAsset]
+    } else {
+      userResults[lpAsset] = 0
+    }
+  }
   // get and set data for each market
   for (const assetName of orderedAssets) {
     let bAssetName = "b" + assetName
     // initialize user market results
     userResults[assetName] = {}
     userResults[bAssetName] = {}
-    userResults["TM-STBL-ALGO-LP"] = balances[""]
-    userResults["TM-STBL-USDC-LP"] = balances[""]
-    userResults["TM-STBL-YLDY-LP"] = balances[""]
     // set balances
     userResults[assetName]["balance"] = balances[assetName]
     userResults[bAssetName]["balance"] = balances[bAssetName]
@@ -816,4 +1082,26 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
   userResults["optedInAssets"] = optInData["assets"]
 
   return [userResults, globalResults]
+}
+
+/**
+ * Function to get the list of inner transactions for a given application transaction
+ *
+ * @param   {Algodv2}   algodClient
+ * @param   {string}  txId
+ *
+ * @return  {dict<string,n>[]}  innerTxnsList - list of inner transactions with their relevant information
+ */
+export async function getInnerTransactionList(algodClient: Algodv2, txId: string): Promise<{}> {
+  const pending = await algodClient.pendingTransactionInformation(txId).do()
+  const innerTxnsJSON = pending["inner-txns"]
+  let innerTxnsList = []
+  for (var innerTxn of innerTxnsJSON) {
+    try {
+      innerTxnsList.push(innerTxn.txn.txn)
+    } catch {
+      console.log("unable to push inner txn onto stack")
+    }
+  }
+  return innerTxnsList
 }
