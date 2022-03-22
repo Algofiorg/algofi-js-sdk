@@ -9,7 +9,7 @@
   "module": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/com/owen-colegrove/algofi-js-sdk.git"
+    "url": "git://github.com/Algofiorg/algofi-js-sdk.git"
   },
   "keywords": [
     "algofi",
