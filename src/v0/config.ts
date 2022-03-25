@@ -95,6 +95,18 @@ export const assetDictionary = {
     oracleAppId: 451327550,
     oracleFieldName: "price"
   },
+  vALGO: {
+    decimals: 6,
+    marketCounter: 6,
+    marketAppId: 465814318,
+    marketAddress: "DAUL5I34T4C4U5OMXS7YBPJIERQ2NH3O7XPZCIJEGKP4NO3LK4UWDCHAG4",
+    managerAppId: 465818260,
+    bankAssetId: -1,
+    bankAssetDecimals: 6,
+    underlyingAssetId: 1,
+    oracleAppId: 531724540,
+    oracleFieldName: "latest_twap_price"
+  },
   "STBL-STAKE": {
     decimals: 6,
     marketCounter: 5,
@@ -310,11 +322,6 @@ export const assetDictionary = {
     oracleAppId: 451327550,
     bankAssetDecimals: 6,
     oracleFieldName: "price"
-  },
-  vALGO: {
-    marketCounter: 6,
-    marketAppId: 465814318,
-    marketAddress: "DAUL5I34T4C4U5OMXS7YBPJIERQ2NH3O7XPZCIJEGKP4NO3LK4UWDCHAG4"
   },
   SEVN: {
     marketCounter: 7,

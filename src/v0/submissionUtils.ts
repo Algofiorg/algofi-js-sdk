@@ -47,14 +47,14 @@ export async function waitForConfirmation(algodClient: Algodv2, txId: string): P
  *
  * @param   {Algodv2}}  algodclient
  * @param   {string}    senderAccount         - user account address
- * @param   {string}    dataAccount           - user storage account address
+ * @param   {string}    storageAccount           - user storage account address
  *
  * @return  {Transaction[]}     preamble transaction array
  */
 export async function getLeadingTxs(
   algodClient: Algodv2,
   senderAccount: string,
-  dataAccount: string,
+  storageAccount: string,
   asset: string = "ALGO"
 ): Promise<Transaction[]> {
   // get default params
@@ -110,7 +110,7 @@ export async function getLeadingTxs(
     appIndex: isStaking ? assetDictionary[asset]["managerAppId"] : protocolManagerAppId,
     foreignApps: isStaking ? [assetDictionary[asset]["marketAppId"]] : orderedSupportedMarketAppIds,
     appArgs: [enc.encode(managerStrings.update_protocol_data)],
-    accounts: [dataAccount],
+    accounts: [storageAccount],
     suggestedParams: params,
     note: enc.encode("Update Protocol"),
     foreignAssets: undefined,
@@ -256,7 +256,7 @@ export async function getLeadingTxs(
  *
  * @param   {Algodv2}   algodClient
  * @param   {string}    senderAccount
- * @param   {string}    dataAccount
+ * @param   {string}    storageAccount
  * @param   {int}       marketAppId
  * @param   {int}       foreignAssetId
  * @param   {string}    functionString        - contract psuedo-function string
@@ -267,12 +267,13 @@ export async function getLeadingTxs(
 async function getStackGroup(
   algodClient: Algodv2,
   senderAccount: string,
-  dataAccount: string,
+  storageAccount: string,
   marketAppId: number,
   foreignAssetId: number,
   functionString: string,
   extraCallArgs = null,
-  asset: string = "ALGO"
+  asset: string = "ALGO",
+  vault: boolean = false
 ): Promise<Transaction[]> {
   // initialize generic params
   const params = await getParams(algodClient)
@@ -300,6 +301,9 @@ async function getStackGroup(
     rekeyTo: undefined
   })
 
+  if (vault && functionString == managerStrings.remove_collateral_underlying) {
+    params.fee = 3000
+  }
   // constructmarket pseudo-function transaction
   const applTx1 = algosdk.makeApplicationNoOpTxnFromObject({
     from: senderAccount,
@@ -307,7 +311,7 @@ async function getStackGroup(
     foreignApps: [assetDictionary[asset]["managerAppId"]],
     appArgs: [enc.encode(functionString)],
     foreignAssets: [foreignAssetId],
-    accounts: [dataAccount],
+    accounts: [storageAccount],
     suggestedParams: params,
     note: enc.encode("Market: " + functionString),
     rekeyTo: undefined
@@ -366,7 +370,7 @@ async function getPaymentTxn(
  *
  * @param   {Algodv2}     algodClient
  * @param   {string}      senderAccount
- * @param   {string}      dataAccount
+ * @param   {string}      storageAccount
  * @param   {int}         marketAppId
  * @param   {int}         foreignAssetId
  * @param   {string}      functionString
@@ -380,7 +384,7 @@ async function getPaymentTxn(
 export async function buildUserTransaction(
   algodClient: Algodv2,
   senderAccount: string,
-  dataAccount: string,
+  storageAccount: string,
   marketAppId: number,
   foreignAssetId: number,
   functionString: string,
@@ -388,11 +392,12 @@ export async function buildUserTransaction(
   marketAddress = "",
   paymentAssetId = 0,
   paymentAmout = 0,
-  asset = "ALGO"
+  asset = "ALGO",
+  vault = false
 ): Promise<Transaction[]> {
   let txns = []
   // get preamble transactions
-  let leadingTxs = await getLeadingTxs(algodClient, senderAccount, dataAccount, asset)
+  let leadingTxs = await getLeadingTxs(algodClient, senderAccount, storageAccount, asset)
   leadingTxs.forEach(txn => {
     txns.push(txn)
   })
@@ -400,19 +405,25 @@ export async function buildUserTransaction(
   let followingTxs = await getStackGroup(
     algodClient,
     senderAccount,
-    dataAccount,
+    storageAccount,
     marketAppId,
     foreignAssetId,
     functionString,
     extraCallArgs,
-    asset
+    asset,
+    vault
   )
   followingTxs.forEach(txn => {
     txns.push(txn)
   })
   if (paymentAssetId != 0) {
-    let paymentTxn = await getPaymentTxn(algodClient, senderAccount, marketAddress, paymentAssetId, paymentAmout, asset)
-    txns.push(paymentTxn)
+    if (vault) {
+      let paymentTxn = await getPaymentTxn(algodClient, senderAccount, storageAccount, paymentAssetId, paymentAmout, asset)
+      txns.push(paymentTxn)
+    } else {
+      let paymentTxn = await getPaymentTxn(algodClient, senderAccount, marketAddress, paymentAssetId, paymentAmout, asset)
+      txns.push(paymentTxn)
+    }
   }
 
   return txns
