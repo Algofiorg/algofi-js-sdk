@@ -101,7 +101,7 @@ export const assetDictionary = {
     marketAppId: 465814318,
     marketAddress: "DAUL5I34T4C4U5OMXS7YBPJIERQ2NH3O7XPZCIJEGKP4NO3LK4UWDCHAG4",
     managerAppId: 465818260,
-    bankAssetId: -1,
+    bankAssetId: 680408335,
     bankAssetDecimals: 6,
     underlyingAssetId: 1,
     oracleAppId: 531724540,
