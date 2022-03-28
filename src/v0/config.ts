@@ -1,4 +1,4 @@
-export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
+export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "vALGO"]
 export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = [
   "ALGO",
@@ -414,7 +414,6 @@ for (const assetName of orderedAssets) {
   assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
   assetIdToAssetName[assetDictionary[assetName]["bankAssetId"]] = "b" + assetName
 }
-orderedSupportedMarketAppIds.push(465814318)
 console.log("orderedSupportedMarketAppIds=", orderedSupportedMarketAppIds)
 for (const assetName of extraAssets) {
   assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
