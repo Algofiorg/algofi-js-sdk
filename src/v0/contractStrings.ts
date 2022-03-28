@@ -97,6 +97,8 @@ export const managerStrings = {
     repay_borrow : "rb",
     schedule_contract_update : "scu",
     send_governance_txn : "sgt",
+    send_keyreg_txn : "skt",
+    send_keyreg_offline_txn : "skot",
     storage_opt_in : "so",
     set_is_final : "sif",
     set_rewards_program : "srp",
