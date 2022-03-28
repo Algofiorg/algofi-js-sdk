@@ -505,18 +505,20 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
 
   for (let i = 0; i < orderedAssets.length; i++) {
     const assetName = orderedAssets[i]
-    if (assetName != "STBL") {
-      globalResults["underlying_supplied_extrapolatedUSD"] +=
-        globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
-    }
-    globalResults["active_collateral_extrapolatedUSD"] += globalResults[assetName]["active_collateral_extrapolatedUSD"]
-    globalResults["underlying_borrowed_extrapolatedUSD"] +=
-      globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
-    if (rewards_active) {
-      globalResults["active_collateral_weighted_extrapolatedUSD"] +=
-        globalResults[assetName]["active_collateral_extrapolatedUSD"] * marketWeights[i]
-      globalResults["underlying_borrowed_weighted_extrapolatedUSD"] +=
-        globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] * marketWeights[i]
+    if (assetName != "vALGO") { // do not include vALGO
+      if (assetName != "STBL") {
+        globalResults["underlying_supplied_extrapolatedUSD"] +=
+          globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
+      }
+      globalResults["active_collateral_extrapolatedUSD"] += globalResults[assetName]["active_collateral_extrapolatedUSD"]
+      globalResults["underlying_borrowed_extrapolatedUSD"] +=
+        globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
+      if (rewards_active) {
+        globalResults["active_collateral_weighted_extrapolatedUSD"] +=
+          globalResults[assetName]["active_collateral_extrapolatedUSD"] * marketWeights[i]
+        globalResults["underlying_borrowed_weighted_extrapolatedUSD"] +=
+          globalResults[assetName]["underlying_borrowed_extrapolatedUSD"] * marketWeights[i]
+      }
     }
   }
 
@@ -531,18 +533,20 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
   let marketWeightedTvl = 0
   for (let i = 0; i < orderedAssets.length; i++) {
     const assetName = orderedAssets[i]
-    if (rewards_active) {
-      marketTvl =
-        globalResults[assetName]["active_collateral_extrapolatedUSD"] +
-        globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
-      marketWeightedTvl =
-        (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
-          globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]) *
-        marketWeights[i]
-      globalResults[assetName]["reward_rate_per_1000USD"] =
-        (rewards_per_year * (marketWeightedTvl / globalWeightedTvl) * 1000) / marketTvl
-    } else {
-      globalResults[assetName]["reward_rate_per_1000USD"] = 0
+    if (assetName != "vALGO") { // do not include vALGO
+      if (rewards_active) {
+        marketTvl =
+          globalResults[assetName]["active_collateral_extrapolatedUSD"] +
+          globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
+        marketWeightedTvl =
+          (globalResults[assetName]["active_collateral_extrapolatedUSD"] +
+            globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]) *
+          marketWeights[i]
+        globalResults[assetName]["reward_rate_per_1000USD"] =
+          (rewards_per_year * (marketWeightedTvl / globalWeightedTvl) * 1000) / marketTvl
+      } else {
+        globalResults[assetName]["reward_rate_per_1000USD"] = 0
+      }
     }
   }
 }
