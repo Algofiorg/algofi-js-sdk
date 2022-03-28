@@ -411,7 +411,9 @@ for (const assetName of orderedAssets) {
   orderedOracleAppIds.push(assetDictionary[assetName]["oracleAppId"])
   orderedSupportedMarketAppIds.push(assetDictionary[assetName]["marketAppId"])
   marketCounterToAssetName[assetDictionary[assetName]["marketCounter"]] = assetName
-  assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
+  if (assetName != "vALGO") {
+    assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
+  }
   assetIdToAssetName[assetDictionary[assetName]["bankAssetId"]] = "b" + assetName
 }
 console.log("orderedSupportedMarketAppIds=", orderedSupportedMarketAppIds)
