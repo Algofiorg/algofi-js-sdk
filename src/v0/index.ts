@@ -840,9 +840,9 @@ export async function sendKeyRegTxn(
   algodClient: Algodv2,
   address: string,
   storageAddress: string,
-  votePK: Uint8Array,
-  selectionPK: Uint8Array,
-  stateProofPK: Uint8Array,
+  votePK: string,
+  selectionPK: string,
+  stateProofPK: string,
   voteFirst: number,
   voteLast: number,
   voteKeyDilution: number
@@ -863,13 +863,15 @@ export async function sendKeyRegTxn(
   const sendGovTxn = algosdk.makeApplicationNoOpTxnFromObject({
     from: address,
     appIndex: assetDictionary["ALGO"]["managerAppId"],
-    appArgs: [enc.encode(managerStrings.send_keyreg_txn),
-              votePK,
-              selectionPK,
-              stateProofPK,
-              algosdk.encodeUint64(voteFirst),
-              algosdk.encodeUint64(voteLast),
-              algosdk.encodeUint64(voteKeyDilution)],
+    appArgs: [
+      enc.encode(managerStrings.send_keyreg_txn),
+      new Uint8Array(Buffer.from(votePK, "base64")),
+      new Uint8Array(Buffer.from(selectionPK, "base64")),
+      new Uint8Array(Buffer.from(stateProofPK, "base64")),
+      algosdk.encodeUint64(voteFirst),
+      algosdk.encodeUint64(voteLast),
+      algosdk.encodeUint64(voteKeyDilution)
+    ],
     suggestedParams: params,
     accounts: [storageAddress],
     foreignAssets: undefined,
@@ -922,7 +924,6 @@ export async function sendKeyRegOfflineTxn(
   algosdk.assignGroupID(txns)
   return txns
 }
-
 
 /**
  * Funtion to get user data from the protocol as well as totals
