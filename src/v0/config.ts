@@ -385,6 +385,10 @@ export const assetDictionary = {
   BANK: {
     decimals: 6,
     underlyingAssetId: 51642940
+  },
+  USDT: {
+    decimals: 6,
+    underlyingAssetId: 312769
   }
 }
 export const foreignAppIds = [465814065, 465814103, 465814149, 465814222, 465814278, 465814318]
