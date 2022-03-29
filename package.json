@@ -1,6 +1,6 @@
 {
   "name": "@algofi/v0",
-  "version": "3.1.4",
+  "version": "3.1.7",
   "description": "The official JavaScript SDK for Algofi",
   "main": "dist/index.js",
   "files": [
@@ -9,7 +9,7 @@
   "module": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/com/owen-colegrove/algofi-js-sdk.git"
+    "url": "git://github.com/Algofiorg/algofi-js-sdk.git"
   },
   "keywords": [
     "algofi",

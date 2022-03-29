@@ -1,4 +1,4 @@
-export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL"]
+export const orderedAssets = ["ALGO", "USDC", "goBTC", "goETH", "STBL", "vALGO"]
 export const extraAssets = ["BANK"]
 export const orderedAssetsAndPlaceholders = [
   "ALGO",
@@ -94,6 +94,18 @@ export const assetDictionary = {
     underlyingAssetId: 465865291,
     oracleAppId: 451327550,
     oracleFieldName: "price"
+  },
+  vALGO: {
+    decimals: 6,
+    marketCounter: 6,
+    marketAppId: 465814318,
+    marketAddress: "DAUL5I34T4C4U5OMXS7YBPJIERQ2NH3O7XPZCIJEGKP4NO3LK4UWDCHAG4",
+    managerAppId: 465818260,
+    bankAssetId: 680408335,
+    bankAssetDecimals: 6,
+    underlyingAssetId: 1,
+    oracleAppId: 531724540,
+    oracleFieldName: "latest_twap_price"
   },
   "STBL-STAKE": {
     decimals: 6,
@@ -311,11 +323,6 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
-  vALGO: {
-    marketCounter: 6,
-    marketAppId: 465814318,
-    marketAddress: "DAUL5I34T4C4U5OMXS7YBPJIERQ2NH3O7XPZCIJEGKP4NO3LK4UWDCHAG4"
-  },
   SEVN: {
     marketCounter: 7,
     marketAppId: 465814371,
@@ -408,10 +415,11 @@ for (const assetName of orderedAssets) {
   orderedOracleAppIds.push(assetDictionary[assetName]["oracleAppId"])
   orderedSupportedMarketAppIds.push(assetDictionary[assetName]["marketAppId"])
   marketCounterToAssetName[assetDictionary[assetName]["marketCounter"]] = assetName
-  assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
+  if (assetName != "vALGO") {
+    assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
+  }
   assetIdToAssetName[assetDictionary[assetName]["bankAssetId"]] = "b" + assetName
 }
-orderedSupportedMarketAppIds.push(465814318)
 console.log("orderedSupportedMarketAppIds=", orderedSupportedMarketAppIds)
 for (const assetName of extraAssets) {
   assetIdToAssetName[assetDictionary[assetName]["underlyingAssetId"]] = assetName
