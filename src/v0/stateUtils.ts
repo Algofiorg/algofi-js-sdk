@@ -590,13 +590,19 @@ export async function updateGlobalUserTotals(
   }
 
   for (const assetName of activeMarkets) {
-    userResults["borrowUSD"] += userResults[assetName]["borrowUSD"]
     userResults["collateralUSD"] += userResults[assetName]["collateralUSD"]
     userResults["maxBorrowUSD"] += userResults[assetName]["maxBorrowUSD"]
+    if (assetName == "vALGO") {
+      continue
+    }
+    userResults["borrowUSD"] += userResults[assetName]["borrowUSD"]
     userResults["unrealized_rewards"] += userResults[assetName]["market_unrealized_rewards"]
   }
 
   for (const assetName of activeMarkets) {
+    if (assetName == "vALGO") {
+      continue
+    }
     userResults["portfolio_reward_rate_per_1000USD"] +=
       (globalResults[assetName]["reward_rate_per_1000USD"] *
         (userResults[assetName]["borrowUSD"] + userResults[assetName]["collateralUSD"])) /
