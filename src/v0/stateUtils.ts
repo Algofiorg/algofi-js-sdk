@@ -505,12 +505,12 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
 
   for (let i = 0; i < orderedAssets.length; i++) {
     const assetName = orderedAssets[i]
+    if (assetName != "STBL") {
+      globalResults["underlying_supplied_extrapolatedUSD"] +=
+        globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
+    }
+    globalResults["active_collateral_extrapolatedUSD"] += globalResults[assetName]["active_collateral_extrapolatedUSD"]
     if (assetName != "vALGO") { // do not include vALGO
-      if (assetName != "STBL") {
-        globalResults["underlying_supplied_extrapolatedUSD"] +=
-          globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
-      }
-      globalResults["active_collateral_extrapolatedUSD"] += globalResults[assetName]["active_collateral_extrapolatedUSD"]
       globalResults["underlying_borrowed_extrapolatedUSD"] +=
         globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
       if (rewards_active) {
