@@ -129,6 +129,17 @@ export const assetDictionary = {
     bankAssetId: 641501566,
     oracleAppId: 451327550
   },
+  "OPUL-STAKE": {
+    decimals: 10,
+    managerAppId: 674527132,
+    managerAddress: "BGTIGJPGYEGZZHLB7U6XFDYWEXBRJ6NAGR4GNVDFBSMTKCAUB43XBDLPUI",
+    marketAppId: 674526408,
+    marketAddress: "Q5UIL7OEKOJEHLACM5QFZYURYNXQ46SSEDTH4KQRTZFY63XBIKXMD6F3NQ",
+    underlyingAssetId: 287867876,
+    bankAssetId: 674529164,
+    oracleAppId: 451327550
+  },
+
   "TM-STBL-ALGO-LP": {
     decimals: 6,
     managerAppId: 514458901,
