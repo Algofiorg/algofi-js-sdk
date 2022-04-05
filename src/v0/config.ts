@@ -137,7 +137,7 @@ export const assetDictionary = {
     marketAddress: "Q5UIL7OEKOJEHLACM5QFZYURYNXQ46SSEDTH4KQRTZFY63XBIKXMD6F3NQ",
     underlyingAssetId: 287867876,
     bankAssetId: 674529164,
-    oracleAppId: 451327550
+    oracleAppId: 692392304
   },
 
   "TM-STBL-ALGO-LP": {
