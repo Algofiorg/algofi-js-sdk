@@ -5,6 +5,7 @@ import {
   getStorageAddress,
   getPriceInfo,
   getBalanceInfo,
+  getBalanceInfoFromAccountInfo,
   getGlobalManagerInfo,
   getGlobalMarketInfo,
   getUserManagerData,
@@ -1005,7 +1006,7 @@ export async function getUserAndProtocolData(algodClient: Algodv2, address: stri
     }
   }
   // get balances
-  let balances = await getBalanceInfo(algodClient, address)
+  let balances = await getBalanceInfoFromAccountInfo(accountInfo)
   // get prices
   let prices = await getPriceInfo(algodClient)
   globalResults["manager"] = {}

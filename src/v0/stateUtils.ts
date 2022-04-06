@@ -83,6 +83,81 @@ export async function getPriceInfo(algodClient: Algodv2): Promise<{}> {
 }
 
 /**
+ * Get balance info from and accountInformation object
+ *
+ * @param   {AccountInformation}           accountInfo
+ *
+ * @return  {dict<string,int>}  balanceInfo   - dictionary of asset names to balances
+ */
+export async function getBalanceInfoFromAccountInfo(accountInfo: any): Promise<{}> {
+  let balanceInfo = {}
+  balanceInfo["ALGO"] = accountInfo["amount"]
+
+  for (const assetName of orderedAssets) {
+    if (assetName != "ALGO") {
+      balanceInfo[assetName] = 0
+    }
+    balanceInfo["b" + assetName] = 0
+  }
+  for (const asset of accountInfo.assets) {
+    for (const assetName of orderedAssets) {
+      if (assetName != "ALGO" && asset["asset-id"] === assetDictionary[assetName]["underlyingAssetId"]) {
+        balanceInfo[assetName] = Number(asset["amount"])
+      } else if (asset["asset-id"] === assetDictionary[assetName]["bankAssetId"]) {
+        balanceInfo["b" + assetName] = Number(asset["amount"])
+      }
+    }
+    if (asset["asset-id"] == 468634109) {
+      balanceInfo["TM-STBL-ALGO-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 467020179) {
+      balanceInfo["TM-STBL-USDC-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 552737686) {
+      balanceInfo["TM-STBL-USDC-LP-V2"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 468695586) {
+      balanceInfo["TM-STBL-YLDY-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 607645566) {
+      balanceInfo["AF-STBL-ALGO-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 658337286) {
+      balanceInfo["AF-STBL-USDC-NANO-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 659678778) {
+      balanceInfo["AF-USDT-USDC-NANO-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 659677515) {
+      balanceInfo["AF-STBL-USDT-NANO-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 609172718) {
+      balanceInfo["AF-STBL-USDC-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 635256863) {
+      balanceInfo["AF-XET-STBL-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 647801343) {
+      balanceInfo["AF-ZONE-STBL-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 624956449) {
+      balanceInfo["AF-DEFLY-STBL-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 635846733) {
+      balanceInfo["AF-goBTC-STBL-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 635854339) {
+      balanceInfo["AF-goETH-STBL-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 637802380) {
+      balanceInfo["AF-OPUL-STBL-LP"] = Number(asset["amount"])
+    }
+  }
+
+  return balanceInfo
+}
+
+/**
  * Get balance info for a given address
  *
  * @param   {Algodv2}           algodClient
