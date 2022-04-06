@@ -170,10 +170,6 @@ export async function getGlobalManagerInfo(algodClient: Algodv2, stakeAsset: str
   let response = await algodClient.getApplicationByID(assetDictionary[stakeAsset]["managerAppId"]).do()
   let results = {}
 
-  // get manager balance
-  //
-  const managerBalances = await getBalanceInfo(algodClient, managerAddress)
-
   response.params["global-state"].forEach(x => {
     let decodedKey = Base64Encoder.decode(x.key)
 
@@ -185,12 +181,10 @@ export async function getGlobalManagerInfo(algodClient: Algodv2, stakeAsset: str
     } else if (decodedKey === managerStrings.rewards_asset_id) {
       results[decodedKey] = x.value.uint
       results["rewards_asset"] = assetIdToAssetName[x.value.uint]
-      results["rewards_asset_balance"] = managerBalances[results["rewards_asset"]]
     } else if (decodedKey === managerStrings.rewards_secondary_asset_id) {
       results[decodedKey] = x.value.uint
       if (x.value.uint && assetIdToAssetName[x.value.uint]) {
         results["rewards_secondary_asset"] = assetIdToAssetName[x.value.uint]
-        results["rewards_secondary_asset_balance"] = managerBalances[results["rewards_secondary_asset"]]
       } else if (x.value.uint) {
         // the ALGOFI protocol will only ever support one unexpected rewards symbol -- BANK
         results["rewards_secondary_asset"] = "BANK"
