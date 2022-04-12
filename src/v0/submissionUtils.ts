@@ -428,3 +428,40 @@ export async function buildUserTransaction(
 
   return txns
 }
+
+export async function buildOptOutTransaction(
+    algodClient,
+    senderAccount,
+    stoarageAccount,
+    optOutManagerAppId,
+    managerAppId
+  ): Promise<Transaction[]> {
+    const enc = new TextEncoder()
+    const params = await getParams(algodClient)
+    
+    params.fee = 2000
+    const txn0 = algosdk.makeApplicationNoOpTxnFromObject({
+      from: senderAccount,
+      appIndex: optOutManagerAppId,
+      appArgs: [enc.encode("oo")],
+      foreignApps: [managerAppId],
+      foreignAssets: [],
+      accounts: [stoarageAccount],
+      suggestedParams: params,
+      rekeyTo: undefined
+    })
+  
+    params.fee = 1000
+    const txn1 = algosdk.makeApplicationClearStateTxnFromObject({
+      from: senderAccount,
+      appIndex: managerAppId,
+      suggestedParams: params,
+      appArgs: [],
+      foreignApps: [],
+      foreignAssets: [],
+      accounts: [],
+      rekeyTo: undefined
+    })
+    
+    return [txn0, txn1]
+  }

@@ -1,5 +1,5 @@
 import algosdk, { Algodv2, Transaction } from "algosdk"
-import { getParams, waitForConfirmation, buildUserTransaction, getLeadingTxs } from "./submissionUtils"
+import { getParams, waitForConfirmation, buildUserTransaction, getLeadingTxs, buildOptOutTransaction } from "./submissionUtils"
 export { getParams, waitForConfirmation }
 import {
   getStorageAddress,
