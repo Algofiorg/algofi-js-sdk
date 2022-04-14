@@ -1145,7 +1145,7 @@ export async function getCurrentSuperStakingAPR(depegValue: number): Promise<num
     if (depegValue < superStakingOrder2Rate) {
       rate += superStakingOrder2Rate
     }
-    return rate
+    return rate / 1e6
   }
   return 0
 }
