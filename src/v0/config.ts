@@ -119,6 +119,9 @@ export const assetDictionary = {
     oracleAppId: 451327550,
     oracleFieldName: "price"
   },
+  "STBL-SUPER-STAKE": { // TODO
+    // TODO
+  },
   "DEFLY-STAKE": {
     decimals: 6,
     managerAppId: 641500474,
