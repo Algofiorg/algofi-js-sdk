@@ -117,4 +117,22 @@ export const managerStrings = {
     user_pending_rewards : "upr",
     user_secondary_pending_rewards : "us",
     counter_to_user_rewards_coefficient_initial : "_uc",
+    // super staking variables
+    prev_super_staking_rewards_rate : "pssrr",
+    super_staking_rewards_rate : "ssrr",
+    super_staking_time_delta : "sstd",
+
+    super_staking_active : "ssa",
+    depeg_value_pusher : "dvp",
+    depeg_value : "dv",
+    super_staking_base_rate : "mssr",
+    super_staking_order_1_rate : "sso1r",
+    super_staking_order_2_rate : "sso2r",
+    super_staking_order_1_rate_cutoff : "sso1rc",
+    super_staking_order_2_rate_cutoff : "sso2rc",
+
+    // super staking funs
+    set_depeg_value_pusher : "sdvp",
+    set_super_staking_parameters : "sssp",
+    update_depeg_value : "udv",
 }
