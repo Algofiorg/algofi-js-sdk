@@ -1123,3 +1123,29 @@ export async function getInnerTransactionList(algodClient: Algodv2, txId: string
   }
   return innerTxnsList
 }
+
+export async function getCurrentSuperStakingAPR(depegValue: number): Promise<number> {
+  // # super staking
+  const globalManagerData = await getGlobalManagerInfo(this.client, "STBL-SUPER-STAKE");
+  const superStakingActive = globalManagerData[managerStrings["super_staking_active"]]
+  const superStakingBaseRate = globalManagerData[managerStrings["super_staking_base_rate"]]
+  const superStakingOrder1Rate = globalManagerData[managerStrings["super_staking_order_1_rate"]]
+  const superStakingOrder2Rate = globalManagerData[managerStrings["super_staking_order_2_rate"]]
+  const superStakingOrder1RateCutoff = globalManagerData[managerStrings["super_staking_order_1_rate_cutoff"]]
+  const superStakingOrder2RateCutoff = globalManagerData[managerStrings["super_staking_order_2_rate_cutoff"]]
+  
+  const superStakingRewardsRateTerm1 = (superStakingOrder1RateCutoff - depegValue) * superStakingOrder1Rate / superStakingOrder1RateCutoff
+  const superStakingRewardsRateTerm2 = (superStakingOrder2RateCutoff - depegValue) * superStakingOrder2Rate / superStakingOrder2RateCutoff
+  
+  if (superStakingActive) {
+    let rate = superStakingBaseRate 
+    if (depegValue < superStakingOrder1RateCutoff) {
+      rate += superStakingOrder1Rate
+    }
+    if (depegValue < superStakingOrder2Rate) {
+      rate += superStakingOrder2Rate
+    }
+    return rate / 1e6
+  }
+  return 0
+}
