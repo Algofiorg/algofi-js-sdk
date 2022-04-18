@@ -1126,19 +1126,21 @@ export async function getInnerTransactionList(algodClient: Algodv2, txId: string
 
 export async function getCurrentSuperStakingAPR(depegValue: number): Promise<number> {
   // # super staking
-  const globalManagerData = await getGlobalManagerInfo(this.client, "STBL-SUPER-STAKE");
+  const globalManagerData = await getGlobalManagerInfo(this.client, "STBL-SUPER-STAKE")
   const superStakingActive = globalManagerData[managerStrings["super_staking_active"]]
   const superStakingBaseRate = globalManagerData[managerStrings["super_staking_base_rate"]]
   const superStakingOrder1Rate = globalManagerData[managerStrings["super_staking_order_1_rate"]]
   const superStakingOrder2Rate = globalManagerData[managerStrings["super_staking_order_2_rate"]]
   const superStakingOrder1RateCutoff = globalManagerData[managerStrings["super_staking_order_1_rate_cutoff"]]
   const superStakingOrder2RateCutoff = globalManagerData[managerStrings["super_staking_order_2_rate_cutoff"]]
-  
-  const superStakingRewardsRateTerm1 = (superStakingOrder1RateCutoff - depegValue) * superStakingOrder1Rate / superStakingOrder1RateCutoff
-  const superStakingRewardsRateTerm2 = (superStakingOrder2RateCutoff - depegValue) * superStakingOrder2Rate / superStakingOrder2RateCutoff
-  
+
+  const superStakingRewardsRateTerm1 =
+    ((superStakingOrder1RateCutoff - depegValue) * superStakingOrder1Rate) / superStakingOrder1RateCutoff
+  const superStakingRewardsRateTerm2 =
+    ((superStakingOrder2RateCutoff - depegValue) * superStakingOrder2Rate) / superStakingOrder2RateCutoff
+
   if (superStakingActive) {
-    let rate = superStakingBaseRate 
+    let rate = superStakingBaseRate
     if (depegValue < superStakingOrder1RateCutoff) {
       rate += superStakingOrder1Rate
     }
