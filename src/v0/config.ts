@@ -26,6 +26,7 @@ export const orderedAssetsAndPlaceholders = [
   "AF-STBL-USDC-NANO-LP",
   "AF-USDT-USDC-NANO-LP",
   "AF-STBL-USDT-NANO-LP",
+  "AF-STBL-USDC-NANO-SUPER-STAKING-LP",
   "AF-XET-STBL-LP",
   "AF-DEFLY-STBL-LP",
   "AF-goETH-STBL-LP",
@@ -120,6 +121,10 @@ export const assetDictionary = {
     oracleAppId: 451327550,
     oracleFieldName: "price"
   },
+  "STBL-SUPER-STAKE": {
+    // TODO
+    // TODO
+  },
   "DEFLY-STAKE": {
     decimals: 6,
     managerAppId: 641500474,
@@ -130,6 +135,17 @@ export const assetDictionary = {
     bankAssetId: 641501566,
     oracleAppId: 451327550
   },
+  "OPUL-STAKE": {
+    decimals: 10,
+    managerAppId: 674527132,
+    managerAddress: "BGTIGJPGYEGZZHLB7U6XFDYWEXBRJ6NAGR4GNVDFBSMTKCAUB43XBDLPUI",
+    marketAppId: 674526408,
+    marketAddress: "Q5UIL7OEKOJEHLACM5QFZYURYNXQ46SSEDTH4KQRTZFY63XBIKXMD6F3NQ",
+    underlyingAssetId: 287867876,
+    bankAssetId: 674529164,
+    oracleAppId: 692392304
+  },
+
   "TM-STBL-ALGO-LP": {
     decimals: 6,
     managerAppId: 514458901,
@@ -332,7 +348,16 @@ export const assetDictionary = {
     marketAppId: 764406975,
     marketAddress: "72MNL4GKGI4WCV7RLIMTRA5VQHC3N4BD2N6PAX725S7RMSGL2QIWMLNDDQ",
     underlyingAssetId: 764421152,
-    bankAssetId: 764417281,
+    bankAssetId: 764417281
+  },
+  "AF-STBL-USDC-NANO-SUPER-STAKING-LP": {
+    creator: "IBHDINYAZIVZ2RPR5ZIS2C7LW2PF5LTH7AVI3HQBPY5TNM2JPSQDV4L46I",
+    managerAppId: 705663269,
+    managerAddress: "B4JTRV4PGUPFJJW4K3JP5SBQNHN2UJQ4GRSWY4VY7HRWRV7XPZULILB6RA",
+    marketAppId: 705657303,
+    marketAddress: "ZDLU6XXKVOIRJLXY6TLU5BAHLF6GM4MWFEDFJ6LYPES2HTNVGSKHKVU3VU",
+    underlyingAssetId: 658337286,
+    bankAssetId: 705667675,
     oracleAppId: 451327550,
     bankAssetDecimals: 6,
     oracleFieldName: "price"
