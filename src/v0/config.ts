@@ -29,7 +29,8 @@ export const orderedAssetsAndPlaceholders = [
   "AF-XET-STBL-LP",
   "AF-DEFLY-STBL-LP",
   "AF-goETH-STBL-LP",
-  "AF-goBTC-STBL-LP"
+  "AF-goBTC-STBL-LP",
+  "AF-GOMINT-STBL-LP"
 ]
 
 export const protocolManagerAppId = 465818260
@@ -319,6 +320,19 @@ export const assetDictionary = {
     marketAddress: "SX5YC2N2D657HCEZDQQPVMYB3PAHLFSFWXDQJS5GAGK4PYE3UD3TZTRWXA",
     underlyingAssetId: 637802380,
     bankAssetId: 637808564,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
+  },
+  "AF-GOMINT-STBL-LP": {
+    decimals: 6,
+    creator: "M73UCV45CSXEWGN5BDCXEMADZKORVNQTFZ2DBKSEN47XMATWRUUYALSNDA",
+    managerAppId: 764407972,
+    managerAddress: "EW4RNESYPQFSKK2CIQ4MUE76GHGB35X5LRXDFKYIOZX4RTFMO2KL5RQNGM",
+    marketAppId: 764406975,
+    marketAddress: "72MNL4GKGI4WCV7RLIMTRA5VQHC3N4BD2N6PAX725S7RMSGL2QIWMLNDDQ",
+    underlyingAssetId: 764421152,
+    bankAssetId: 764417281,
     oracleAppId: 451327550,
     bankAssetDecimals: 6,
     oracleFieldName: "price"
