@@ -424,6 +424,10 @@ export const assetDictionary = {
     decimals: 6,
     underlyingAssetId: 470842789
   },
+  GOMINT: {
+    decimals: 6,
+    underlyingAssetId: 441139422
+  },
   OPUL: {
     decimals: 10,
     underlyingAssetId: 287867876
