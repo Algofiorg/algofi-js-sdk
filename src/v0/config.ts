@@ -30,7 +30,8 @@ export const orderedAssetsAndPlaceholders = [
   "AF-XET-STBL-LP",
   "AF-DEFLY-STBL-LP",
   "AF-goETH-STBL-LP",
-  "AF-goBTC-STBL-LP"
+  "AF-goBTC-STBL-LP",
+  "AF-GOMINT-STBL-LP"
 ]
 
 export const protocolManagerAppId = 465818260
@@ -339,6 +340,19 @@ export const assetDictionary = {
     bankAssetDecimals: 6,
     oracleFieldName: "price"
   },
+  "AF-GOMINT-STBL-LP": {
+    decimals: 6,
+    creator: "M73UCV45CSXEWGN5BDCXEMADZKORVNQTFZ2DBKSEN47XMATWRUUYALSNDA",
+    managerAppId: 764407972,
+    managerAddress: "EW4RNESYPQFSKK2CIQ4MUE76GHGB35X5LRXDFKYIOZX4RTFMO2KL5RQNGM",
+    marketAppId: 764406975,
+    marketAddress: "72MNL4GKGI4WCV7RLIMTRA5VQHC3N4BD2N6PAX725S7RMSGL2QIWMLNDDQ",
+    underlyingAssetId: 764421152,
+    bankAssetId: 764417281,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
+  },
   "AF-STBL-USDC-NANO-SUPER-STAKING-LP": {
     creator: "IBHDINYAZIVZ2RPR5ZIS2C7LW2PF5LTH7AVI3HQBPY5TNM2JPSQDV4L46I",
     managerAppId: 705663269,
@@ -412,6 +426,10 @@ export const assetDictionary = {
   DEFLY: {
     decimals: 6,
     underlyingAssetId: 470842789
+  },
+  GOMINT: {
+    decimals: 6,
+    underlyingAssetId: 441139422
   },
   OPUL: {
     decimals: 10,

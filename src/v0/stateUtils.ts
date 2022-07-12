@@ -152,6 +152,9 @@ export async function getBalanceInfoFromAccountInfo(accountInfo: any): Promise<{
     if (asset["asset-id"] == 637802380) {
       balanceInfo["AF-OPUL-STBL-LP"] = Number(asset["amount"])
     }
+    if (asset["asset-id"] == 764421152) {
+      balanceInfo["AF-GOMINT-STBL-LP"] = Number(asset["amount"])
+    }
   }
 
   return balanceInfo
@@ -228,6 +231,9 @@ export async function getBalanceInfo(algodClient: Algodv2, address: string): Pro
     }
     if (asset["asset-id"] == 637802380) {
       balanceInfo["AF-OPUL-STBL-LP"] = Number(asset["amount"])
+    }
+    if (asset["asset-id"] == 764421152) {
+      balanceInfo["AF-GOMINT-STBL-LP"] = Number(asset["amount"])
     }
   }
 
@@ -579,7 +585,8 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
         globalResults[assetName]["underlying_supplied_extrapolatedUSD"]
     }
     globalResults["active_collateral_extrapolatedUSD"] += globalResults[assetName]["active_collateral_extrapolatedUSD"]
-    if (assetName != "vALGO") { // do not include vALGO
+    if (assetName != "vALGO") {
+      // do not include vALGO
       globalResults["underlying_borrowed_extrapolatedUSD"] +=
         globalResults[assetName]["underlying_borrowed_extrapolatedUSD"]
       if (rewards_active) {
@@ -602,7 +609,8 @@ export async function updateGlobalTotals(globalResults: {}): Promise<void> {
   let marketWeightedTvl = 0
   for (let i = 0; i < orderedAssets.length; i++) {
     const assetName = orderedAssets[i]
-    if (assetName != "vALGO") { // do not include vALGO
+    if (assetName != "vALGO") {
+      // do not include vALGO
       if (rewards_active) {
         marketTvl =
           globalResults[assetName]["active_collateral_extrapolatedUSD"] +
