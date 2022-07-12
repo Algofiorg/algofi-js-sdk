@@ -348,7 +348,10 @@ export const assetDictionary = {
     marketAppId: 764406975,
     marketAddress: "72MNL4GKGI4WCV7RLIMTRA5VQHC3N4BD2N6PAX725S7RMSGL2QIWMLNDDQ",
     underlyingAssetId: 764421152,
-    bankAssetId: 764417281
+    bankAssetId: 764417281,
+    oracleAppId: 451327550,
+    bankAssetDecimals: 6,
+    oracleFieldName: "price"
   },
   "AF-STBL-USDC-NANO-SUPER-STAKING-LP": {
     creator: "IBHDINYAZIVZ2RPR5ZIS2C7LW2PF5LTH7AVI3HQBPY5TNM2JPSQDV4L46I",
